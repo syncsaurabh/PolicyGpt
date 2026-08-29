@@ -1,0 +1,53 @@
+.unauth-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.unauth-card {
+  background: var(--bg-card);
+  border: 1px solid var(--danger);
+  border-radius: 12px;
+  padding: 48px 32px;
+  max-width: 450px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(220, 38, 38, 0.05);
+}
+
+.warning-icon {
+  color: var(--danger);
+  margin-bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.unauth-card h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0 0 12px 0;
+}
+
+.unauth-card p {
+  color: var(--text-muted);
+  line-height: 1.6;
+  font-size: 0.95rem;
+  margin: 0 0 32px 0;
+}
+
+.home-btn {
+  display: inline-block;
+  padding: 12px 24px;
+  background: var(--brand-blue);
+  color: white;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.home-btn:hover {
+  background: var(--brand-blue-dark);
+}

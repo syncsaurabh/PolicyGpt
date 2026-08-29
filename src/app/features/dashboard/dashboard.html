@@ -1,0 +1,91 @@
+<div class="dashboard-page">
+  <header class="page-header">
+    <h1>Welcome back, <span class="username">{{ auth.currentUser()?.username }}</span></h1>
+    <p class="subtitle">Here is what's happening with PolicyGPT today.</p>
+  </header>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon policies-icon"></div>
+      <div class="stat-info">
+        <span class="stat-value">148</span>
+        <span class="stat-label">Active Policies</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon schemes-icon"></div>
+      <div class="stat-info">
+        <span class="stat-value">3,420</span>
+        <span class="stat-label">Beneficiary Schemes</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon queries-icon"></div>
+      <div class="stat-info">
+        <span class="stat-value">12.5k</span>
+        <span class="stat-label">AI Queries Answered</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="role-workspace">
+    <div class="workspace-header">
+      <h2>Your Workspace: <span class="role-text">{{ auth.currentUser()?.role }}</span> Portal</h2>
+      <span class="status-indicator">Online</span>
+    </div>
+
+    <div class="workspace-content">
+      @switch (auth.currentUser()?.role) {
+        @case ('Administrator') {
+          <div class="workspace-card">
+            <h3>Administrative Actions</h3>
+            <p>Monitor system health, check user registration records, and audit raw query histories.</p>
+            <div class="action-buttons">
+              <button class="primary-btn">Configure Policy Parsers</button>
+              <button class="secondary-btn">Review Logs</button>
+            </div>
+          </div>
+        }
+        @case ('Government Official') {
+          <div class="workspace-card">
+            <h3>Approval Queue</h3>
+            <p>Review newly uploaded eligibility schemes, draft amendments, and sign off on citizen benefits criteria.</p>
+            <div class="action-buttons">
+              <button class="primary-btn">Open Approval Feed</button>
+              <button class="secondary-btn">Publish Announcement</button>
+            </div>
+          </div>
+        }
+        @case ('Citizen') {
+          <div class="workspace-card">
+            <h3>Benefit Recommendations</h3>
+            <p>Discover government aid programs matching your profile parameters. Run eligibility tests instantly.</p>
+            <div class="action-buttons">
+              <button class="primary-btn">Start Eligibility Run</button>
+              <button class="secondary-btn">Browse Categories</button>
+            </div>
+          </div>
+        }
+        @case ('Researcher') {
+          <div class="workspace-card">
+            <h3>Data Analytics</h3>
+            <p>Cross-analyze matching ratios across regions and compare structural differences between different policies.</p>
+            <div class="action-buttons">
+              <button class="primary-btn">Compare Document Diffs</button>
+              <button class="secondary-btn">Download CSV Report</button>
+            </div>
+          </div>
+        }
+        @default {
+          <div class="workspace-card">
+            <h3>Explore PolicyGPT</h3>
+            <p>Read standard government publication directories and compare general rules using AI.</p>
+            <div class="action-buttons">
+              <button class="primary-btn">Browse Directory</button>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  </section>
+</div>

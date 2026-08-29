@@ -1,0 +1,20 @@
+<aside class="sidebar-nav">
+  <div class="nav-section-title">Navigation</div>
+  <nav class="nav-links">
+    @for (item of filteredNavItems; track item.path) {
+      <a 
+        [routerLink]="item.path" 
+        routerLinkActive="active" 
+        class="nav-link"
+      >
+        <span class="nav-icon"></span>
+        <span class="nav-label">{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+  
+  <div class="sidebar-footer">
+    <div class="footer-label">Logged in as:</div>
+    <div class="footer-role">{{ auth.currentUser()?.role || 'Guest' }}</div>
+  </div>
+</aside>

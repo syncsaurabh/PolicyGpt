@@ -1,0 +1,84 @@
+.feature-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.feature-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0 0 6px 0;
+}
+
+.feature-header p {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.table-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.admin-table th {
+  background: var(--bg-page);
+  color: var(--text-main);
+  font-weight: 700;
+  padding: 16px 24px;
+  font-size: 0.95rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.admin-table td {
+  padding: 16px 24px;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.user-name {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.role-chip {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.role-chip.admin {
+  background: rgba(42, 67, 101, 0.08);
+  color: var(--brand-blue);
+}
+
+.role-chip.gov {
+  background: rgba(37, 99, 235, 0.08);
+  color: var(--info);
+}
+
+.role-chip.citizen {
+  background: rgba(22, 163, 74, 0.08);
+  color: var(--success);
+}
+
+.status.active {
+  color: var(--success);
+  font-weight: 600;
+}

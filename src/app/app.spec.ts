@@ -15,10 +15,9 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render title', async () => {
+  it('should have title signal', () => {
     const fixture = TestBed.createComponent(App);
-    await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, policy-gpt-frontend');
+    const app = fixture.componentInstance;
+    expect(app['title']()).toEqual('policy-gpt-frontend');
   });
 });

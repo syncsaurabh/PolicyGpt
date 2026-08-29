@@ -1,0 +1,24 @@
+<header class="navbar-header">
+  <div class="logo-container">
+    <div class="logo-icon">P</div>
+    <span class="logo-text">Policy<span class="highlight">GPT</span></span>
+  </div>
+
+  <div class="user-controls">
+    @if (auth.currentUser(); as user) {
+      <div class="profile-chip">
+        <div class="avatar">{{ user.username.substring(0, 1).toUpperCase() }}</div>
+        <div class="user-meta">
+          <span class="username">{{ user.username }}</span>
+          <span class="role-badge">{{ user.role }}</span>
+        </div>
+      </div>
+      <button class="logout-btn" (click)="logout()">
+        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor">
+          <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/>
+        </svg>
+        <span>Logout</span>
+      </button>
+    }
+  </div>
+</header>
