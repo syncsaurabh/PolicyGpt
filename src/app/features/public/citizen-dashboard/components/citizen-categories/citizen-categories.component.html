@@ -1,0 +1,23 @@
+<section class="categories-section" id="categories">
+  <div class="categories-container">
+    <div class="section-header text-center">
+      <h2 class="section-heading">Explore by Category</h2>
+    </div>
+
+    <div class="categories-grid">
+      @for (cat of categories; track cat.id) {
+        <div 
+          class="category-card" 
+          [class.selected]="selectedCategory() === cat.name"
+          (click)="onSelect(cat.name)"
+        >
+          <div class="category-icon-wrapper">
+            <span class="category-emoji">{{ cat.icon }}</span>
+          </div>
+          <h3 class="category-title">{{ cat.name }}</h3>
+          <p class="category-description">{{ cat.description }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>

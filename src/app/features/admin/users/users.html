@@ -1,4 +1,128 @@
-<app-coming-soon 
-  featureTitle="User Account Management" 
-  description="Administrative user access management, role assignments, and profile audit trails are currently under development.">
-</app-coming-soon>
+<div class="admin-users-page">
+  <header class="page-header">
+    <div class="header-content">
+      <h1>User Account Management &amp; Access Control</h1>
+      <p class="subtitle">Live FastAPI Integration · Role Based Access Control (RBAC)</p>
+    </div>
+  </header>
+
+  @if (errorMessage) {
+    <div class="alert alert-error" role="alert">
+      <span>{{ errorMessage }}</span>
+    </div>
+  }
+
+  @if (updateSuccess) {
+    <div class="alert alert-success" role="status">
+      <span>Profile successfully updated in database!</span>
+    </div>
+  }
+
+  <div class="admin-grid">
+    <!-- User Profile Card -->
+    <section class="card profile-card">
+      <div class="card-header">
+        <h2>Active User Profile (GET /api/v1/users/me)</h2>
+        @if (currentProfile?.is_active) {
+          <span class="badge badge-active">Active</span>
+        }
+      </div>
+
+      <div class="card-body">
+        @if (loading) {
+          <div class="loading-state">Loading user profile from backend...</div>
+        } @else if (currentProfile) {
+          <div class="profile-details-grid">
+            <div class="detail-item">
+              <span class="detail-label">User ID</span>
+              <span class="detail-value font-mono">#{{ currentProfile.id }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">System Role</span>
+              <span class="badge badge-role">{{ currentProfile.role }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Email Address</span>
+              <span class="detail-value">{{ currentProfile.email }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Account Created</span>
+              <span class="detail-value">{{ currentProfile.created_at ? currentProfile.created_at.substring(0, 10) : '' }}</span>
+            </div>
+          </div>
+
+          <!-- Edit Profile Name Form (PUT /api/v1/users/me) -->
+          <div class="edit-section">
+            <label class="detail-label" for="edit-name-input">Update Display Name (PUT /api/v1/users/me)</label>
+            <div class="input-action-row">
+              <input 
+                id="edit-name-input" 
+                type="text" 
+                class="form-input" 
+                [(ngModel)]="editName" 
+                placeholder="Enter new full name" 
+              />
+              <button 
+                class="btn-primary" 
+                (click)="saveProfileName()" 
+                [disabled]="isUpdating || !editName.trim()"
+              >
+                @if (isUpdating) { Saving... } @else { Save Name }
+              </button>
+            </div>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <p>No backend session active. Log in with an authenticated user.</p>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- RBAC Verification Card -->
+    <section class="card rbac-card">
+      <div class="card-header">
+        <h2>RBAC Endpoint Verification</h2>
+        <span class="badge badge-info">Security Check</span>
+      </div>
+
+      <div class="card-body">
+        <p class="section-description">
+          Execute role-protected backend endpoints to confirm FastAPI authorization enforcement:
+        </p>
+
+        <div class="rbac-actions">
+          <div class="rbac-action-card">
+            <div class="action-info">
+              <div class="endpoint-tag">GET /api/v1/users/admin/test</div>
+              <p class="endpoint-desc">Requires <strong>ADMINISTRATOR</strong> authority.</p>
+            </div>
+            <button class="btn-secondary" (click)="runAdminRbacTest()">
+              Test Admin Access
+            </button>
+            @if (adminTestResult) {
+              <div class="result-badge" [class.result-success]="adminTestResult.includes('200')" [class.result-error]="adminTestResult.includes('denied')">
+                {{ adminTestResult }}
+              </div>
+            }
+          </div>
+
+          <div class="rbac-action-card">
+            <div class="action-info">
+              <div class="endpoint-tag">GET /api/v1/users/government/test</div>
+              <p class="endpoint-desc">Requires <strong>GOVERNMENT_OFFICIAL</strong> authority.</p>
+            </div>
+            <button class="btn-secondary" (click)="runGovtRbacTest()">
+              Test Gov Access
+            </button>
+            @if (govtTestResult) {
+              <div class="result-badge" [class.result-success]="govtTestResult.includes('200')" [class.result-error]="govtTestResult.includes('denied')">
+                {{ govtTestResult }}
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

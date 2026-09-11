@@ -1,0 +1,81 @@
+<section class="schemes-section" id="popular-schemes">
+  <div class="schemes-container">
+    <div class="section-header text-center">
+      <h2 class="section-heading">Popular Government Schemes</h2>
+      @if (selectedCategory()) {
+        <p class="filter-indicator">
+          Filtering by: <strong>{{ selectedCategory() }}</strong>
+          <button type="button" class="reset-filter-btn" (click)="onReset()">(Show All)</button>
+        </p>
+      }
+    </div>
+
+    <div class="schemes-grid">
+      @for (scheme of filteredSchemes(); track scheme.id) {
+        <div class="scheme-card">
+          <div class="scheme-card-header">
+            <span class="scheme-badge">{{ scheme.category }}</span>
+            <button 
+              type="button" 
+              class="bookmark-btn" 
+              [class.bookmarked]="scheme.bookmarked"
+              (click)="toggleBookmark(scheme.id)"
+              [title]="scheme.bookmarked ? 'Remove bookmark' : 'Bookmark scheme'"
+            >
+              <span class="material-symbols-outlined">
+                {{ scheme.bookmarked ? 'bookmark' : 'bookmark_add' }}
+              </span>
+            </button>
+          </div>
+
+          <h3 class="scheme-title">{{ scheme.title }}</h3>
+          <p class="scheme-tagline">{{ scheme.tagline }}</p>
+          <p class="scheme-description">{{ scheme.description }}</p>
+
+          <div class="scheme-card-footer">
+            <button type="button" class="btn-view-details" (click)="viewDetails(scheme)">
+              View Details
+              <span class="material-symbols-outlined arrow-icon">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <div class="no-schemes-message">
+          <p>No schemes matched your search or filter.</p>
+          <button type="button" class="btn-reset" (click)="onReset()">
+            Clear Filters
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Details Modal -->
+@if (activeSchemeModal(); as selectedScheme) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <span class="scheme-badge">{{ selectedScheme.category }}</span>
+        <button type="button" class="modal-close-btn" (click)="closeModal()">✕</button>
+      </div>
+      <h3 class="modal-title">{{ selectedScheme.title }}</h3>
+      <p class="modal-tagline">{{ selectedScheme.tagline }}</p>
+      <div class="modal-body">
+        <p>{{ selectedScheme.description }}</p>
+        <div class="modal-info-block">
+          <h4>Quick Eligibility Summary:</h4>
+          <ul>
+            <li>Open to eligible Indian citizens meeting department criteria.</li>
+            <li>Direct benefit transfers and online application via state &amp; central portals.</li>
+            <li>Aadhaar authentication and valid income/land record verification required.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a routerLink="/login" class="btn-apply-modal">Apply / Check Full Eligibility</a>
+        <button type="button" class="btn-close-modal" (click)="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+}

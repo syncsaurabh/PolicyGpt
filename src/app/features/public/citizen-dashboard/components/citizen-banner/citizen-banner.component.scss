@@ -1,0 +1,74 @@
+$primary: #1e3a8a;
+$primary-hover: #172d6d;
+$on-background: #0b1c30;
+$on-surface-variant: #444651;
+$banner-bg: #f0f4f8;
+
+.bottom-banner-section {
+  padding: 64px 20px;
+  max-width: 1280px;
+  margin: 0 auto;
+
+  @media (min-width: 1024px) {
+    padding: 64px 80px;
+  }
+
+  .banner-box {
+    background-color: $banner-bg;
+    border-radius: 12px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    max-width: 1024px;
+    margin: 0 auto;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+    }
+
+    .banner-text {
+      max-width: 672px;
+
+      .banner-title {
+        font-family: 'Hanken Grotesk', sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+        color: $on-background;
+        margin: 0 0 8px;
+      }
+
+      .banner-subtitle {
+        font-size: 14px;
+        color: $on-surface-variant;
+        margin: 0;
+      }
+    }
+
+    .btn-explore-policies {
+      background-color: $primary;
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: $primary-hover;
+      }
+
+      .arrow-icon {
+        font-size: 18px;
+      }
+    }
+  }
+}

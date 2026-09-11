@@ -6,12 +6,18 @@ import { roleGuard } from './core/guards/role-guard';
 import { Role } from './models/role.model';
 
 export const routes: Routes = [
-    // 1. Public Auth routes (inside AuthLayoutComponent)
+    // 1. Public Citizen Dashboard route (accessible without login)
     {
         path: '',
-        redirectTo: 'login',
+        redirectTo: 'citizen',
         pathMatch: 'full'
     },
+    {
+        path: 'citizen',
+        loadComponent: () => import('./features/public/citizen-dashboard/citizen-dashboard.component').then((m) => m.CitizenDashboardComponent)
+    },
+
+    // 2. Public Auth routes (inside AuthLayoutComponent)
     {
 
 

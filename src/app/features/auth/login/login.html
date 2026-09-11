@@ -1,37 +1,171 @@
-<div class="login-card">
-  <div class="login-header">
-    <div class="logo-icon">P</div>
-    <h2>Sign In to PolicyGPT</h2>
-    <p>Authentication Role Simulator</p>
-  </div>
+<div class="auth-page-wrapper">
+  <!-- Brand Header -->
+  <header class="brand-header">
+    <h1 class="brand-title">PolicyGPT</h1>
+    <p class="brand-subtitle">Government Policy &amp; Public Scheme Intelligence Platform</p>
+  </header>
 
-  <form (submit)="onSubmit(); $event.preventDefault()" class="login-form">
-    <div class="form-group">
-      <label for="username">Username / Identifier</label>
-      <input 
-        type="text" 
-        id="username" 
-        name="username" 
-        [(ngModel)]="username" 
-        placeholder="e.g. John Doe"
-        required
-      >
+  <!-- Login Card -->
+  <section class="auth-card">
+    <div class="auth-card-body">
+      <!-- Card Heading -->
+      <div class="card-heading">
+        <h2 class="card-title">Welcome Back</h2>
+        <p class="card-subtitle">Sign in to access PolicyGPT</p>
+      </div>
+
+      <!-- Optional Alerts -->
+      @if (errorMessage) {
+        <div class="form-error-alert" role="alert">
+          <svg class="alert-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+          </svg>
+          <span>{{ errorMessage }}</span>
+        </div>
+      }
+
+      @if (infoMessage) {
+        <div class="form-info-alert" role="status">
+          <svg class="alert-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+          </svg>
+          <span>{{ infoMessage }}</span>
+        </div>
+      }
+
+      @if (successMessage) {
+        <div class="form-success-alert" role="status">
+          <svg class="alert-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+          </svg>
+          <span>{{ successMessage }}</span>
+        </div>
+      }
+
+      <!-- Login Form -->
+      <form (submit)="onSubmit(); $event.preventDefault()" class="auth-form">
+        <!-- Email Input Group -->
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input 
+            class="form-input" 
+            id="email" 
+            name="email" 
+            type="email"
+            [(ngModel)]="email" 
+            placeholder="Enter your email address" 
+            required 
+          />
+        </div>
+
+        <!-- Password Input Group -->
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <div class="password-input-wrapper">
+            <input 
+              class="form-input password-input" 
+              id="password" 
+              name="password" 
+              [type]="showPassword ? 'text' : 'password'"
+              [(ngModel)]="password" 
+              placeholder="Enter your password" 
+              required 
+            />
+            <button 
+              type="button" 
+              class="password-toggle-btn" 
+              (click)="togglePassword()" 
+              [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+            >
+              @if (!showPassword) {
+                <svg class="eye-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              } @else {
+                <svg class="eye-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"></path>
+                </svg>
+              }
+            </button>
+          </div>
+        </div>
+
+        <!-- Role Simulator Selector -->
+        <!-- <div class="form-group">
+          <label class="form-label" for="role-select">Access Role (Simulator)</label>
+          <select 
+            class="form-select" 
+            id="role-select" 
+            name="roleSelect" 
+            [(ngModel)]="selectedRole"
+          >
+            @for (role of roles; track role) {
+              <option [value]="role">{{ role }}</option>
+            }
+          </select>
+          <span class="field-hint">Select a role view for testing access controls.</span>
+        </div> -->
+
+        <!-- Submit Button -->
+        <div class="form-action-group">
+          <button type="submit" class="btn-primary-auth" [disabled]="isSubmitting">
+            @if (isSubmitting) {
+              Signing In...
+            } @else {
+              Login
+            }
+          </button>
+        </div>
+
+        <!-- Auxiliary Actions (Remember Me & Forgot Password) -->
+        <div class="aux-actions">
+          <label class="remember-me-label">
+            <input 
+              type="checkbox" 
+              name="remember" 
+              class="remember-checkbox" 
+              [(ngModel)]="rememberMe" 
+            />
+            <span>Remember me</span>
+          </label>
+          <a routerLink="/forgot-password" class="link-forgot">Forgot Password?</a>
+        </div>
+
+        <!-- Security Badge -->
+        <div class="security-badge">
+          <svg class="security-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+          </svg>
+          <span>Your information is securely protected</span>
+        </div>
+
+        <!-- Register Link -->
+        <div class="register-prompt">
+          <span>Don't have an account? </span>
+          <a routerLink="/register" class="link-register">Register</a>
+        </div>
+      </form>
     </div>
 
-    <div class="form-group">
-      <label for="role-select">Select Simulation Role</label>
-      <select 
-        id="role-select" 
-        name="roleSelect" 
-        [(ngModel)]="selectedRole"
-      >
-        @for (role of roles; track role) {
-          <option [value]="role">{{ role }}</option>
-        }
-      </select>
-      <span class="field-hint">Simulate different user viewpoints instantly.</span>
-    </div>
+    <!-- Divider line -->
+    <hr class="card-divider" />
 
-    <button type="submit" class="login-submit-btn">Authorize & Proceed</button>
-  </form>
+    <!-- Government Official Section -->
+    <!-- <div class="official-section">
+      <h3 class="official-title">Government Official?</h3>
+      <button 
+        type="button" 
+        class="btn-official" 
+        (click)="loginAsGovernmentOfficial()"
+      >
+        Government Official Login
+      </button>
+    </div> -->
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <p>© 2026 PolicyGPT · Government Policy &amp; Public Scheme Intelligence Platform</p>
+  </footer>
 </div>

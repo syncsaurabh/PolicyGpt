@@ -1,0 +1,57 @@
+<header class="public-header">
+  <div class="header-container">
+    <div class="header-left">
+      <a routerLink="/citizen" class="logo-link">
+        <span class="logo-text">PolicyGPT</span>
+      </a>
+    </div>
+
+    <nav class="nav-links desktop-only" data-active-classes="active">
+      <a routerLink="/citizen" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-link" data-path="home">Home</a>
+      <a routerLink="/citizen" fragment="popular-schemes" class="nav-link" data-path="policies">Policies</a>
+      <a routerLink="/citizen" fragment="popular-schemes" class="nav-link" data-path="schemes">Schemes</a>
+      <a routerLink="/citizen" fragment="how-it-works" class="nav-link" data-path="about">About</a>
+      <a routerLink="/citizen" fragment="ai-assistant" class="nav-link" data-path="help">Help</a>
+      @if (auth.isAuthenticated()) {
+        <a routerLink="/dashboard" class="nav-link auth-dashboard-link" data-path="dashboard">Role Dashboard</a>
+      }
+    </nav>
+
+    <div class="header-actions">
+      <div class="auth-buttons desktop-only">
+        <a routerLink="/login" class="btn-login" data-path="login">Login</a>
+        <a routerLink="/register" class="btn-register" data-path="register">Register</a>
+      </div>
+
+      <button 
+        type="button" 
+        class="mobile-menu-btn" 
+        (click)="toggleMobileMenu()" 
+        [attr.aria-expanded]="mobileMenuOpen()"
+        aria-label="Toggle navigation menu"
+      >
+        <span class="material-symbols-outlined">
+          {{ mobileMenuOpen() ? 'close' : 'menu' }}
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Dropdown Navigation -->
+  @if (mobileMenuOpen()) {
+    <div class="mobile-nav">
+      <a routerLink="/citizen" (click)="closeMobileMenu()" class="mobile-nav-link" data-path="home">Home</a>
+      <a routerLink="/citizen" fragment="popular-schemes" (click)="closeMobileMenu()" class="mobile-nav-link" data-path="policies">Policies</a>
+      <a routerLink="/citizen" fragment="popular-schemes" (click)="closeMobileMenu()" class="mobile-nav-link" data-path="schemes">Schemes</a>
+      <a routerLink="/citizen" fragment="how-it-works" (click)="closeMobileMenu()" class="mobile-nav-link" data-path="about">About</a>
+      <a routerLink="/citizen" fragment="ai-assistant" (click)="closeMobileMenu()" class="mobile-nav-link" data-path="help">Help</a>
+      @if (auth.isAuthenticated()) {
+        <a routerLink="/dashboard" (click)="closeMobileMenu()" class="mobile-nav-link auth-dashboard-link">Role Dashboard</a>
+      }
+      <div class="mobile-auth-actions">
+        <a routerLink="/login" (click)="closeMobileMenu()" class="btn-login" data-path="login">Login</a>
+        <a routerLink="/register" (click)="closeMobileMenu()" class="btn-register" data-path="register">Register</a>
+      </div>
+    </div>
+  }
+</header>

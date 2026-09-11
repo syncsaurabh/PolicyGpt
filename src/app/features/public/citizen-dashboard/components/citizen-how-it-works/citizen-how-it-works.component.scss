@@ -1,0 +1,88 @@
+$surface-white: #ffffff;
+$on-background: #0b1c30;
+$on-surface: #0b1c30;
+$on-surface-variant: #444651;
+$outline-variant: #c5c5d3;
+
+.works-section {
+  padding: 64px 20px;
+  max-width: 1280px;
+  margin: 0 auto;
+
+  @media (min-width: 1024px) {
+    padding: 64px 80px;
+  }
+
+  .section-header {
+    margin-bottom: 40px;
+    text-align: center;
+
+    .section-heading {
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: 24px;
+      line-height: 32px;
+      font-weight: 600;
+      color: $on-background;
+      margin: 0;
+    }
+  }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 24px;
+    max-width: 1024px;
+    margin: 0 auto;
+
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .step-card {
+    background-color: $surface-white;
+    border-radius: 12px;
+    padding: 32px 24px;
+    border: 1px solid $outline-variant;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .step-number {
+      font-size: 14px;
+      font-weight: 700;
+      color: $on-background;
+      margin-bottom: 16px;
+    }
+
+    .step-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+
+      .step-icon {
+        font-size: 20px;
+        color: $on-surface;
+      }
+
+      .step-title {
+        font-family: 'Hanken Grotesk', sans-serif;
+        font-size: 18px;
+        font-weight: 600;
+        color: $on-background;
+        margin: 0;
+      }
+    }
+
+    .step-description {
+      font-size: 12px;
+      line-height: 18px;
+      color: $on-surface-variant;
+      margin: 0;
+      max-width: 200px;
+    }
+  }
+}

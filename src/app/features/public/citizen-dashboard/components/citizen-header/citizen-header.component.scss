@@ -1,0 +1,206 @@
+.public-header {
+  width: 100%;
+  background-color: #ffffff;
+  border-bottom: 1px solid #c5c5d3;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
+  .header-container {
+    height: 64px;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    @media (min-width: 1024px) {
+      padding: 0 80px;
+    }
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+
+    .logo-link {
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+
+      .logo-text {
+        font-family: 'Hanken Grotesk', 'Inter', sans-serif;
+        font-size: 24px;
+        line-height: 32px;
+        font-weight: 700;
+        color: #1e3a8a;
+        letter-spacing: -0.02em;
+      }
+    }
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+
+    .nav-link {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 500;
+      color: #0b1c30;
+      text-decoration: none;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: #1e3a8a;
+      }
+
+      &.active {
+        color: #1e3a8a;
+        font-weight: 700;
+      }
+
+      &.auth-dashboard-link {
+        color: #0058be;
+        font-weight: 600;
+        padding: 4px 10px;
+        background-color: #dce1ff;
+        border-radius: 4px;
+
+        &:hover {
+          background-color: #b6c4ff;
+        }
+      }
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    .auth-buttons {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      .btn-login {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        color: #1e3a8a;
+        padding: 6px 16px;
+        border: 1px solid #1e3a8a;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: #dce1ff;
+        }
+      }
+
+      .btn-register {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        background-color: #1e3a8a;
+        color: #ffffff;
+        padding: 6px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+        &:hover {
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          filter: brightness(1.1);
+        }
+      }
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #0b1c30;
+      padding: 6px;
+      border-radius: 4px;
+
+      @media (max-width: 768px) {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      &:hover {
+        background-color: #eff4ff;
+      }
+    }
+  }
+
+  .desktop-only {
+    @media (max-width: 768px) {
+      display: none !important;
+    }
+  }
+
+  .mobile-nav {
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    border-top: 1px solid #e5eeff;
+    padding: 16px 20px;
+    gap: 12px;
+
+    @media (min-width: 769px) {
+      display: none;
+    }
+
+    .mobile-nav-link {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: #0b1c30;
+      text-decoration: none;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f4f8;
+
+      &:hover {
+        color: #1e3a8a;
+      }
+    }
+
+    .mobile-auth-actions {
+      display: flex;
+      gap: 12px;
+      padding-top: 12px;
+
+      .btn-login, .btn-register {
+        flex: 1;
+        text-align: center;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+      }
+
+      .btn-login {
+        color: #1e3a8a;
+        border: 1px solid #1e3a8a;
+      }
+
+      .btn-register {
+        background-color: #1e3a8a;
+        color: #ffffff;
+      }
+    }
+  }
+}

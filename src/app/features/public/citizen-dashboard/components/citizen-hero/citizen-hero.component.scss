@@ -1,0 +1,129 @@
+$primary: #1e3a8a;
+$primary-fixed: #dce1ff;
+$surface-white: #ffffff;
+$on-background: #0b1c30;
+$on-surface-variant: #444651;
+$outline-variant: #c5c5d3;
+
+.hero-section {
+  padding: 64px 20px 48px;
+  max-width: 1280px;
+  margin: 0 auto;
+
+  @media (min-width: 1024px) {
+    padding: 64px 80px 48px;
+  }
+
+  .hero-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .hero-title {
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: 36px;
+    line-height: 44px;
+    font-weight: 700;
+    color: $on-background;
+    margin: 0 0 16px;
+    letter-spacing: -0.02em;
+
+    @media (max-width: 640px) {
+      font-size: 28px;
+      line-height: 36px;
+    }
+  }
+
+  .hero-subtitle {
+    font-size: 16px;
+    line-height: 24px;
+    color: $on-surface-variant;
+    margin: 0 0 40px;
+    max-width: 672px;
+  }
+
+  .search-bar-wrapper {
+    width: 100%;
+    max-width: 672px;
+    position: relative;
+    margin-bottom: 48px;
+
+    .search-icon-wrapper {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 16px;
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+      color: #757682;
+
+      .search-icon {
+        font-size: 20px;
+      }
+    }
+
+    .search-input {
+      width: 100%;
+      height: 48px;
+      background-color: $surface-white;
+      border: 1px solid $outline-variant;
+      border-radius: 8px;
+      padding: 12px 44px 12px 48px;
+      font-size: 14px;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: $primary;
+      }
+    }
+
+    .clear-search-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #757682;
+      cursor: pointer;
+      display: flex;
+    }
+  }
+
+  .quick-filters-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    max-width: 896px;
+
+    .filter-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 8px;
+      background-color: $surface-white;
+      border: 1px solid $outline-variant;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      color: $on-background;
+      transition: all 0.2s;
+
+      &:hover {
+        border-color: $primary;
+      }
+
+      &.active {
+        background-color: $primary-fixed;
+        border-color: $primary;
+      }
+    }
+  }
+}

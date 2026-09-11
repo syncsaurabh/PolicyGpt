@@ -1,0 +1,20 @@
+<section class="works-section" id="how-it-works">
+  <div class="works-container">
+    <div class="section-header text-center">
+      <h2 class="section-heading">How PolicyGPT Works</h2>
+    </div>
+
+    <div class="steps-grid">
+      @for (s of steps; track s.step) {
+        <div class="step-card">
+          <div class="step-number">{{ s.step }}</div>
+          <div class="step-title-row">
+            <span class="material-symbols-outlined step-icon">{{ s.icon }}</span>
+            <h3 class="step-title">{{ s.title }}</h3>
+          </div>
+          <p class="step-description">{{ s.description }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>

@@ -49,7 +49,7 @@ export class Sidebar {
       if (!item.roles || item.roles.length === 0) {
         return true;
       }
-      return item.roles.includes(user.role);
+      return this.auth.hasRole(item.roles);
     });
   }
 }

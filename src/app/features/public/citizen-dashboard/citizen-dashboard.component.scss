@@ -1,0 +1,36 @@
+$surface: #f8f9ff;
+$on-background: #0b1c30;
+$on-surface-variant: #444651;
+
+.citizen-dashboard-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: $surface;
+  color: $on-background;
+
+  .main-content {
+    flex: 1;
+  }
+}
+
+.breadcrumbs-bar {
+  padding-top: 16px;
+
+  .breadcrumbs-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 20px;
+
+    @media (min-width: 1024px) {
+      padding: 0 80px;
+    }
+  }
+
+  .breadcrumbs-text {
+    color: $on-surface-variant;
+    font-size: 12px;
+    font-weight: 500;
+    margin: 0;
+  }
+}

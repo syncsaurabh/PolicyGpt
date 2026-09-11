@@ -1,0 +1,87 @@
+<section class="assistant-cta-section" id="ai-assistant">
+  <div class="assistant-container text-center">
+    <h2 class="assistant-heading">Need help finding a scheme?</h2>
+    <p class="assistant-subheading">Ask PolicyGPT about government policies, schemes, eligibility and benefits</p>
+
+    <!-- Chat Container -->
+    <div class="assistant-card text-left">
+      <div class="assistant-header-row">
+        <div class="assistant-avatar">
+          <span class="bot-emoji">🤖</span>
+        </div>
+        <h3 class="assistant-box-title">PolicyGPT Assistant</h3>
+      </div>
+
+      <div class="assistant-input-row">
+        <div class="assistant-input-wrapper">
+          <input 
+            type="text" 
+            class="assistant-input" 
+            placeholder="Ask anything about government policies or schemes..."
+            [ngModel]="assistantQuery()"
+            (ngModelChange)="assistantQuery.set($event)"
+            (keydown.enter)="askAssistant()"
+            aria-label="Ask PolicyGPT AI Assistant"
+          >
+          <button 
+            type="button" 
+            class="assistant-send-icon-btn" 
+            (click)="askAssistant()"
+            aria-label="Send query"
+          >
+            <span class="material-symbols-outlined">send</span>
+          </button>
+          <button 
+            type="button" 
+            class="btn-ai-assistant" 
+            (click)="askAssistant()"
+          >
+            AI Assistant
+          </button>
+        </div>
+      </div>
+
+      <!-- Active answer or thinking indicator -->
+      @if (isAssistantThinking()) {
+        <div class="assistant-loading-box">
+          <span class="loading-dot"></span>
+          <span class="loading-dot"></span>
+          <span class="loading-dot"></span>
+          <span class="loading-text">Analyzing policies and scheme regulations...</span>
+        </div>
+      } @else if (assistantAnswer()) {
+        <div class="assistant-response-box">
+          <div class="response-content">
+            <strong>PolicyGPT Intelligence:</strong>
+            <p>{{ assistantAnswer() }}</p>
+          </div>
+          <button type="button" class="dismiss-answer-btn" (click)="dismissAnswer()">✕</button>
+        </div>
+      }
+
+      <div class="prompt-chips-row">
+        <button 
+          type="button" 
+          class="prompt-chip" 
+          (click)="askAssistant('Am I eligible for PM-KISAN?')"
+        >
+          Am I eligible for PM-KISAN?
+        </button>
+        <button 
+          type="button" 
+          class="prompt-chip" 
+          (click)="askAssistant('Find student scholarships')"
+        >
+          Find student scholarships
+        </button>
+        <button 
+          type="button" 
+          class="prompt-chip" 
+          (click)="askAssistant('Healthcare schemes for my family')"
+        >
+          Healthcare schemes for my family
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

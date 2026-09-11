@@ -1,0 +1,93 @@
+<section class="hero-section">
+  <div class="hero-container">
+    <h1 class="hero-title">
+      Understand Government Policies Easily
+    </h1>
+    <p class="hero-subtitle">
+      Find, compare and understand government policies and schemes easily
+    </p>
+
+    <!-- Main Search Bar -->
+    <div class="search-bar-wrapper">
+      <div class="search-icon-wrapper">
+        <span class="material-symbols-outlined search-icon">search</span>
+      </div>
+      <input 
+        type="text" 
+        class="search-input" 
+        placeholder="Search for policies, schemes or benefits..."
+        [ngModel]="searchQuery()" 
+        (ngModelChange)="onSearchInput($event)"
+        aria-label="Search for policies, schemes or benefits"
+      >
+      @if (searchQuery()) {
+        <button 
+          type="button" 
+          class="clear-search-btn" 
+          (click)="onSearchInput('')"
+          aria-label="Clear search"
+        >
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      }
+    </div>
+
+    <!-- Quick Filter Chips -->
+    <div class="quick-filters-row">
+      <button 
+        type="button"
+        class="filter-chip" 
+        [class.active]="selectedCategory() === 'Education'"
+        (click)="onFilterClick('Education')"
+      >
+        <span class="chip-emoji">🎓</span>
+        <span class="chip-label">Education</span>
+      </button>
+      <button 
+        type="button"
+        class="filter-chip" 
+        [class.active]="selectedCategory() === 'Employment'"
+        (click)="onFilterClick('Employment')"
+      >
+        <span class="chip-emoji">💼</span>
+        <span class="chip-label">Employment</span>
+      </button>
+      <button 
+        type="button"
+        class="filter-chip" 
+        [class.active]="selectedCategory() === 'Agriculture'"
+        (click)="onFilterClick('Agriculture')"
+      >
+        <span class="chip-emoji">🌾</span>
+        <span class="chip-label">Agriculture</span>
+      </button>
+      <button 
+        type="button"
+        class="filter-chip" 
+        [class.active]="selectedCategory() === 'Healthcare'"
+        (click)="onFilterClick('Healthcare')"
+      >
+        <span class="chip-emoji">🏥</span>
+        <span class="chip-label">Healthcare</span>
+      </button>
+      <button 
+        type="button"
+        class="filter-chip" 
+        [class.active]="selectedCategory() === 'Women'"
+        (click)="onFilterClick('Women')"
+      >
+        <span class="chip-emoji">👩</span>
+        <span class="chip-label">Women...</span>
+      </button>
+      <button 
+        type="button"
+        class="filter-chip" 
+        [class.active]="selectedCategory() === 'Housing'"
+        (click)="onFilterClick('Housing')"
+      >
+        <span class="chip-emoji">🏠</span>
+        <span class="chip-label">Housing</span>
+      </button>
+    </div>
+  </div>
+</section>

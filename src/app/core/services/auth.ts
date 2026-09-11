@@ -1,99 +1,75 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { AuthService } from './auth.service';
 import { Role } from '../../models/role.model';
 import { User } from '../../models/user.model';
+import { UserRole } from '../../models/user.models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class Auth {
-  private readonly STORAGE_KEY = 'policy_gpt_user';
+  private readonly authService = inject(AuthService);
 
-  // Reactively track the current user.
-  private readonly currentUserSignal = signal<User | null>(this.loadUserFromStorage());
+  readonly currentUser = this.authService.currentUser;
+  readonly authenticated = this.authService.authenticated;
 
-  // Expose readonly signal of the current user.
-  readonly currentUser = this.currentUserSignal.asReadonly();
-
-  // Expose a computed value for whether the user is authenticated.
-  readonly authenticated = computed(() => this.currentUserSignal() !== null);
-
-  constructor() {}
-
-  /**
-   * Check whether the user is authenticated.
-   */
   isAuthenticated(): boolean {
-    return this.authenticated();
+    return this.authService.isAuthenticated();
   }
 
-  /**
-   * Get the currently logged-in user.
-   */
   getCurrentUser(): User | null {
-    return this.currentUserSignal();
+    return this.authService.getCurrentUser();
   }
 
-  /**
-   * Get the authentication token (if any).
-   */
   getToken(): string | null {
-    const user = this.currentUserSignal();
-    return user?.token || null;
+    return this.authService.getToken();
   }
 
-  /**
-   * Simulate a login for frontend development and testing.
-   */
-  login(username: string, role: Role): boolean {
-    if (!username || !role) {
+  login(usernameOrEmail: string, role: Role | UserRole): boolean {
+    if (!usernameOrEmail || !role) {
+      return false;
+    }
+
+    const isEmail = usernameOrEmail.includes('@');
+    const username = isEmail ? usernameOrEmail.split('@')[0] : usernameOrEmail;
+    const email = isEmail ? usernameOrEmail : `${username.toLowerCase().replace(/\s+/g, '')}@example.com`;
+
+    const mockUser: User = {
+      id: Math.random().toString(36).substring(2, 9),
+      username: username,
+      email: email,
+      role: role,
+      token: `mock-jwt-token-for-${username.toLowerCase()}-${role.toString().toLowerCase().replace(/\s+/g, '-')}`
+    };
+
+    this.authService.setToken(mockUser.token!);
+    this.authService.setCurrentUser(mockUser);
+    return true;
+  }
+
+  register(name: string, email: string, role: Role | UserRole): boolean {
+    if (!name || !email || !role) {
       return false;
     }
 
     const mockUser: User = {
       id: Math.random().toString(36).substring(2, 9),
-      username: username,
-      email: `${username.toLowerCase().replace(/\s+/g, '')}@example.com`,
+      username: name,
+      email: email,
       role: role,
-      token: `mock-jwt-token-for-${username.toLowerCase()}-${role.toLowerCase().replace(/\s+/g, '-')}`
+      token: `mock-jwt-token-for-${name.toLowerCase().replace(/\s+/g, '-')}-${role.toString().toLowerCase().replace(/\s+/g, '-')}`
     };
 
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(mockUser));
-    this.currentUserSignal.set(mockUser);
+    this.authService.setToken(mockUser.token!);
+    this.authService.setCurrentUser(mockUser);
     return true;
   }
 
-  /**
-   * Terminate the session and clear credentials.
-   */
   logout(): void {
-    localStorage.removeItem(this.STORAGE_KEY);
-    this.currentUserSignal.set(null);
+    this.authService.logout(true);
   }
 
-  /**
-   * Checks if the user has permission based on a list of allowed roles.
-   */
-  hasRole(allowedRoles: Role[]): boolean {
-    const user = this.currentUserSignal();
-    if (!user) {
-      return false;
-    }
-    return allowedRoles.includes(user.role);
-  }
-
-  /**
-   * Helper to load stored credentials from localStorage.
-   */
-  private loadUserFromStorage(): User | null {
-    try {
-      const stored = localStorage.getItem(this.STORAGE_KEY);
-      if (stored) {
-        return JSON.parse(stored) as User;
-      }
-    } catch (e) {
-      console.error('Failed to parse stored user authentication state', e);
-      localStorage.removeItem(this.STORAGE_KEY);
-    }
-    return null;
+  hasRole(allowedRoles: (Role | UserRole | string)[]): boolean {
+    return this.authService.hasRole(allowedRoles);
   }
 }

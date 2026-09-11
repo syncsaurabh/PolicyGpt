@@ -1,13 +1,18 @@
 .auth-layout {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--bg-page);
+  background-color: #F8FAFC;
+  padding: 24px 16px;
+  box-sizing: border-box;
 }
 
 .auth-container {
   width: 100%;
-  max-width: 450px;
-  padding: 24px;
+  max-width: 540px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
