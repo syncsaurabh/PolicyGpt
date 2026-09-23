@@ -1,13 +1,67 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Auth } from '../../core/services/auth';
-import { Role } from '../../models/role.model';
+import { LayoutService } from '../../core/services/layout.service';
+import { normalizeRole } from '../../models/role.model';
 
-interface NavItem {
+export interface NavItem {
   label: string;
   path: string;
-  roles?: Role[];
+  icon: string;
 }
+
+/**
+ * Role-based navigation item configurations with corresponding menu icons.
+ */
+export const ROLE_SIDEBAR_CONFIG: Record<string, NavItem[]> = {
+  ADMINISTRATOR: [
+    { label: 'Dashboard', path: '/dashboard', icon: 'grid_view' },
+    { label: 'Policies', path: '/policies', icon: 'description' },
+    { label: 'Schemes', path: '/schemes', icon: 'account_balance' },
+    { label: 'Approvals Panel', path: '/approvals', icon: 'fact_check' },
+    { label: 'Reports', path: '/reports', icon: 'analytics' },
+    { label: 'Audit Logs', path: '/admin/audit-logs', icon: 'history' },
+    { label: 'Admin Users', path: '/admin/users', icon: 'manage_accounts' },
+    { label: 'Notifications', path: '/notifications', icon: 'notifications' },
+    { label: 'Feedback', path: '/feedback', icon: 'rate_review' },
+  ],
+  GOVERNMENT_OFFICIAL: [
+    { label: 'Dashboard', path: '/dashboard', icon: 'grid_view' },
+    { label: 'Policies', path: '/policies', icon: 'description' },
+    { label: 'Schemes', path: '/schemes', icon: 'account_balance' },
+    { label: 'Approvals', path: '/approvals', icon: 'fact_check' },
+    { label: 'Reports', path: '/reports', icon: 'analytics' },
+  ],
+  CITIZEN: [
+    { label: 'Dashboard', path: '/dashboard', icon: 'grid_view' },
+    // { label: 'Search', path: '/search', icon: 'search' },
+    { label: 'Policies', path: '/policies', icon: 'description' },
+    { label: 'Schemes', path: '/schemes', icon: 'account_balance' },
+    { label: 'Eligibility', path: '/eligibility', icon: 'task_alt' },
+    { label: 'Compare', path: '/compare', icon: 'compare_arrows' },
+    { label: 'Notifications', path: '/notifications', icon: 'notifications' },
+  ],
+  RESEARCHER: [
+    { label: 'Dashboard', path: '/dashboard', icon: 'grid_view' },
+    { label: 'Search', path: '/search', icon: 'search' },
+    { label: 'Policies', path: '/policies', icon: 'description' },
+    { label: 'Compare', path: '/compare', icon: 'compare_arrows' },
+    { label: 'Reports', path: '/reports', icon: 'analytics' },
+  ],
+  ORGANIZATION: [
+    { label: 'Dashboard', path: '/dashboard', icon: 'grid_view' },
+    { label: 'Policies', path: '/policies', icon: 'description' },
+    { label: 'Schemes', path: '/schemes', icon: 'account_balance' },
+    { label: 'Reports', path: '/reports', icon: 'analytics' },
+    { label: 'Feedback', path: '/feedback', icon: 'rate_review' },
+  ],
+};
+
+const DEFAULT_NAV_ITEMS: NavItem[] = [
+  { label: 'Dashboard', path: '/dashboard', icon: 'grid_view' },
+  { label: 'Policies', path: '/policies', icon: 'description' },
+  { label: 'Schemes', path: '/schemes', icon: 'account_balance' },
+];
 
 @Component({
   selector: 'app-sidebar',
@@ -18,38 +72,15 @@ interface NavItem {
 })
 export class Sidebar {
   protected readonly auth = inject(Auth);
+  protected readonly layoutService = inject(LayoutService);
 
-  // Full list of routes mapped to authorized roles.
-  // Routes without a 'roles' key are accessible to all authenticated users.
-  private readonly navItems: NavItem[] = [
-    { label: 'Dashboard', path: '/dashboard' },
-    { label: 'Policies', path: '/policies', roles: [Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL, Role.RESEARCHER] },
-    { label: 'Schemes', path: '/schemes', roles: [Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL, Role.CITIZEN] },
-    { label: 'Eligibility Check', path: '/eligibility', roles: [Role.CITIZEN] },
-    { label: 'Compare Schemes', path: '/compare', roles: [Role.CITIZEN, Role.RESEARCHER] },
-    { label: 'Notifications', path: '/notifications', roles: [Role.CITIZEN] },
-    { label: 'Approvals Panel', path: '/approvals', roles: [Role.GOVERNMENT_OFFICIAL] },
-    { label: 'Reports', path: '/reports', roles: [Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL, Role.RESEARCHER] },
-    { label: 'Admin Users', path: '/admin/users', roles: [Role.ADMINISTRATOR] },
-    { label: 'Audit Logs', path: '/admin/audit-logs', roles: [Role.ADMINISTRATOR] },
-    { label: 'Feedback', path: '/feedback' },
-  ];
-
-  /**
-   * Filtered list of links the current user has permission to see.
-   */
   get filteredNavItems(): NavItem[] {
     const user = this.auth.getCurrentUser();
-    if (!user) {
-      return [];
+    if (!user || !user.role) {
+      return DEFAULT_NAV_ITEMS;
     }
 
-    return this.navItems.filter(item => {
-      // If the route has no specific role restriction, show it to all authenticated users
-      if (!item.roles || item.roles.length === 0) {
-        return true;
-      }
-      return this.auth.hasRole(item.roles);
-    });
+    const normRole = normalizeRole(user.role);
+    return ROLE_SIDEBAR_CONFIG[normRole] || DEFAULT_NAV_ITEMS;
   }
 }

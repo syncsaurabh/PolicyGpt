@@ -1,4 +1,638 @@
-<app-coming-soon 
-  featureTitle="Pending Document Approvals" 
-  description="The approvals panel for reviewing and signing off on parsed schemes and AI summaries before publishing is currently under development.">
-</app-coming-soon>
+<!-- BEGIN: Toast Notifications -->
+@if (toast(); as currentToast) {
+  <div class="toast-notification" [ngClass]="'toast-' + currentToast.type">
+    <div class="toast-icon">
+      @if (currentToast.type === 'success') {
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M4.5 12.75l6 6 9-13.5" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      } @else if (currentToast.type === 'error') {
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      } @else {
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M12 8v4m0 4h.01"></path>
+        </svg>
+      }
+    </div>
+    <span class="toast-text">{{ currentToast.text }}</span>
+    <button class="toast-close" type="button" (click)="toast.set(null)">×</button>
+  </div>
+}
+<!-- END: Toast Notifications -->
+
+<div class="approvals-page">
+
+  <!-- ========================================================================= -->
+  <!-- VIEW 1: APPROVAL DASHBOARD & REVIEW QUEUE (Stitch Screens 1 & 2)           -->
+  <!-- ========================================================================= -->
+  @if (currentView() === 'dashboard') {
+    <div class="dashboard-container-inner">
+
+      <!-- BEGIN: Title & Actions Section -->
+      <section class="page-heading-section">
+        <div class="heading-left">
+          <h1 class="page-title">Approval Dashboard</h1>
+          <p class="page-subtitle">Review and manage policies and schemes awaiting approval</p>
+        </div>
+        <div class="heading-right">
+          <button class="btn-refresh" type="button" (click)="refreshAll()" title="Refresh data from server">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+            </svg>
+            <span>Refresh</span>
+          </button>
+        </div>
+      </section>
+      <!-- END: Title Section -->
+
+      <!-- BEGIN: KPI Metric Cards (Stitch Screen 1) -->
+      <section class="metrics-grid">
+        <!-- Pending Review Card -->
+        <div class="metric-card">
+          <span class="metric-label">Pending Review</span>
+          <div class="metric-icon-wrap icon-amber">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" fill="none" r="9" stroke="currentColor" stroke-width="2"></circle>
+              <path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.2"></path>
+            </svg>
+          </div>
+          <span class="metric-value">{{ metrics().pendingReview }}</span>
+        </div>
+
+        <!-- Approved Card -->
+        <div class="metric-card">
+          <span class="metric-label">Approved</span>
+          <div class="metric-icon-wrap icon-emerald">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+              <path d="M4.5 12.75l6 6 9-13.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <span class="metric-value">{{ metrics().approved }}</span>
+        </div>
+
+        <!-- Rejected Card -->
+        <div class="metric-card">
+          <span class="metric-label">Rejected</span>
+          <div class="metric-icon-wrap icon-rose">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.8" viewBox="0 0 24 24">
+              <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <span class="metric-value">{{ metrics().rejected }}</span>
+        </div>
+
+        <!-- Archived Card -->
+        <div class="metric-card">
+          <span class="metric-label">Archived</span>
+          <div class="metric-icon-wrap icon-slate">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24">
+              <path d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <span class="metric-value">{{ metrics().archived }}</span>
+        </div>
+      </section>
+      <!-- END: MetricCards -->
+
+      <!-- BEGIN: Review Queue Section (Stitch Screen 2) -->
+      <section class="review-queue-section">
+        <div class="queue-header-wrap">
+          <h2 class="queue-title">Review Queue</h2>
+          <p class="queue-subtitle">Review policies and schemes submitted for approval</p>
+        </div>
+
+        <!-- Controls: Search bar & Filters -->
+        <div class="queue-controls">
+          <!-- Search input with icon -->
+          <div class="search-input-wrapper">
+            <span class="search-icon-left">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </span>
+            <input 
+              type="text" 
+              class="search-input" 
+              placeholder="Search policies or schemes"
+              [ngModel]="searchQuery()" 
+              (ngModelChange)="searchQuery.set($event); onSearchChange()"
+            />
+            <span class="search-icon-right">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </span>
+          </div>
+
+          <!-- Filter Pills -->
+          <div class="filter-pills-row">
+            <button 
+              type="button" 
+              class="filter-pill" 
+              [class.active]="activeTab() === 'All'"
+              (click)="selectTab('All')"
+            >
+              All
+            </button>
+            <button 
+              type="button" 
+              class="filter-pill" 
+              [class.active]="activeTab() === 'Policies'"
+              (click)="selectTab('Policies')"
+            >
+              Policies
+            </button>
+            <button 
+              type="button" 
+              class="filter-pill" 
+              [class.active]="activeTab() === 'Schemes'"
+              (click)="selectTab('Schemes')"
+            >
+              Schemes
+            </button>
+            <button 
+              type="button" 
+              class="filter-pill" 
+              [class.active]="activeTab() === 'Under Review'"
+              (click)="selectTab('Under Review')"
+            >
+              Under Review
+            </button>
+            <button 
+              type="button" 
+              class="filter-pill" 
+              [class.active]="activeTab() === 'Approved'"
+              (click)="selectTab('Approved')"
+            >
+              Approved
+            </button>
+            <button 
+              type="button" 
+              class="filter-pill" 
+              [class.active]="activeTab() === 'Rejected'"
+              (click)="selectTab('Rejected')"
+            >
+              Rejected
+            </button>
+          </div>
+        </div>
+
+        <!-- Section Heading -->
+        <div class="items-awaiting-heading">
+          <h3 class="awaiting-title">
+            {{ activeTab() === 'Under Review' ? 'Items Awaiting Review' : (activeTab() + ' Items') }}
+          </h3>
+          <span class="items-count-badge">{{ filteredQueue().length }} items</span>
+        </div>
+
+        <!-- Approvals Table Container -->
+        <div class="table-card">
+          <div class="table-scroll">
+            <table class="approvals-table">
+              <thead>
+                <tr>
+                  <th scope="col" class="th-main">Policy / Scheme</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Submitted By</th>
+                  <th scope="col">Submitted Date</th>
+                  <th scope="col">Status</th>
+                  <th scope="col" class="th-actions">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of paginatedQueue(); track item.id) {
+                  <tr class="table-row" (click)="openReview(item)">
+                    <td class="td-main">
+                      <div class="item-title-wrap">
+                        <span class="item-title">{{ item.name }}</span>
+                        <span class="item-meta">{{ item.id }} • {{ item.category }}</span>
+                      </div>
+                    </td>
+                    <td class="td-type">
+                      <span class="type-pill" [class.type-policy]="item.type === 'Policy'" [class.type-scheme]="item.type === 'Scheme'">
+                        {{ item.type }}
+                      </span>
+                    </td>
+                    <td class="td-sub">{{ item.submittedBy }}</td>
+                    <td class="td-date">{{ item.submittedDate }}</td>
+                    <td class="td-status">
+                      <span class="status-badge" [ngClass]="getStatusClass(item.status)">
+                        {{ item.status }}
+                      </span>
+                    </td>
+                    <td class="td-actions" (click)="$event.stopPropagation()">
+                      <div class="action-btn-group">
+                        <button class="btn-review-link" type="button" (click)="openReview(item)">
+                          Review
+                        </button>
+                        @if (item.status === 'Under Review' && canApproveReject()) {
+                          <button class="btn-quick-approve" type="button" (click)="openApproveModal(item, $event)" title="Quick Approve">
+                            ✓
+                          </button>
+                          <button class="btn-quick-reject" type="button" (click)="openRejectModal(item, $event)" title="Quick Reject">
+                            ✕
+                          </button>
+                        }
+                      </div>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="6" class="empty-state-cell">
+                      <div class="empty-state-content">
+                        <div class="empty-icon-circle">
+                          <svg width="28" height="28" class="empty-icon" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                            <path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" stroke-linecap="round" stroke-linejoin="round" />
+                          </svg>
+                        </div>
+                        <p class="empty-title">No items found matching criteria</p>
+                        <p class="empty-desc">Try modifying your search keywords or switching filter tabs.</p>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table Footer / Pagination Controls -->
+          <div class="table-footer">
+            <div class="footer-count">
+              Showing {{ showingRange().start }}–{{ showingRange().end }} of {{ showingRange().total }} items
+            </div>
+            @if (totalPages() > 1) {
+              <div class="pagination-controls">
+                <button 
+                  type="button" 
+                  class="pagination-btn" 
+                  [disabled]="currentPage() === 1"
+                  (click)="goToPage(currentPage() - 1)"
+                >
+                  ←
+                </button>
+                @for (page of pagesArray(); track page) {
+                  <button 
+                    type="button" 
+                    class="pagination-btn" 
+                    [class.active]="currentPage() === page"
+                    (click)="goToPage(page)"
+                  >
+                    {{ page }}
+                  </button>
+                }
+                <button 
+                  type="button" 
+                  class="pagination-btn" 
+                  [disabled]="currentPage() === totalPages()"
+                  (click)="goToPage(currentPage() + 1)"
+                >
+                  →
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+      <!-- END: ReviewQueueSection -->
+
+    </div>
+  }
+
+  <!-- ========================================================================= -->
+  <!-- VIEW 2: POLICY REVIEW SCREEN (Stitch Screen 3)                             -->
+  <!-- ========================================================================= -->
+  @if (currentView() === 'review' && activeItem(); as item) {
+    <div class="review-screen-container">
+
+      <!-- Breadcrumb & Back Navigation -->
+      <div class="review-nav-bar">
+        <button class="btn-back" type="button" (click)="backToQueue()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          <span>Back to Queue</span>
+        </button>
+      </div>
+
+      <!-- BEGIN: PageTitleSection -->
+      <section class="page-heading-section">
+        <h1 class="page-title">{{ item.type }} Review</h1>
+        <p class="page-subtitle">Review the {{ item.type.toLowerCase() }} details before approving or rejecting the submission</p>
+      </section>
+      <!-- END: PageTitleSection -->
+
+      <!-- BEGIN: Selected Item Summary Card (Stitch Screen 3) -->
+      <section class="selected-item-card">
+        <div class="selected-item-info">
+          <h2 class="selected-item-name">{{ item.name }}</h2>
+          <p class="selected-item-meta">
+            {{ item.id }} <span class="meta-dot">•</span> {{ item.category }} <span class="meta-dot">•</span> {{ item.ministry }}
+          </p>
+        </div>
+        <div class="selected-item-status">
+          <span class="status-badge" [ngClass]="getStatusClass(item.status)">
+            {{ item.status }}
+          </span>
+        </div>
+      </section>
+      <!-- END: Selected Item Card -->
+
+      <!-- BEGIN: Detailed Information Card (Stitch Screen 3) -->
+      <section class="information-card">
+        <h3 class="card-section-title">{{ item.type }} Information</h3>
+
+        <!-- Two Columns Metadata Grid -->
+        <div class="details-grid">
+          <!-- Row 1 -->
+          <div class="field-block">
+            <span class="field-label">{{ item.type }} Name</span>
+            <span class="field-value">{{ item.name }}</span>
+          </div>
+          <div class="field-block">
+            <span class="field-label">{{ item.type }} ID</span>
+            <span class="field-value">{{ item.id }}</span>
+          </div>
+
+          <!-- Row 2 -->
+          <div class="field-block">
+            <span class="field-label">Ministry</span>
+            <span class="field-value">{{ item.ministry }}</span>
+          </div>
+          <div class="field-block">
+            <span class="field-label">Department</span>
+            <span class="field-value">{{ item.department }}</span>
+          </div>
+
+          <!-- Row 3 -->
+          <div class="field-block">
+            <span class="field-label">Category</span>
+            <span class="field-value">{{ item.category }}</span>
+          </div>
+          <div class="field-block">
+            <span class="field-label">Sector</span>
+            <span class="field-value">{{ item.sector || item.category || 'Public Sector' }}</span>
+          </div>
+
+          <!-- Row 4 -->
+          <div class="field-block">
+            <span class="field-label">Submitted / Publication Date</span>
+            <span class="field-value">{{ item.submittedDate }}</span>
+          </div>
+          <div class="field-block">
+            <span class="field-label">Effective Date</span>
+            <span class="field-value">{{ item.originalPolicy?.effectiveDate || item.submittedDate }}</span>
+          </div>
+        </div>
+
+        <!-- Description Block -->
+        <div class="description-block">
+          <span class="field-label">Description</span>
+          <p class="description-text">{{ item.description || 'No detailed description provided.' }}</p>
+        </div>
+
+        <!-- Scheme-specific details if applicable -->
+        @if (item.type === 'Scheme' && item.originalScheme; as scheme) {
+          <div class="scheme-extra-block">
+            <div class="field-block">
+              <span class="field-label">Key Benefits</span>
+              <p class="description-text">{{ scheme.benefits }}</p>
+            </div>
+            <div class="field-block">
+              <span class="field-label">Eligibility Criteria</span>
+              <p class="description-text">{{ scheme.eligibilityCriteria }}</p>
+            </div>
+            <div class="field-block">
+              <span class="field-label">Application Process</span>
+              <p class="description-text">{{ scheme.applicationProcess }}</p>
+            </div>
+          </div>
+        }
+
+        <!-- Policy Document Attachment Box (Stitch Screen 3) -->
+        <div class="document-section">
+          <span class="field-label">Policy Document</span>
+          <div class="document-card">
+            <div class="doc-info-left">
+              <!-- PDF Icon -->
+              <div class="doc-icon-wrap">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm1.5 14.5c-.3 0-.6-.1-.9-.2l-.6.6c-.3.3-.8.4-1.2.3-.4-.1-.8-.4-1-.8l-.4-1c-.4-.1-.8-.3-1.3-.4-.5-.1-.9-.2-1.3-.2-.5 0-.9-.2-1.2-.5-.3-.3-.4-.7-.3-1.1.1-.5.5-.8 1-.9.3 0 .7.1 1.2.2.4.1.9.3 1.5.6l.8-.9c.3-.3.7-.6 1.1-.7.4-.2.8-.2 1.2-.1.4.1.7.4.8.8.2.5.1 1-.3 1.4l-.6.5c.3.5.7.9 1.2 1.2.5.3 1 .5 1.5.6.3 0 .6.2.7.5.2.3.1.7-.1 1-.2.2-.5.3-.8.3zM13 9V3.5L18.5 9H13z" opacity="0.3"></path>
+                  <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"></path>
+                </svg>
+              </div>
+              <div class="doc-text-meta">
+                <p class="doc-filename">{{ item.originalPolicy?.document?.name || (item.name.replace(' ', '_') + '.pdf') }}</p>
+                <p class="doc-meta-sub">{{ item.originalPolicy?.document?.type || 'PDF' }} • {{ item.originalPolicy?.document?.size || '2.4 MB' }}</p>
+              </div>
+            </div>
+            <div class="doc-info-right">
+              <button class="btn-view-doc" type="button" (click)="openDocModal()">
+                View Document
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Review Decision Action Bar -->
+        <div class="review-decision-bar">
+          <div class="decision-left">
+            @if (item.status === 'Approved') {
+              <div class="approved-notice">
+                <svg width="20" height="20" class="text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>This item has already been approved and verified.</span>
+              </div>
+            } @else if (item.status === 'Rejected') {
+              <div class="rejected-notice">
+                <svg width="20" height="20" class="text-rose-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+                <span>This item was rejected. Reason: <em>{{ item.originalPolicy?.rejectionReason || 'Requires revision' }}</em></span>
+              </div>
+            }
+          </div>
+
+          <div class="decision-actions">
+            <button class="btn-secondary-action" type="button" (click)="backToQueue()">
+              Cancel
+            </button>
+            @if (canApproveReject()) {
+              <button 
+                class="btn-reject-action" 
+                type="button" 
+                (click)="openRejectModal(item)"
+              >
+                Reject {{ item.type }}
+              </button>
+              <button 
+                class="btn-approve-action" 
+                type="button" 
+                (click)="openApproveModal(item)"
+              >
+                Approve {{ item.type }}
+              </button>
+            }
+          </div>
+        </div>
+
+      </section>
+      <!-- END: Detailed Information Card -->
+
+    </div>
+  }
+
+</div>
+
+<!-- ========================================================================= -->
+<!-- DECISION MODALS                                                           -->
+<!-- ========================================================================= -->
+
+<!-- 1. APPROVAL MODAL -->
+@if (showApproveModal() && targetModalItem(); as item) {
+  <div class="modal-backdrop" (click)="closeApproveModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">Approve {{ item.type }}</h3>
+        <button class="modal-close-btn" type="button" (click)="closeApproveModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-desc">
+          Are you sure you want to approve <strong>"{{ item.name }}"</strong>?
+        </p>
+
+        @if (item.type === 'Policy') {
+          <div class="modal-checkbox-row">
+            <input 
+              type="checkbox" 
+              id="publishCheckbox" 
+              [ngModel]="publishOnApprove()" 
+              (ngModelChange)="publishOnApprove.set($event)"
+              class="checkbox-input"
+            />
+            <label for="publishCheckbox" class="checkbox-label">
+              Publish immediately to citizen public repository
+            </label>
+          </div>
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-modal-cancel" type="button" (click)="closeApproveModal()" [disabled]="isSubmittingAction()">
+          Cancel
+        </button>
+        <button class="btn-modal-confirm-approve" type="button" (click)="confirmApprove()" [disabled]="isSubmittingAction()">
+          @if (isSubmittingAction()) {
+            Processing...
+          } @else {
+            Confirm Approval
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- 2. REJECTION MODAL -->
+@if (showRejectModal() && targetModalItem(); as item) {
+  <div class="modal-backdrop" (click)="closeRejectModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title modal-title-danger">Reject {{ item.type }}</h3>
+        <button class="modal-close-btn" type="button" (click)="closeRejectModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-desc">
+          Please provide a reason or feedback for rejecting <strong>"{{ item.name }}"</strong>. This explanation will be delivered to the submitting official.
+        </p>
+
+        <div class="form-group-modal">
+          <label for="rejectionFeedback" class="modal-input-label">Rejection Reason <span class="required">*</span></label>
+          <textarea 
+            id="rejectionFeedback" 
+            class="modal-textarea" 
+            rows="4" 
+            placeholder="e.g. Budget provisions need clarification, or eligibility criteria lacks nodal compliance..."
+            [ngModel]="rejectionReason()"
+            (ngModelChange)="rejectionReason.set($event)"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-modal-cancel" type="button" (click)="closeRejectModal()" [disabled]="isSubmittingAction()">
+          Cancel
+        </button>
+        <button 
+          class="btn-modal-confirm-danger" 
+          type="button" 
+          (click)="confirmReject()" 
+          [disabled]="!rejectionReason().trim() || isSubmittingAction()"
+        >
+          @if (isSubmittingAction()) {
+            Processing...
+          } @else {
+            Confirm Rejection
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- 3. DOCUMENT PREVIEW MODAL -->
+@if (showDocModal() && activeItem(); as item) {
+  <div class="modal-backdrop" (click)="closeDocModal()">
+    <div class="modal-card modal-card-lg" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-with-icon">
+          <div class="doc-icon-modal text-blue-600">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"></path>
+            </svg>
+          </div>
+          <h3 class="modal-title">{{ item.name }} - Document Preview</h3>
+        </div>
+        <button class="modal-close-btn" type="button" (click)="closeDocModal()">×</button>
+      </div>
+
+      <div class="modal-body doc-preview-body">
+        <div class="doc-preview-sheet">
+          <div class="preview-header">
+            <div class="preview-emblem">भारत सरकार / Government of India</div>
+            <div class="preview-ministry">{{ item.ministry }}</div>
+            <div class="preview-department">{{ item.department }}</div>
+          </div>
+          <div class="preview-divider"></div>
+          <div class="preview-title">{{ item.name }}</div>
+          <div class="preview-meta">Reference: {{ item.id }} | Category: {{ item.category }} | Sector: {{ item.sector || 'Public Sector' }}</div>
+          
+          <div class="preview-content">
+            <h4>Executive Summary & Provisions</h4>
+            <p>{{ item.description }}</p>
+            
+            <h4>Administrative Scope & Timelines</h4>
+            <p>Effective from: <strong>{{ item.originalPolicy?.effectiveDate || item.submittedDate }}</strong> under the oversight of <strong>{{ item.department }}</strong>.</p>
+            
+            @if (item.originalScheme; as s) {
+              <h4>Scheme Eligibility & Provisions</h4>
+              <p>{{ s.benefits }}</p>
+              <p>Target Beneficiaries: {{ s.targetAudience || s.eligibilityCriteria }}</p>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-modal-cancel" type="button" (click)="closeDocModal()">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+}

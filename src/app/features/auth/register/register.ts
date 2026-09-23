@@ -2,7 +2,6 @@ import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
-import { Auth } from '../../../core/services/auth';
 import { Role, toBackendRole } from '../../../models/role.model';
 
 @Component({
@@ -27,7 +26,6 @@ export class Register {
   protected readonly roles = Object.values(Role);
 
   private readonly authService = inject(AuthService);
-  private readonly legacyAuth = inject(Auth);
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
 
@@ -102,15 +100,7 @@ export class Register {
         } else if (err.status === 400) {
           this.errorMessage = err.error?.detail || 'An account with this email already exists.';
         } else if (err.status === 0) {
-          // Offline dev fallback
-          this.legacyAuth.register(name, email, this.selectedRole);
-          this.successMessage = 'Registration successful! Redirecting to login page...';
-          this.cdr.detectChanges();
-          setTimeout(() => {
-            this.router.navigate(['/login'], {
-              queryParams: { registered: 'true', email: email }
-            });
-          }, 1200);
+          this.errorMessage = 'Unable to connect to authentication server. Please check your connection.';
         } else {
           this.errorMessage = err.error?.detail || 'Registration failed. Please try again.';
         }

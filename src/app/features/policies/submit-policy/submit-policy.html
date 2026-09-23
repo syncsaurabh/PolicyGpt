@@ -1,0 +1,186 @@
+<div class="submit-policy-page">
+  @if (notFound() || !policy()) {
+    <div class="not-found-card">
+      <h2>Policy Not Found</h2>
+      <p>The policy you wish to submit does not exist.</p>
+      <button type="button" class="btn-back-policies" (click)="backToPolicies()">
+        Back to Policies
+      </button>
+    </div>
+  } @else {
+    @let p = policy()!;
+
+    <!-- Breadcrumb & Header Section -->
+    <section class="header-section">
+      <!-- Breadcrumbs -->
+      <nav class="breadcrumb-nav" aria-label="Breadcrumb">
+        <ol class="breadcrumb-list">
+          <li><a routerLink="/dashboard" class="breadcrumb-link">Home</a></li>
+          <li><span class="breadcrumb-separator">/</span></li>
+          <li><a routerLink="/policies" class="breadcrumb-link">Policy Management</a></li>
+          <li><span class="breadcrumb-separator">/</span></li>
+          <li><a [routerLink]="['/policies', p.id]" class="breadcrumb-link">Policy Details</a></li>
+          <li><span class="breadcrumb-separator">/</span></li>
+          <li class="breadcrumb-current" aria-current="page">Submit for Review</li>
+        </ol>
+      </nav>
+
+      <h1 class="page-title">Submit Policy for Review</h1>
+      <p class="page-subtitle">Review the policy information before submitting it for approval</p>
+    </section>
+
+    <!-- Error Alert if any -->
+    @if (errorMessage()) {
+      <div class="alert-error" role="alert">
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <!-- Policy Review Container Card -->
+    <div class="review-card">
+      <!-- Top Header -->
+      <div class="card-header-row">
+        <h2 class="card-title">Policy Information</h2>
+        <div class="status-indicator-block">
+          <span class="status-label">Status</span>
+          <span class="status-badge badge-draft">
+            {{ p.status }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Key Value Grid -->
+      <div class="key-value-grid">
+        <div class="grid-item">
+          <label class="field-label">
+            Policy Name <span class="req-star">*</span>
+          </label>
+          <div class="field-value">{{ p.name }}</div>
+        </div>
+
+        <div class="grid-item">
+          <label class="field-label">
+            Policy ID <span class="req-star">*</span>
+          </label>
+          <div class="field-value id-text">{{ p.id }}</div>
+        </div>
+
+        <div class="grid-item">
+          <label class="field-label">
+            Ministry <span class="req-star">*</span>
+          </label>
+          <div class="field-value">{{ p.ministry }}</div>
+        </div>
+
+        <div class="grid-item">
+          <label class="field-label">
+            Department <span class="req-star">*</span>
+          </label>
+          <div class="field-value">{{ p.department }}</div>
+        </div>
+
+        <div class="grid-item">
+          <label class="field-label">
+            Category <span class="req-star">*</span>
+          </label>
+          <div class="field-value">{{ p.category }}</div>
+        </div>
+
+        <div class="grid-item">
+          <label class="field-label">
+            Sector <span class="req-star">*</span>
+          </label>
+          <div class="field-value">{{ p.sector }}</div>
+        </div>
+
+        <div class="grid-item">
+          <label class="field-label">
+            Publication Date <span class="req-star">*</span>
+          </label>
+          <div class="field-value">{{ p.publicationDate }}</div>
+        </div>
+
+        <div class="grid-item">
+          <label class="field-label">
+            Effective Date <span class="req-star">*</span>
+          </label>
+          <div class="field-value">{{ p.effectiveDate }}</div>
+        </div>
+
+        <div class="grid-item">
+          <label class="field-label">Expiry Date</label>
+          <div class="field-value">{{ p.expiryDate || '—' }}</div>
+        </div>
+
+        <div class="grid-item">
+          <label class="field-label">Tags</label>
+          <div class="field-value">
+            @if (p.tags && p.tags.length > 0) {
+              {{ p.tags.join(', ') }}
+            } @else {
+              —
+            }
+          </div>
+        </div>
+
+        <div class="grid-item full-width">
+          <label class="field-label">
+            Description <span class="req-star">*</span>
+          </label>
+          <div class="field-value description-text">{{ p.description }}</div>
+        </div>
+      </div>
+
+      <!-- Policy Document Section -->
+      <div class="doc-section">
+        <label class="field-label mb-2">
+          Policy Document <span class="req-star">*</span>
+        </label>
+
+        <div class="doc-preview-box">
+          <div class="doc-info-left">
+            <div class="doc-icon-badge">
+              <svg fill="currentColor" viewBox="0 0 24 24">
+                <path d="M7 2a2 2 0 00-2 2v16a2 2 0 002 2h10a2 2 0 002-2V8.414a2 2 0 00-.586-1.414l-4.414-4.414A2 2 0 0012.586 2H7zm5 2l5 5h-5V4zM8 12.5a.75.75 0 01.75-.75h6.5a.75.75 0 010 1.5h-6.5a.75.75 0 01-.75-.75zm0 3a.75.75 0 01.75-.75h6.5a.75.75 0 010 1.5h-6.5a.75.75 0 01-.75-.75zm0 3a.75.75 0 01.75-.75h4a.75.75 0 010 1.5h-4a.75.75 0 01-.75-.75z"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="doc-name">{{ p.document.name }}</p>
+              <p class="doc-meta">{{ p.document.type }} • {{ p.document.size }}</p>
+            </div>
+          </div>
+
+          <a [routerLink]="['/policies', p.id]" class="btn-view-doc">
+            View Document
+          </a>
+        </div>
+      </div>
+
+      <!-- Callout Alert -->
+      <div class="callout-alert" role="alert">
+        <h3 class="callout-title">Ready to Submit?</h3>
+        <p class="callout-text">
+          Please review all policy information carefully before submitting. Once submitted, this policy will be sent to the approval team for review.
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="form-actions-row">
+        <button type="button" class="btn-back" (click)="backToPolicies()">
+          <svg class="back-arrow-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          Back to Policies
+        </button>
+
+        <button 
+          type="button" 
+          class="btn-submit-review"
+          [disabled]="isSubmitting()"
+          (click)="submitForReview()">
+          Submit for Review
+        </button>
+      </div>
+    </div>
+  }
+</div>

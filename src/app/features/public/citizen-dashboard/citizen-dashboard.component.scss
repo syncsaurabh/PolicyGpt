@@ -1,16 +1,15 @@
-$surface: #f8f9ff;
-$on-background: #0b1c30;
-$on-surface-variant: #444651;
-
 .citizen-dashboard-root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: $surface;
-  color: $on-background;
+  background-color: var(--bg-page, #f8fafc);
+  color: var(--text-main, #0f172a);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 
   .main-content {
     flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 }
 
@@ -18,18 +17,19 @@ $on-surface-variant: #444651;
   padding-top: 16px;
 
   .breadcrumbs-container {
-    max-width: 1280px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 24px;
+    box-sizing: border-box;
 
-    @media (min-width: 1024px) {
-      padding: 0 80px;
+    @media (max-width: 640px) {
+      padding: 0 16px;
     }
   }
 
   .breadcrumbs-text {
-    color: $on-surface-variant;
-    font-size: 12px;
+    color: var(--text-muted, #64748b);
+    font-size: 0.8125rem;
     font-weight: 500;
     margin: 0;
   }

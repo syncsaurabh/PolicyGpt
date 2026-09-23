@@ -38,6 +38,14 @@
   border-color: var(--brand-blue);
 }
 
+:host-context([data-theme="dark"]) .report-card:hover,
+:host-context(body.dark-theme) .report-card:hover,
+[data-theme="dark"] .report-card:hover,
+body.dark-theme .report-card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  border-color: var(--brand-blue);
+}
+
 .report-card h3 {
   font-size: 1.15rem;
   color: var(--text-main);
@@ -75,6 +83,14 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+:host-context([data-theme="dark"]) .download-btn,
+:host-context(body.dark-theme) .download-btn,
+[data-theme="dark"] .download-btn,
+body.dark-theme .download-btn {
+  color: #60a5fa;
+  border-color: rgba(96, 165, 250, 0.4);
 }
 
 .download-btn:hover {

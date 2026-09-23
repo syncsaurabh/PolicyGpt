@@ -35,13 +35,15 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error: HttpErrorResponse) => {
       // 401 Unauthorized: Session expired or invalid token
       if (error.status === 401) {
-        // Prevent redirect loop if already on login page
-        if (!router.url.includes('/login') && !isPublic) {
+        if (!router.url.includes('/login') && !router.url.includes('/citizen') && !isPublic) {
           authService.logout(false);
-          router.navigate(['/login'], {
-            queryParams: { returnUrl: router.url, sessionExpired: 'true' }
-          });
+          router.navigate(['/citizen']);
         }
+      }
+
+      // 403 Forbidden: Authenticated user lacks permission
+      if (error.status === 403) {
+        console.warn('Access Denied (403): User lacks required permissions for this action.', error.error?.detail);
       }
 
       return throwError(() => error);

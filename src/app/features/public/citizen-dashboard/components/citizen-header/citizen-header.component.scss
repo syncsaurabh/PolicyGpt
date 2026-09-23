@@ -1,23 +1,24 @@
 .public-header {
   width: 100%;
-  background-color: #ffffff;
-  border-bottom: 1px solid #c5c5d3;
+  background-color: var(--bg-header, #ffffff);
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
   position: sticky;
   top: 0;
   z-index: 50;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 
   .header-container {
     height: 64px;
-    max-width: 1280px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    box-sizing: border-box;
 
-    @media (min-width: 1024px) {
-      padding: 0 80px;
+    @media (max-width: 640px) {
+      padding: 0 16px;
     }
   }
 
@@ -32,12 +33,11 @@
       align-items: center;
 
       .logo-text {
-        font-family: 'Hanken Grotesk', 'Inter', sans-serif;
-        font-size: 24px;
-        line-height: 32px;
-        font-weight: 700;
-        color: #1e3a8a;
-        letter-spacing: -0.02em;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--brand-blue, #1e3a8a);
+        letter-spacing: -0.025em;
       }
     }
   }
@@ -49,31 +49,31 @@
 
     .nav-link {
       font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      line-height: 20px;
+      font-size: 0.875rem;
       font-weight: 500;
-      color: #0b1c30;
+      color: var(--text-muted, #334155);
       text-decoration: none;
       transition: color 0.2s ease;
 
       &:hover {
-        color: #1e3a8a;
+        color: var(--brand-blue, #1e3a8a);
       }
 
       &.active {
-        color: #1e3a8a;
+        color: var(--brand-blue, #1e3a8a);
         font-weight: 700;
       }
 
       &.auth-dashboard-link {
-        color: #0058be;
+        color: var(--brand-blue, #1e3a8a);
         font-weight: 600;
-        padding: 4px 10px;
-        background-color: #dce1ff;
-        border-radius: 4px;
+        padding: 4px 12px;
+        background-color: rgba(37, 99, 235, 0.1);
+        border: 1px solid rgba(37, 99, 235, 0.25);
+        border-radius: 6px;
 
         &:hover {
-          background-color: #b6c4ff;
+          background-color: rgba(37, 99, 235, 0.18);
         }
       }
     }
@@ -82,44 +82,46 @@
   .header-actions {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
 
     .auth-buttons {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
 
       .btn-login {
         font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        font-weight: 500;
-        color: #1e3a8a;
-        padding: 6px 16px;
-        border: 1px solid #1e3a8a;
-        border-radius: 4px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--brand-blue, #1e3a8a);
+        padding: 7px 18px;
+        border: 1px solid var(--border-color, #cbd5e1);
+        background-color: var(--bg-card, #ffffff);
+        border-radius: 8px;
         text-decoration: none;
         transition: all 0.2s ease;
 
         &:hover {
-          background-color: #dce1ff;
+          background-color: var(--bg-page, #f8fafc);
+          border-color: var(--text-muted, #94a3b8);
         }
       }
 
       .btn-register {
         font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        font-weight: 500;
-        background-color: #1e3a8a;
+        font-size: 0.875rem;
+        font-weight: 600;
+        background-color: var(--brand-blue, #1e3a8a);
         color: #ffffff;
-        padding: 6px 16px;
-        border-radius: 4px;
+        padding: 7px 18px;
+        border-radius: 8px;
         text-decoration: none;
         transition: all 0.2s ease;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 1px 2px rgba(30, 58, 138, 0.2);
 
         &:hover {
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-          filter: brightness(1.1);
+          background-color: var(--brand-blue-dark, #172554);
+          transform: translateY(-1px);
         }
       }
     }
@@ -127,11 +129,11 @@
     .mobile-menu-btn {
       display: none;
       background: none;
-      border: none;
+      border: 1px solid var(--border-color, #cbd5e1);
       cursor: pointer;
-      color: #0b1c30;
+      color: var(--text-main, #0f172a);
       padding: 6px;
-      border-radius: 4px;
+      border-radius: 6px;
 
       @media (max-width: 768px) {
         display: flex;
@@ -140,7 +142,7 @@
       }
 
       &:hover {
-        background-color: #eff4ff;
+        background-color: var(--bg-page, #f8fafc);
       }
     }
   }
@@ -154,10 +156,10 @@
   .mobile-nav {
     display: flex;
     flex-direction: column;
-    background-color: #ffffff;
-    border-top: 1px solid #e5eeff;
+    background-color: var(--bg-card, #ffffff);
+    border-top: 1px solid var(--border-color, #e2e8f0);
     padding: 16px 20px;
-    gap: 12px;
+    gap: 8px;
 
     @media (min-width: 769px) {
       display: none;
@@ -165,15 +167,15 @@
 
     .mobile-nav-link {
       font-family: 'Inter', sans-serif;
-      font-size: 15px;
+      font-size: 0.9375rem;
       font-weight: 500;
-      color: #0b1c30;
+      color: var(--text-main, #1e293b);
       text-decoration: none;
-      padding: 8px 0;
-      border-bottom: 1px solid #f0f4f8;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-color, #f1f5f9);
 
       &:hover {
-        color: #1e3a8a;
+        color: var(--brand-blue, #1e3a8a);
       }
     }
 
@@ -185,20 +187,21 @@
       .btn-login, .btn-register {
         flex: 1;
         text-align: center;
-        font-size: 14px;
-        font-weight: 500;
-        padding: 8px 16px;
-        border-radius: 4px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        padding: 9px 16px;
+        border-radius: 8px;
         text-decoration: none;
       }
 
       .btn-login {
-        color: #1e3a8a;
-        border: 1px solid #1e3a8a;
+        color: var(--brand-blue, #1e3a8a);
+        border: 1px solid var(--border-color, #cbd5e1);
+        background-color: var(--bg-card, #ffffff);
       }
 
       .btn-register {
-        background-color: #1e3a8a;
+        background-color: var(--brand-blue, #1e3a8a);
         color: #ffffff;
       }
     }

@@ -38,9 +38,24 @@
   border-color: var(--brand-blue);
 }
 
+:host-context([data-theme="dark"]) .noti-card:hover,
+:host-context(body.dark-theme) .noti-card:hover,
+[data-theme="dark"] .noti-card:hover,
+body.dark-theme .noti-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
 .noti-card.unread {
-  border-left: 4px solid var(--info);
-  background: rgba(37, 99, 235, 0.03);
+  border-left: 4px solid var(--brand-blue);
+  background: rgba(37, 99, 235, 0.04);
+}
+
+:host-context([data-theme="dark"]) .noti-card.unread,
+:host-context(body.dark-theme) .noti-card.unread,
+[data-theme="dark"] .noti-card.unread,
+body.dark-theme .noti-card.unread {
+  border-left-color: var(--primary-light, #60a5fa);
+  background: rgba(37, 99, 235, 0.12);
 }
 
 .noti-meta {

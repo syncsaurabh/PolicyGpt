@@ -1,4 +1,4 @@
-<header class="public-header">
+﻿<header class="public-header">
   <div class="header-container">
     <div class="header-left">
       <a routerLink="/citizen" class="logo-link">
@@ -8,8 +8,8 @@
 
     <nav class="nav-links desktop-only" data-active-classes="active">
       <a routerLink="/citizen" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-link" data-path="home">Home</a>
-      <a routerLink="/citizen" fragment="popular-schemes" class="nav-link" data-path="policies">Policies</a>
-      <a routerLink="/citizen" fragment="popular-schemes" class="nav-link" data-path="schemes">Schemes</a>
+      <a routerLink="/public/policies" routerLinkActive="active" class="nav-link" data-path="policies">Policies</a>
+      <a routerLink="/public/schemes" routerLinkActive="active" class="nav-link" data-path="schemes">Schemes</a>
       <a routerLink="/citizen" fragment="how-it-works" class="nav-link" data-path="about">About</a>
       <a routerLink="/citizen" fragment="ai-assistant" class="nav-link" data-path="help">Help</a>
       @if (auth.isAuthenticated()) {
@@ -18,6 +18,31 @@
     </nav>
 
     <div class="header-actions">
+      <button
+        class="theme-toggle-btn"
+        type="button"
+        (click)="themeService.toggleTheme()"
+        [title]="themeService.isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'"
+        [attr.aria-label]="themeService.isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'">
+        @if (themeService.isDarkMode()) {
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        } @else {
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        }
+      </button>
+
       <div class="auth-buttons desktop-only">
         <a routerLink="/login" class="btn-login" data-path="login">Login</a>
         <a routerLink="/register" class="btn-register" data-path="register">Register</a>
@@ -41,8 +66,8 @@
   @if (mobileMenuOpen()) {
     <div class="mobile-nav">
       <a routerLink="/citizen" (click)="closeMobileMenu()" class="mobile-nav-link" data-path="home">Home</a>
-      <a routerLink="/citizen" fragment="popular-schemes" (click)="closeMobileMenu()" class="mobile-nav-link" data-path="policies">Policies</a>
-      <a routerLink="/citizen" fragment="popular-schemes" (click)="closeMobileMenu()" class="mobile-nav-link" data-path="schemes">Schemes</a>
+      <a routerLink="/public/policies" (click)="closeMobileMenu()" class="mobile-nav-link" data-path="policies">Policies</a>
+      <a routerLink="/public/schemes" (click)="closeMobileMenu()" class="mobile-nav-link" data-path="schemes">Schemes</a>
       <a routerLink="/citizen" fragment="how-it-works" (click)="closeMobileMenu()" class="mobile-nav-link" data-path="about">About</a>
       <a routerLink="/citizen" fragment="ai-assistant" (click)="closeMobileMenu()" class="mobile-nav-link" data-path="help">Help</a>
       @if (auth.isAuthenticated()) {

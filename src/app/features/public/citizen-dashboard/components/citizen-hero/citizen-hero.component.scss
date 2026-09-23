@@ -1,17 +1,11 @@
-$primary: #1e3a8a;
-$primary-fixed: #dce1ff;
-$surface-white: #ffffff;
-$on-background: #0b1c30;
-$on-surface-variant: #444651;
-$outline-variant: #c5c5d3;
-
 .hero-section {
-  padding: 64px 20px 48px;
-  max-width: 1280px;
+  padding: 56px 24px 40px;
+  max-width: 1200px;
   margin: 0 auto;
+  box-sizing: border-box;
 
-  @media (min-width: 1024px) {
-    padding: 64px 80px 48px;
+  @media (max-width: 640px) {
+    padding: 36px 16px 28px;
   }
 
   .hero-container {
@@ -22,33 +16,38 @@ $outline-variant: #c5c5d3;
   }
 
   .hero-title {
-    font-family: 'Hanken Grotesk', sans-serif;
-    font-size: 36px;
-    line-height: 44px;
-    font-weight: 700;
-    color: $on-background;
-    margin: 0 0 16px;
-    letter-spacing: -0.02em;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 2.35rem;
+    line-height: 1.25;
+    font-weight: 800;
+    color: var(--text-main, #0f172a);
+    margin: 0 0 12px;
+    letter-spacing: -0.03em;
 
     @media (max-width: 640px) {
-      font-size: 28px;
-      line-height: 36px;
+      font-size: 1.75rem;
+      line-height: 1.3;
     }
   }
 
   .hero-subtitle {
-    font-size: 16px;
-    line-height: 24px;
-    color: $on-surface-variant;
-    margin: 0 0 40px;
-    max-width: 672px;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    color: var(--text-muted, #64748b);
+    margin: 0 0 36px;
+    max-width: 640px;
+
+    @media (max-width: 640px) {
+      font-size: 0.9375rem;
+      margin-bottom: 24px;
+    }
   }
 
   .search-bar-wrapper {
     width: 100%;
-    max-width: 672px;
+    max-width: 680px;
     position: relative;
-    margin-bottom: 48px;
+    margin-bottom: 32px;
 
     .search-icon-wrapper {
       position: absolute;
@@ -58,7 +57,7 @@ $outline-variant: #c5c5d3;
       display: flex;
       align-items: center;
       pointer-events: none;
-      color: #757682;
+      color: var(--text-disabled, #94a3b8);
 
       .search-icon {
         font-size: 20px;
@@ -67,31 +66,43 @@ $outline-variant: #c5c5d3;
 
     .search-input {
       width: 100%;
-      height: 48px;
-      background-color: $surface-white;
-      border: 1px solid $outline-variant;
-      border-radius: 8px;
+      height: 50px;
+      background-color: var(--input-bg, #ffffff);
+      border: 1px solid var(--input-border, #cbd5e1);
+      border-radius: 10px;
       padding: 12px 44px 12px 48px;
-      font-size: 14px;
+      font-size: 0.9375rem;
+      color: var(--text-main, #1e293b);
       box-sizing: border-box;
-      transition: border-color 0.2s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      transition: border-color 0.2s, box-shadow 0.2s;
 
       &:focus {
         outline: none;
-        border-color: $primary;
+        border-color: var(--brand-blue, #2563eb);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+      }
+
+      &::placeholder {
+        color: var(--text-disabled, #94a3b8);
       }
     }
 
     .clear-search-btn {
       position: absolute;
-      right: 12px;
+      right: 14px;
       top: 50%;
       transform: translateY(-50%);
       background: none;
       border: none;
-      color: #757682;
+      color: var(--text-disabled, #94a3b8);
       cursor: pointer;
       display: flex;
+      padding: 4px;
+
+      &:hover {
+        color: var(--text-main, #0f172a);
+      }
     }
   }
 
@@ -99,30 +110,40 @@ $outline-variant: #c5c5d3;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 16px;
-    max-width: 896px;
+    gap: 12px;
+    max-width: 840px;
 
     .filter-chip {
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 16px;
-      border-radius: 8px;
-      background-color: $surface-white;
-      border: 1px solid $outline-variant;
+      padding: 8px 18px;
+      border-radius: 9999px;
+      background-color: var(--bg-card, #ffffff);
+      border: 1px solid var(--border-color, #cbd5e1);
       cursor: pointer;
-      font-size: 12px;
+      font-size: 0.8125rem;
       font-weight: 600;
-      color: $on-background;
-      transition: all 0.2s;
+      color: var(--text-muted, #334155);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+      transition: all 0.2s ease;
 
       &:hover {
-        border-color: $primary;
+        border-color: var(--brand-blue, #3b82f6);
+        color: var(--brand-blue, #1e3a8a);
+        transform: translateY(-1px);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
       }
 
       &.active {
-        background-color: $primary-fixed;
-        border-color: $primary;
+        background-color: rgba(37, 99, 235, 0.12);
+        border-color: var(--brand-blue, #3b82f6);
+        color: var(--brand-blue, #1d4ed8);
+        font-weight: 700;
+      }
+
+      .chip-emoji {
+        font-size: 14px;
       }
     }
   }

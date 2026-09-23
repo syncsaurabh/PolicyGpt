@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [FormsModule],
   templateUrl: './citizen-hero.component.html',
-  styleUrl: './citizen-hero.component.scss'
+  styleUrl: './citizen-hero.component.css'
 })
 export class CitizenHeroComponent {
   readonly searchQuery = input<string>('');

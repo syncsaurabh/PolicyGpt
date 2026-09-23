@@ -8,12 +8,38 @@
   border-bottom: 1px solid var(--border-color);
   color: var(--text-main);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  position: relative;
+  z-index: 40;
 }
 
 .logo-container {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.sidebar-toggle-btn {
+  display: flex;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px;
+  color: var(--text-main);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.sidebar-toggle-btn:hover {
+  background: var(--bg-page);
+  border-color: var(--brand-blue);
+  color: var(--brand-blue);
+}
+
+.sidebar-toggle-btn svg {
+  width: 20px;
+  height: 20px;
 }
 
 .logo-icon {
@@ -44,7 +70,7 @@
 .user-controls {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 .profile-chip {
@@ -111,9 +137,45 @@
 }
 
 .logout-btn svg {
+  width: 18px;
+  height: 18px;
   transition: transform 0.2s ease;
 }
 
 .logout-btn:hover svg {
   transform: translateX(2px);
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 640px) {
+  .navbar-header {
+    padding: 0 14px;
+    height: 62px;
+  }
+
+  .logo-text {
+    font-size: 1.15rem;
+  }
+
+  .user-controls {
+    gap: 8px;
+  }
+
+  .user-meta {
+    display: none;
+  }
+
+  .profile-chip {
+    padding: 4px;
+    border: none;
+    background: transparent;
+  }
+
+  .logout-btn {
+    padding: 6px 10px;
+  }
+
+  .logout-text {
+    display: none;
+  }
 }

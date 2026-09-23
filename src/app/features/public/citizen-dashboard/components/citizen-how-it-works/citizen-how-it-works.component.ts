@@ -11,7 +11,7 @@ export interface HowItWorksStep {
   selector: 'app-citizen-how-it-works',
   standalone: true,
   templateUrl: './citizen-how-it-works.component.html',
-  styleUrl: './citizen-how-it-works.component.scss'
+  styleUrl: './citizen-how-it-works.component.css'
 })
 export class CitizenHowItWorksComponent {
   readonly steps: HowItWorksStep[] = [

@@ -5,10 +5,15 @@
         <h2 class="banner-title">Explore Government Policies &amp; Schemes</h2>
         <p class="banner-subtitle">Discover policies, check eligibility and find benefits that may be relevant to you</p>
       </div>
-      <button type="button" class="btn-explore-policies" (click)="onExplore()">
-        Explore Policies
-        <span class="material-symbols-outlined arrow-icon">arrow_forward</span>
-      </button>
+      <div class="banner-buttons" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <button type="button" class="btn-explore-policies" (click)="onExplore()" style="display: inline-flex; align-items: center; gap: 8px;">
+          Explore Schemes
+          <span class="material-symbols-outlined arrow-icon">arrow_forward</span>
+        </button>
+        <a routerLink="/register" class="btn-explore-policies" style="text-decoration: none; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);">
+          Register for Benefits
+        </a>
+      </div>
     </div>
   </div>
 </section>

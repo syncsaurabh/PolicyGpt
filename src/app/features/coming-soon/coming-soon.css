@@ -24,6 +24,13 @@
   overflow: hidden;
 }
 
+:host-context([data-theme="dark"]) .coming-soon-card,
+:host-context(body.dark-theme) .coming-soon-card,
+[data-theme="dark"] .coming-soon-card,
+body.dark-theme .coming-soon-card {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
 .glow-effect {
   position: absolute;
   top: -50%;
@@ -33,6 +40,13 @@
   background: radial-gradient(circle, rgba(42, 67, 101, 0.04) 0%, transparent 60%);
   pointer-events: none;
   z-index: 1;
+}
+
+:host-context([data-theme="dark"]) .glow-effect,
+:host-context(body.dark-theme) .glow-effect,
+[data-theme="dark"] .glow-effect,
+body.dark-theme .glow-effect {
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.08) 0%, transparent 60%);
 }
 
 .icon-container {
@@ -86,6 +100,15 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 20px;
+}
+
+:host-context([data-theme="dark"]) .status-badge,
+:host-context(body.dark-theme) .status-badge,
+[data-theme="dark"] .status-badge,
+body.dark-theme .status-badge {
+  background: rgba(37, 99, 235, 0.15);
+  border-color: rgba(37, 99, 235, 0.3);
+  color: #60a5fa;
 }
 
 .description {

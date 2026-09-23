@@ -1,6 +1,8 @@
-import { Component, inject } from '@angular/core';
+﻿import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth } from '../../core/services/auth';
+import { LayoutService } from '../../core/services/layout.service';
+import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-navbar',
@@ -11,10 +13,11 @@ import { Auth } from '../../core/services/auth';
 })
 export class Navbar {
   protected readonly auth = inject(Auth);
+  protected readonly layoutService = inject(LayoutService);
+  protected readonly themeService = inject(ThemeService);
   private readonly router = inject(Router);
 
   logout(): void {
     this.auth.logout();
-    this.router.navigate(['/login']);
   }
 }

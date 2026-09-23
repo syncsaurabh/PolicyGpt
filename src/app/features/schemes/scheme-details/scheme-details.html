@@ -1,0 +1,246 @@
+<div class="policy-details-page">
+  @if (notFound() || !scheme()) {
+    <div class="not-found-card">
+      <h2>Scheme Not Found</h2>
+      <p>The welfare scheme you requested could not be located in the repository.</p>
+      <button type="button" class="btn-back-policies" (click)="backToSchemes()">
+        Back to Schemes
+      </button>
+    </div>
+  } @else {
+    @let s = scheme()!;
+
+    <!-- Header Title & Subtitle Section -->
+    <div class="page-title-section">
+      <h1 class="page-title">Scheme Details</h1>
+      <p class="page-subtitle">View complete scheme guidelines, eligibility rules and benefits</p>
+    </div>
+
+    <!-- Details Card -->
+    <div class="details-card">
+      <!-- Card Top: Heading & Status Indicator -->
+      <div class="card-header-row">
+        <div>
+          <h2 class="card-title">General Information</h2>
+        </div>
+        <div class="status-indicator-block">
+          <span class="status-label">Status</span>
+          <span class="status-badge" [ngClass]="getStatusClass(s.status)">
+            {{ s.status }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Key-Value Grid (2 columns) -->
+      <div class="key-value-grid">
+        <!-- Row 1: Name & ID -->
+        <div class="grid-item">
+          <label class="field-label">Scheme Name</label>
+          <div class="field-value font-semibold">{{ s.name }}</div>
+        </div>
+
+        <div class="grid-item">
+          <label class="field-label">Scheme ID</label>
+          <div class="field-value id-text">{{ s.id }}</div>
+        </div>
+
+        <!-- Row 2: Category & State -->
+        <div class="grid-item">
+          <label class="field-label">Category</label>
+          <div class="field-value">
+            <span class="category-tag">{{ s.category }}</span>
+          </div>
+        </div>
+
+        <div class="grid-item">
+          <label class="field-label">State / Jurisdiction</label>
+          <div class="field-value">
+            <span class="state-pill">{{ s.state }}</span>
+          </div>
+        </div>
+
+        <!-- Row 3: Ministry & Department -->
+        <div class="grid-item">
+          <label class="field-label">Ministry</label>
+          <div class="field-value">{{ s.ministry }}</div>
+        </div>
+
+        <div class="grid-item">
+          <label class="field-label">Department</label>
+          <div class="field-value">{{ s.department }}</div>
+        </div>
+
+        <!-- Row 4: Start Date & End Date -->
+        <div class="grid-item">
+          <label class="field-label">Start Date</label>
+          <div class="field-value">{{ s.startDate }}</div>
+        </div>
+
+        <div class="grid-item">
+          <label class="field-label">End Date</label>
+          <div class="field-value">{{ s.endDate || 'Ongoing' }}</div>
+        </div>
+
+        <!-- Row 5: Application URL & Last Updated -->
+        <div class="grid-item">
+          <label class="field-label">Official Application Portal</label>
+          <div class="field-value">
+            @if (s.applicationUrl) {
+              <a [href]="s.applicationUrl" target="_blank" rel="noopener noreferrer" class="link-portal">
+                <span>{{ s.applicationUrl }}</span>
+                <svg class="ext-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+              </a>
+            } @else {
+              <span>—</span>
+            }
+          </div>
+        </div>
+
+        <div class="grid-item">
+          <label class="field-label">Last Updated</label>
+          <div class="field-value text-muted">{{ s.updatedAt }}</div>
+        </div>
+
+        <!-- Tags Row -->
+        @if (s.tags && s.tags.length > 0) {
+          <div class="grid-item full-width">
+            <label class="field-label">Tags</label>
+            <div class="tags-container">
+              @for (tag of s.tags; track tag) {
+                <span class="tag-chip">{{ tag }}</span>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Description -->
+        <div class="grid-item full-width">
+          <label class="field-label">Description / Summary</label>
+          <div class="field-value description-text">{{ s.description }}</div>
+        </div>
+      </div>
+
+      <!-- Scheme Benefits Section -->
+      <div class="detail-section-card">
+        <div class="section-card-header">
+          <div class="section-icon-circle green">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="section-card-title">Key Benefits & Assistance</h3>
+            <p class="section-card-desc">Financial aid, subsidies, and provisions entitled to eligible applicants</p>
+          </div>
+        </div>
+        <div class="section-card-body">
+          <p class="section-text">{{ s.benefits }}</p>
+        </div>
+      </div>
+
+      <!-- Eligibility Criteria Section -->
+      <div class="detail-section-card">
+        <div class="section-card-header">
+          <div class="section-icon-circle blue">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="section-card-title">Eligibility Criteria</h3>
+            <p class="section-card-desc">Mandatory qualifying conditions, age, income caps and reservations</p>
+          </div>
+        </div>
+        <div class="section-card-body">
+          <p class="section-text">{{ s.eligibilityCriteria }}</p>
+        </div>
+      </div>
+
+      <!-- Application Process Section -->
+      <div class="detail-section-card">
+        <div class="section-card-header">
+          <div class="section-icon-circle amber">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="section-card-title">Application & Enrollment Process</h3>
+            <p class="section-card-desc">Registration channels, verification guidelines, and document submission</p>
+          </div>
+        </div>
+        <div class="section-card-body">
+          <p class="section-text">{{ s.applicationProcess }}</p>
+        </div>
+      </div>
+
+      <!-- Card Actions Row -->
+      <div class="card-actions-row">
+        <button type="button" class="btn-back" (click)="backToSchemes()">
+          <svg class="back-arrow-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          Back to Schemes
+        </button>
+
+        <div class="action-buttons-group">
+          @if (canArchiveScheme()) {
+            @if (s.status === 'Archived') {
+              <button type="button" class="btn-secondary-action" (click)="restoreScheme()">
+                Restore Scheme
+              </button>
+              <button type="button" class="btn-secondary-action text-danger" (click)="openConfirmModal()">
+                Delete Permanently
+              </button>
+            } @else {
+              <button type="button" class="btn-secondary-action text-danger" (click)="openConfirmModal()">
+                Archive Scheme
+              </button>
+            }
+          }
+
+          @if (canEditScheme()) {
+            <button type="button" class="btn-edit-primary" (click)="editScheme()">
+              Edit Scheme
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Confirmation Modal Dialog -->
+  @if (showConfirmModal() && scheme()) {
+    <div class="modal-backdrop" (click)="closeConfirmModal()">
+      <div class="modal-card modal-card-sm" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3 class="modal-title">
+            {{ scheme()!.status === 'Archived' ? 'Permanently Delete Scheme?' : 'Archive Scheme?' }}
+          </h3>
+          <button type="button" class="modal-close-btn" (click)="closeConfirmModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc">
+            @if (scheme()!.status === 'Archived') {
+              Are you sure you want to permanently delete <strong>"{{ scheme()!.name }}"</strong>? This action cannot be undone.
+            } @else {
+              Are you sure you want to archive <strong>"{{ scheme()!.name }}"</strong>? The scheme will be moved to the archived repository.
+            }
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-modal-cancel" (click)="closeConfirmModal()">Cancel</button>
+          <button 
+            type="button" 
+            class="btn-modal-confirm-danger" 
+            [disabled]="isDeleting()"
+            (click)="confirmArchiveOrDelete()">
+            {{ scheme()!.status === 'Archived' ? 'Delete Permanently' : 'Archive Scheme' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

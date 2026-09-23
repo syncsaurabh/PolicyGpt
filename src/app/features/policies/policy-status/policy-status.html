@@ -1,0 +1,191 @@
+<div class="policy-status-page">
+  @if (notFound() || !policy()) {
+    <div class="not-found-card">
+      <h2>Policy Not Found</h2>
+      <p>The policy you requested could not be found.</p>
+      <button type="button" class="btn-back-policies" (click)="backToPolicies()">
+        Back to Policies
+      </button>
+    </div>
+  } @else {
+    @let p = policy()!;
+
+    <!-- Page Heading -->
+    <section class="page-header-section">
+      <h1 class="page-title">Policy Status &amp; History</h1>
+      <p class="page-subtitle">Track the current status and activity history of this policy</p>
+    </section>
+
+    <!-- Main Container Card -->
+    <article class="status-card">
+      <!-- Card Top: Header & Status Summary -->
+      <div class="card-top-row">
+        <div>
+          <h2 class="card-title">Policy Information</h2>
+        </div>
+
+        <div class="status-summary-block">
+          <span class="status-label">Current Status</span>
+          <span class="status-badge" [ngClass]="getStatusClass(p.status)">
+            {{ p.status }}
+          </span>
+
+          @if (p.submittedAt) {
+            <p class="summary-subtext">
+              Submitted for review on <span class="summary-date">{{ p.submittedAt }}</span>
+            </p>
+          }
+
+          <p class="summary-next-step">
+            Next Step: {{ p.nextStep || 'Awaiting review from the designated official' }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Policy Key-Value Information Grid -->
+      <div class="metadata-grid">
+        <div class="grid-col">
+          <label class="field-label">
+            Policy Name <span class="req-star">*</span>
+          </label>
+          <p class="field-value">{{ p.name }}</p>
+        </div>
+
+        <div class="grid-col">
+          <label class="field-label">
+            Policy ID <span class="req-star">*</span>
+          </label>
+          <p class="field-value id-text">{{ p.id }}</p>
+        </div>
+
+        <div class="grid-col">
+          <label class="field-label">
+            Ministry <span class="req-star">*</span>
+          </label>
+          <p class="field-value">{{ p.ministry }}</p>
+        </div>
+
+        <div class="grid-col">
+          <label class="field-label">
+            Department <span class="req-star">*</span>
+          </label>
+          <p class="field-value">{{ p.department }}</p>
+        </div>
+
+        <div class="grid-col">
+          <label class="field-label">
+            Category <span class="req-star">*</span>
+          </label>
+          <p class="field-value">{{ p.category }}</p>
+        </div>
+
+        <div class="grid-col">
+          <label class="field-label">
+            Sector <span class="req-star">*</span>
+          </label>
+          <p class="field-value">{{ p.sector }}</p>
+        </div>
+
+        <div class="grid-col">
+          <label class="field-label">
+            Publication Date <span class="req-star">*</span>
+          </label>
+          <p class="field-value">{{ p.publicationDate }}</p>
+        </div>
+
+        <div class="grid-col">
+          <label class="field-label">
+            Effective Date <span class="req-star">*</span>
+          </label>
+          <p class="field-value">{{ p.effectiveDate }}</p>
+        </div>
+
+        <div class="grid-col">
+          <label class="field-label">Expiry Date</label>
+          <p class="field-value">{{ p.expiryDate || '—' }}</p>
+        </div>
+
+        <div class="grid-col">
+          <label class="field-label">Tags</label>
+          <p class="field-value">
+            @if (p.tags && p.tags.length > 0) {
+              {{ p.tags.join(', ') }}
+            } @else {
+              —
+            }
+          </p>
+        </div>
+
+        <div class="grid-col full-width">
+          <label class="field-label">
+            Description <span class="req-star">*</span>
+          </label>
+          <p class="field-value description-text">{{ p.description }}</p>
+        </div>
+      </div>
+
+      <!-- Policy Document Attachment Section -->
+      <section class="doc-attachment-section">
+        <label class="field-label mb-2">
+          Policy Document <span class="req-star">*</span>
+        </label>
+        <div class="doc-attachment-box">
+          <div class="doc-meta-group">
+            <svg class="doc-icon-svg" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
+            </svg>
+            <div>
+              <span class="doc-title">{{ p.document.name }}</span>
+              <span class="doc-sub">{{ p.document.type }} • {{ p.document.size }}</span>
+            </div>
+          </div>
+
+          <a [routerLink]="['/policies', p.id]" class="btn-doc-view">
+            View Document
+          </a>
+        </div>
+      </section>
+
+      <!-- Policy History Timeline & Footer Actions -->
+      <section class="timeline-section">
+        <h3 class="timeline-title">Policy History</h3>
+
+        <div class="timeline-and-actions-wrapper">
+          <!-- Vertical Timeline Steps -->
+          <div class="vertical-timeline">
+            @for (step of getTimelineSteps(p); track step.label; let i = $index; let last = $last) {
+              <div class="timeline-step">
+                <!-- Connecting Line -->
+                @if (!last) {
+                  <span class="timeline-line"></span>
+                }
+                <!-- Marker Dot -->
+                <span class="timeline-marker" [ngClass]="getStepMarkerClass(step)"></span>
+
+                <div class="step-content">
+                  <p class="step-label" [class.step-label-muted]="!step.completed && !step.current">
+                    {{ step.label }}
+                  </p>
+                  <p class="step-desc">{{ step.description }}</p>
+                  @if (step.date) {
+                    <p class="step-date">{{ step.date }}</p>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Bottom Action Buttons -->
+          <div class="footer-actions">
+            <button type="button" class="btn-back-policies" (click)="backToPolicies()">
+              <span class="back-arrow">⬅</span> Back to Policies
+            </button>
+            <button type="button" class="btn-view-policy" (click)="viewPolicy()">
+              View Policy
+            </button>
+          </div>
+        </div>
+      </section>
+    </article>
+  }
+</div>

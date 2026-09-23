@@ -6,6 +6,6 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [RouterLink],
   templateUrl: './citizen-footer.component.html',
-  styleUrl: './citizen-footer.component.scss'
+  styleUrl: './citizen-footer.component.css'
 })
 export class CitizenFooterComponent {}

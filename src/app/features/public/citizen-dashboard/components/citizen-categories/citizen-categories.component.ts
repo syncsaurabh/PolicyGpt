@@ -11,7 +11,7 @@ export interface CategoryItem {
   selector: 'app-citizen-categories',
   standalone: true,
   templateUrl: './citizen-categories.component.html',
-  styleUrl: './citizen-categories.component.scss'
+  styleUrl: './citizen-categories.component.css'
 })
 export class CitizenCategoriesComponent {
   readonly selectedCategory = input<string | null>(null);

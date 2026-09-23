@@ -1,0 +1,38 @@
+.citizen-dashboard-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-page, #f8fafc);
+  color: var(--text-main, #0f172a);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.citizen-dashboard-root .main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.breadcrumbs-bar {
+  padding-top: 16px;
+}
+
+.breadcrumbs-bar .breadcrumbs-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .breadcrumbs-bar .breadcrumbs-container {
+    padding: 0 16px;
+  }
+}
+
+.breadcrumbs-bar .breadcrumbs-text {
+  color: var(--text-muted, #64748b);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  margin: 0;
+}

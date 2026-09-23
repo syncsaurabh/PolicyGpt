@@ -14,7 +14,7 @@ import { Role } from '../../../models/role.model';
 })
 export class Login implements OnInit {
   protected email = 'citizen@policygpt.gov.in';
-  protected password = 'Password123!';
+  protected password = 'CitizenPass123!';
   protected selectedRole = Role.CITIZEN;
   protected rememberMe = true;
   protected showPassword = false;
@@ -27,7 +27,6 @@ export class Login implements OnInit {
   protected readonly roles = Object.values(Role);
 
   private readonly authService = inject(AuthService);
-  private readonly legacyAuth = inject(Auth);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -93,17 +92,13 @@ export class Login implements OnInit {
             this.errorMessage = 'Please provide a valid email format and password.';
           }
         } else if (err.status === 0) {
-          // Backend offline fallback simulation
-          this.legacyAuth.login(email, this.selectedRole);
-          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-          this.router.navigateByUrl(returnUrl);
+          this.errorMessage = 'Unable to connect to the backend server. Please check your network or ensure the backend is running.';
         } else {
           this.errorMessage = typeof err.error?.detail === 'string'
             ? err.error.detail
             : (err.message || 'Login failed. Please try again.');
         }
 
-        // Immediately trigger change detection so error shows on screen without needing any click
         this.cdr.detectChanges();
       }
     });
@@ -114,8 +109,18 @@ export class Login implements OnInit {
    */
   loginAsGovernmentOfficial(): void {
     this.email = 'official@policygpt.gov.in';
-    this.password = 'Official@123';
+    this.password = 'OfficialPass123!';
     this.selectedRole = Role.GOVERNMENT_OFFICIAL;
+    this.onSubmit();
+  }
+
+  /**
+   * Quick-action login as an Administrator.
+   */
+  loginAsAdministrator(): void {
+    this.email = 'admin@policygpt.gov.in';
+    this.password = 'AdminPass123!';
+    this.selectedRole = Role.ADMINISTRATOR;
     this.onSubmit();
   }
 }

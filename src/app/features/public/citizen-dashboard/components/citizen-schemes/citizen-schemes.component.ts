@@ -15,7 +15,7 @@ export interface SchemeItem {
   standalone: true,
   imports: [RouterLink],
   templateUrl: './citizen-schemes.component.html',
-  styleUrl: './citizen-schemes.component.scss'
+  styleUrl: './citizen-schemes.component.css'
 })
 export class CitizenSchemesComponent {
   readonly searchQuery = input<string>('');

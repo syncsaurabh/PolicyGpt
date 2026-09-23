@@ -154,6 +154,39 @@ export class AuthService {
     return allowedRoles.some((role) => normalizeRole(role) === userRoleNorm);
   }
 
+  /** Capability checks according to backend authorization */
+  canCreatePolicy(): boolean {
+    return this.hasRole([UserRole.ADMINISTRATOR, UserRole.GOVERNMENT_OFFICIAL]);
+  }
+
+  canEditPolicy(): boolean {
+    return this.hasRole([UserRole.ADMINISTRATOR, UserRole.GOVERNMENT_OFFICIAL]);
+  }
+
+  canSubmitPolicy(): boolean {
+    return this.hasRole([UserRole.ADMINISTRATOR, UserRole.GOVERNMENT_OFFICIAL]);
+  }
+
+  canApproveRejectPolicy(): boolean {
+    return this.hasRole([UserRole.ADMINISTRATOR]);
+  }
+
+  canArchivePolicy(): boolean {
+    return this.hasRole([UserRole.ADMINISTRATOR]);
+  }
+
+  canCreateScheme(): boolean {
+    return this.hasRole([UserRole.ADMINISTRATOR, UserRole.GOVERNMENT_OFFICIAL]);
+  }
+
+  canEditScheme(): boolean {
+    return this.hasRole([UserRole.ADMINISTRATOR, UserRole.GOVERNMENT_OFFICIAL]);
+  }
+
+  canArchiveScheme(): boolean {
+    return this.hasRole([UserRole.ADMINISTRATOR]);
+  }
+
   /**
    * Terminate user session and clear storage.
    */
@@ -163,7 +196,7 @@ export class AuthService {
     this.currentUserSignal.set(null);
 
     if (redirect) {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/citizen']);
     }
   }
 

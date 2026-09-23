@@ -1,0 +1,239 @@
+<div class="policy-details-page">
+  @if (notFound() || !policy()) {
+    <div class="not-found-card">
+      <h2>Policy Not Found</h2>
+      <p>The policy you requested could not be located in the repository.</p>
+      <button type="button" class="btn-back-policies" (click)="backToPolicies()">
+        Back to Policies
+      </button>
+    </div>
+  } @else {
+    @let p = policy()!;
+
+    <!-- Header Title & Subtitle Section -->
+    <div class="page-title-section">
+      <h1 class="page-title">Policy Details</h1>
+      <p class="page-subtitle">View complete policy information and status changes</p>
+    </div>
+
+    <!-- Details Card -->
+    <div class="details-card">
+      <!-- Card Top: Heading & Status Indicator -->
+      <div class="card-header-row">
+        <div>
+          <h2 class="card-title">Policy Information</h2>
+        </div>
+        <div class="status-indicator-block">
+          <span class="status-label">Status</span>
+          <span class="status-badge" [ngClass]="getStatusClass(p.status)">
+            {{ p.status }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Key-Value Grid (2 columns) -->
+      <div class="key-value-grid">
+        <!-- Row 1: Name & ID -->
+        <div class="grid-item">
+          <label class="field-label">
+            Policy Name <span class="req-star">*</span>
+          </label>
+          <div class="field-value font-semibold">{{ p.name }}</div>
+        </div>
+
+        <div class="grid-item">
+          <label class="field-label">
+            Policy ID <span class="req-star">*</span>
+          </label>
+          <div class="field-value id-text">{{ p.id }}</div>
+        </div>
+
+        <!-- Row 2: Ministry & Department -->
+        <div class="grid-item">
+          <label class="field-label">
+            Ministry <span class="req-star">*</span>
+          </label>
+          <div class="field-value">{{ p.ministry }}</div>
+        </div>
+
+        <div class="grid-item">
+          <label class="field-label">
+            Department <span class="req-star">*</span>
+          </label>
+          <div class="field-value">{{ p.department }}</div>
+        </div>
+
+        <!-- Row 3: Category & Sector -->
+        <div class="grid-item">
+          <label class="field-label">
+            Category <span class="req-star">*</span>
+          </label>
+          <div class="field-value">{{ p.category }}</div>
+        </div>
+
+        <div class="grid-item">
+          <label class="field-label">
+            Sector <span class="req-star">*</span>
+          </label>
+          <div class="field-value">{{ p.sector }}</div>
+        </div>
+
+        <!-- Row 4: Publication Date & Effective Date -->
+        <div class="grid-item">
+          <label class="field-label">
+            Publication Date <span class="req-star">*</span>
+          </label>
+          <div class="field-value">{{ p.publicationDate }}</div>
+        </div>
+
+        <div class="grid-item">
+          <label class="field-label">
+            Effective Date <span class="req-star">*</span>
+          </label>
+          <div class="field-value">{{ p.effectiveDate }}</div>
+        </div>
+
+        <!-- Row 5: Expiry Date & Tags -->
+        <div class="grid-item">
+          <label class="field-label">Expiry Date</label>
+          <div class="field-value">{{ p.expiryDate || '—' }}</div>
+        </div>
+
+        <div class="grid-item">
+          <label class="field-label">Tags</label>
+          <div class="field-value">
+            @if (p.tags && p.tags.length > 0) {
+              <div class="tags-container">
+                @for (tag of p.tags; track tag) {
+                  <span class="tag-chip">{{ tag }}</span>
+                }
+              </div>
+            } @else {
+              —
+            }
+          </div>
+        </div>
+
+        <!-- Row 6: Description (Spans 2 columns) -->
+        <div class="grid-item full-width">
+          <label class="field-label">
+            Description <span class="req-star">*</span>
+          </label>
+          <div class="field-value description-text">{{ p.description }}</div>
+        </div>
+      </div>
+
+      <!-- Policy Document Section -->
+      <div class="doc-section">
+        <label class="field-label mb-2">
+          Policy Document <span class="req-star">*</span>
+        </label>
+
+        <div class="doc-preview-card">
+          <div class="doc-meta-left">
+            <div class="doc-svg-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="doc-filename">{{ p.document.name }}</p>
+              <p class="doc-size-text">{{ p.document.type }} • {{ p.document.size }}</p>
+            </div>
+          </div>
+
+          <button type="button" class="btn-view-doc" (click)="openDocumentPreview()">
+            View Document
+          </button>
+        </div>
+      </div>
+
+      <!-- Card Actions -->
+      <div class="card-actions-row">
+        <button type="button" class="btn-back" (click)="backToPolicies()">
+          <svg class="back-arrow-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          Back to Policies
+        </button>
+
+        <div class="action-buttons-group">
+          @if (actionError()) {
+            <span style="color: #dc2626; font-size: 0.75rem; font-weight: 500;">{{ actionError() }}</span>
+          }
+
+          @if (canArchivePolicy() && p.status !== 'Archived') {
+            <button type="button" class="btn-secondary-action text-danger" [disabled]="isProcessing()" (click)="archivePolicy()">
+              Archive
+            </button>
+          }
+
+          <button type="button" class="btn-secondary-action" (click)="viewStatusHistory()">
+            Status & History
+          </button>
+
+          @if (canSubmitPolicy() && (p.status === 'Draft' || p.status === 'Rejected')) {
+            <button type="button" class="btn-secondary-action btn-submit-accent" [disabled]="isProcessing()" (click)="submitForReview()">
+              Submit for Review
+            </button>
+          }
+
+          @if (canApproveRejectPolicy() && p.status === 'Under Review') {
+            <button type="button" class="btn-reject-danger" [disabled]="isProcessing()" (click)="rejectPolicy()">
+              Reject
+            </button>
+            <button type="button" class="btn-approve-success" [disabled]="isProcessing()" (click)="approvePolicy()">
+              Approve Policy
+            </button>
+          }
+
+          @if (canEditPolicy()) {
+            <button type="button" class="btn-edit-primary" (click)="editPolicy()">
+              Edit Policy
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Document Preview Modal -->
+  @if (showDocumentModal() && policy()) {
+    <div class="modal-backdrop" (click)="closeDocumentPreview()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <h3 class="modal-title">{{ policy()!.document.name }}</h3>
+            <span class="modal-subtitle">{{ policy()!.document.type }} • {{ policy()!.document.size }}</span>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeDocumentPreview()">×</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="doc-viewer-placeholder">
+            <div class="doc-viewer-header">
+              <span>Government of India • Official Policy Publication</span>
+              <span>Ref: {{ policy()!.id }}</span>
+            </div>
+            <div class="doc-viewer-content">
+              <h4>{{ policy()!.name }}</h4>
+              <p class="doc-viewer-ministry">{{ policy()!.ministry }} — {{ policy()!.department }}</p>
+              <hr class="doc-viewer-divider"/>
+              <p class="doc-viewer-para"><strong>Executive Summary:</strong> {{ policy()!.description }}</p>
+              <p class="doc-viewer-para"><strong>Effective Date:</strong> {{ policy()!.effectiveDate }}</p>
+              <p class="doc-viewer-para"><strong>Applicable Sector:</strong> {{ policy()!.sector }} ({{ policy()!.category }})</p>
+              <div class="doc-viewer-stamp">
+                <span>VERIFIED POLICY DOCUMENT</span>
+                <small>PolicyGPT Repository • {{ policy()!.updatedAt }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-close-modal" (click)="closeDocumentPreview()">Close Preview</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

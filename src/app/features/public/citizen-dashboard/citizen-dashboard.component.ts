@@ -22,7 +22,7 @@ import { CitizenBannerComponent } from './components/citizen-banner/citizen-bann
     CitizenBannerComponent
   ],
   templateUrl: './citizen-dashboard.component.html',
-  styleUrl: './citizen-dashboard.component.scss'
+  styleUrl: './citizen-dashboard.component.css'
 })
 export class CitizenDashboardComponent {
   protected searchQuery = signal<string>('');

@@ -1,0 +1,182 @@
+<div class="public-details-root">
+  <!-- Public Navbar -->
+  <app-citizen-header></app-citizen-header>
+
+  <main class="details-main">
+    @if (isLoading()) {
+      <div class="content-container">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Loading details...</p>
+        </div>
+      </div>
+    } @else if (detail()) {
+      <!-- Breadcrumbs -->
+      <div class="breadcrumbs-bar">
+        <div class="content-container">
+          <p class="breadcrumbs-text">
+            <a routerLink="/citizen" class="bc-link">Home</a>
+            <span class="bc-sep">/</span>
+            <a [routerLink]="itemType() === 'scheme' ? '/public/schemes' : '/public/policies'" class="bc-link">
+              {{ itemType() === 'scheme' ? 'Schemes' : 'Policies' }}
+            </a>
+            <span class="bc-sep">/</span>
+            <span class="bc-current">{{ detail()!.title }}</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="content-container page-flow">
+        <!-- Top Hero Header Card -->
+        <header class="top-hero-card">
+          <div class="hero-text-content">
+            <h1 class="scheme-title">{{ detail()!.title }}</h1>
+            <p class="scheme-subtitle">{{ detail()!.fullName }}</p>
+            <div class="category-pill-row">
+              <span class="category-pill">{{ detail()!.category }}</span>
+            </div>
+            <p class="scheme-lead-desc">{{ detail()!.description }}</p>
+          </div>
+
+          <div class="hero-actions-content">
+            <button 
+              type="button" 
+              class="btn-save-scheme" 
+              [class.active]="detail()!.isBookmarked"
+              (click)="toggleSaveScheme()"
+            >
+              <span class="save-icon">🏷️</span>
+              {{ detail()!.isBookmarked ? 'Saved' : 'Save Scheme' }}
+            </button>
+
+            <button 
+              type="button" 
+              class="btn-apply-main"
+              (click)="openOfficialPortal()"
+            >
+              Apply / Official Website <span class="arrow-icon">→</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- 2-Column Overview & Key Info Grid -->
+        <section class="overview-keyinfo-grid">
+          <!-- Left: Overview Card -->
+          <article class="info-card overview-card">
+            <h2 class="card-title">Overview</h2>
+
+            <div class="overview-section">
+              <h3 class="overview-subheading">About the Scheme</h3>
+              <p class="overview-body-text">{{ detail()!.aboutText }}</p>
+            </div>
+
+            <div class="overview-section">
+              <h3 class="overview-subheading">Benefits</h3>
+              <ul class="benefits-bullet-list">
+                @for (b of detail()!.benefits; track b) {
+                  <li>{{ b }}</li>
+                }
+              </ul>
+            </div>
+          </article>
+
+          <!-- Right: Key Information Card -->
+          <article class="info-card keyinfo-card">
+            <h2 class="card-title">Key Information</h2>
+
+            <dl class="keyinfo-dl">
+              <div class="keyinfo-row">
+                <dt class="keyinfo-dt">Eligibility</dt>
+                <dd class="keyinfo-dd bold">{{ detail()!.eligibility }}</dd>
+              </div>
+
+              <div class="keyinfo-row">
+                <dt class="keyinfo-dt">Category</dt>
+                <dd class="keyinfo-dd bold">{{ detail()!.category }}</dd>
+              </div>
+
+              <div class="keyinfo-row">
+                <dt class="keyinfo-dt">Beneficiary</dt>
+                <dd class="keyinfo-dd">{{ detail()!.beneficiary }}</dd>
+              </div>
+
+              <div class="keyinfo-row">
+                <dt class="keyinfo-dt">Status</dt>
+                <dd class="keyinfo-dd status-active">{{ detail()!.status }}</dd>
+              </div>
+            </dl>
+          </article>
+        </section>
+
+        <!-- Eligibility & Requirements Section -->
+        <section class="eligibility-requirements-section">
+          <h2 class="section-title">Eligibility &amp; Requirements</h2>
+
+          <div class="two-column-card-grid">
+            <!-- Who can apply? Card -->
+            <article class="info-card checkmark-card">
+              <h3 class="sub-card-title">Who can apply?</h3>
+              <ul class="checkmark-list">
+                @for (item of detail()!.whoCanApply; track item) {
+                  <li class="check-item">
+                    <span class="check-icon">✓</span>
+                    <span class="check-text">{{ item }}</span>
+                  </li>
+                }
+              </ul>
+            </article>
+
+            <!-- Required Information Card -->
+            <article class="info-card checkbox-card">
+              <h3 class="sub-card-title">Required Information</h3>
+              <ul class="checkbox-list">
+                @for (req of detail()!.requiredInfo; track req) {
+                  <li class="req-item">
+                    <span class="square-box"></span>
+                    <span class="req-text">{{ req }}</span>
+                  </li>
+                }
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <!-- How to Apply Section -->
+        <section class="how-to-apply-section">
+          <h2 class="section-title">How to Apply</h2>
+
+          <div class="steps-flow-container">
+            @for (step of detail()!.steps; track step.stepNumber; let i = $index; let last = $last) {
+              <div class="step-card">
+                <span class="step-num">{{ step.stepNumber }}</span>
+                <h3 class="step-title">{{ step.title }}</h3>
+                <p class="step-desc">{{ step.desc }}</p>
+              </div>
+
+              @if (!last) {
+                <div class="flow-arrow" aria-hidden="true">→</div>
+              }
+            }
+          </div>
+        </section>
+
+        <!-- Ready to Apply Callout Banner -->
+        <section class="ready-to-apply-banner">
+          <div class="banner-text">
+            <h2 class="banner-title">Ready to apply?</h2>
+            <p class="banner-desc">Visit the official website to check the latest requirements and submit your application</p>
+          </div>
+
+          <div class="banner-action">
+            <button type="button" class="btn-banner-apply" (click)="openOfficialPortal()">
+              Apply on Official Website <span class="arrow-icon">→</span>
+            </button>
+          </div>
+        </section>
+      </div>
+    }
+  </main>
+
+  <!-- Public Footer -->
+  <app-citizen-footer></app-citizen-footer>
+</div>

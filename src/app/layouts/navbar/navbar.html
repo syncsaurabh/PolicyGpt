@@ -1,24 +1,62 @@
-<header class="navbar-header">
+﻿<header class="navbar-header">
   <div class="logo-container">
+    <button class="sidebar-toggle-btn" type="button" (click)="layoutService.toggleSidebar()"
+      [title]="layoutService.isSidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+      aria-label="Toggle navigation">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
     <div class="logo-icon">P</div>
     <span class="logo-text">Policy<span class="highlight">GPT</span></span>
   </div>
 
   <div class="user-controls">
-    @if (auth.currentUser(); as user) {
-      <div class="profile-chip">
-        <div class="avatar">{{ user.username.substring(0, 1).toUpperCase() }}</div>
-        <div class="user-meta">
-          <span class="username">{{ user.username }}</span>
-          <span class="role-badge">{{ user.role }}</span>
-        </div>
-      </div>
-      <button class="logout-btn" (click)="logout()">
-        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor">
-          <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/>
+    <button
+      class="theme-toggle-btn"
+      type="button"
+      (click)="themeService.toggleTheme()"
+      [title]="themeService.isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'"
+      [attr.aria-label]="themeService.isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'">
+      @if (themeService.isDarkMode()) {
+        <!-- Sun icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
         </svg>
-        <span>Logout</span>
-      </button>
+      } @else {
+        <!-- Moon icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      }
+    </button>
+
+    @if (auth.currentUser(); as user) {
+    <div class="profile-chip">
+      <div class="avatar">{{ user.username.substring(0, 1).toUpperCase() }}</div>
+      <div class="user-meta">
+        <span class="username">{{ user.username }}</span>
+        <span class="role-badge">{{ user.role }}</span>
+      </div>
+    </div>
+    <button class="logout-btn" (click)="logout()" title="Log out">
+      <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor">
+        <path
+          d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z" />
+      </svg>
+      <span class="logout-text">Logout</span>
+    </button>
     }
   </div>
 </header>

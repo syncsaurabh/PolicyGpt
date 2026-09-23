@@ -15,6 +15,14 @@
   box-shadow: 0 4px 20px rgba(220, 38, 38, 0.05);
 }
 
+:host-context([data-theme="dark"]) .unauth-card,
+:host-context(body.dark-theme) .unauth-card,
+[data-theme="dark"] .unauth-card,
+body.dark-theme .unauth-card {
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: 0 8px 30px rgba(239, 68, 68, 0.15);
+}
+
 .warning-icon {
   color: var(--danger);
   margin-bottom: 20px;

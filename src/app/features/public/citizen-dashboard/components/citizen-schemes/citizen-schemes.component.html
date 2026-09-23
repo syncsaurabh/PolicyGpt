@@ -33,10 +33,10 @@
           <p class="scheme-description">{{ scheme.description }}</p>
 
           <div class="scheme-card-footer">
-            <button type="button" class="btn-view-details" (click)="viewDetails(scheme)">
+            <a [routerLink]="['/public/schemes', scheme.id]" class="btn-view-details">
               View Details
               <span class="material-symbols-outlined arrow-icon">arrow_forward</span>
-            </button>
+            </a>
           </div>
         </div>
       } @empty {
@@ -73,7 +73,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <a routerLink="/login" class="btn-apply-modal">Apply / Check Full Eligibility</a>
+        <a routerLink="/login" class="btn-apply-modal">Login to Apply &amp; Check Eligibility</a>
         <button type="button" class="btn-close-modal" (click)="closeModal()">Close</button>
       </div>
     </div>

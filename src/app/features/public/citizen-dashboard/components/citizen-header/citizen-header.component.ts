@@ -1,16 +1,18 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Auth } from '../../../../../core/services/auth';
+import { ThemeService } from '../../../../../core/services/theme.service';
 
 @Component({
   selector: 'app-citizen-header',
   standalone: true,
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './citizen-header.component.html',
-  styleUrl: './citizen-header.component.scss'
+  styleUrl: './citizen-header.component.css'
 })
 export class CitizenHeaderComponent {
   protected readonly auth = inject(Auth);
+  protected readonly themeService = inject(ThemeService);
   protected readonly mobileMenuOpen = signal(false);
 
   toggleMobileMenu(): void {

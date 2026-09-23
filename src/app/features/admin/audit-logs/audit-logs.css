@@ -31,8 +31,8 @@
 }
 
 .admin-table th {
-  background: var(--bg-page);
-  color: var(--text-main);
+  background: var(--bg-card-subtle);
+  color: var(--text-muted);
   font-weight: 700;
   padding: 16px 24px;
   font-size: 0.95rem;
@@ -41,13 +41,17 @@
 
 .admin-table td {
   padding: 16px 24px;
-  color: var(--text-main);
+  color: var(--text-secondary);
   font-size: 0.9rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .admin-table tr:last-child td {
   border-bottom: none;
+}
+
+.admin-table tr:hover td {
+  background-color: var(--bg-row-hover);
 }
 
 .time {
@@ -64,16 +68,16 @@
 }
 
 .event-tag.security {
-  background: rgba(37, 99, 235, 0.08);
-  color: var(--info);
+  background: var(--badge-info-bg);
+  color: var(--badge-info-text);
 }
 
 .event-tag.config {
-  background: rgba(42, 67, 101, 0.08);
-  color: var(--brand-blue);
+  background: var(--badge-primary-bg);
+  color: var(--primary);
 }
 
 .event-tag.warning {
-  background: rgba(220, 38, 38, 0.08);
+  background: var(--badge-danger-bg);
   color: var(--danger);
 }

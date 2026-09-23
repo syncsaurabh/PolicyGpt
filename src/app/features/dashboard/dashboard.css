@@ -45,6 +45,14 @@
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.04);
 }
 
+:host-context([data-theme="dark"]) .stat-card:hover,
+:host-context(body.dark-theme) .stat-card:hover,
+[data-theme="dark"] .stat-card:hover,
+body.dark-theme .stat-card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  border-color: var(--brand-blue);
+}
+
 .stat-icon {
   width: 48px;
   height: 48px;
@@ -52,6 +60,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .policies-icon {
@@ -67,6 +76,33 @@
 .queries-icon {
   background: radial-gradient(circle, rgba(22, 163, 74, 0.1) 0%, rgba(22, 163, 74, 0.02) 100%);
   border: 1px solid rgba(22, 163, 74, 0.2);
+}
+
+:host-context([data-theme="dark"]) .policies-icon,
+:host-context(body.dark-theme) .policies-icon,
+[data-theme="dark"] .policies-icon,
+body.dark-theme .policies-icon {
+  background: rgba(96, 165, 250, 0.12);
+  border: 1px solid rgba(96, 165, 250, 0.25);
+  color: #60a5fa;
+}
+
+:host-context([data-theme="dark"]) .schemes-icon,
+:host-context(body.dark-theme) .schemes-icon,
+[data-theme="dark"] .schemes-icon,
+body.dark-theme .schemes-icon {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #93c5fd;
+}
+
+:host-context([data-theme="dark"]) .queries-icon,
+:host-context(body.dark-theme) .queries-icon,
+[data-theme="dark"] .queries-icon,
+body.dark-theme .queries-icon {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #4ade80;
 }
 
 .stat-info {
@@ -181,4 +217,48 @@
 .secondary-btn:hover {
   background: var(--bg-page);
   border-color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+  .dashboard-page {
+    gap: 20px;
+  }
+
+  .page-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .stat-card {
+    padding: 16px;
+  }
+
+  .role-workspace {
+    padding: 20px 16px;
+  }
+
+  .workspace-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding-bottom: 16px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .primary-btn, .secondary-btn {
+    width: 100%;
+    text-align: center;
+  }
 }

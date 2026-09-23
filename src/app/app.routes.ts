@@ -4,9 +4,10 @@ import { DashboardLayout } from './layouts/dashboard-layout/dashboard-layout';
 import { authGuard, noAuthGuard } from './core/guards/auth-guard';
 import { roleGuard } from './core/guards/role-guard';
 import { Role } from './models/role.model';
+import { Auth } from './core/services/auth';
 
 export const routes: Routes = [
-    // 1. Public Citizen Dashboard route (accessible without login)
+    // 1. Public Citizen Dashboard & Public Browse Routes (accessible without login)
     {
         path: '',
         redirectTo: 'citizen',
@@ -15,6 +16,22 @@ export const routes: Routes = [
     {
         path: 'citizen',
         loadComponent: () => import('./features/public/citizen-dashboard/citizen-dashboard.component').then((m) => m.CitizenDashboardComponent)
+    },
+    {
+        path: 'public/policies',
+        loadComponent: () => import('./features/public/public-policies/public-policies.component').then((m) => m.PublicPoliciesComponent)
+    },
+    {
+        path: 'public/policies/:id',
+        loadComponent: () => import('./features/public/public-details/public-details.component').then((m) => m.PublicDetailsComponent)
+    },
+    {
+        path: 'public/schemes',
+        loadComponent: () => import('./features/public/public-schemes/public-schemes.component').then((m) => m.PublicSchemesComponent)
+    },
+    {
+        path: 'public/schemes/:id',
+        loadComponent: () => import('./features/public/public-details/public-details.component').then((m) => m.PublicDetailsComponent)
     },
 
     // 2. Public Auth routes (inside AuthLayoutComponent)
@@ -56,15 +73,83 @@ export const routes: Routes = [
             },
             {
                 path: 'policies',
-                loadComponent: () => import('./features/policies/policies').then((m) => m.Policies),
                 canActivate: [roleGuard],
-                data: { roles: [Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL, Role.RESEARCHER] }
+                data: { roles: [Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL, Role.CITIZEN, Role.RESEARCHER, Role.ORGANIZATION, Role.GUEST] },
+                children: [
+                    {
+                        path: '',
+                        loadComponent: () => import('./features/policies/policies').then((m) => m.Policies)
+                    },
+                    {
+                        path: 'upload',
+                        canActivate: [roleGuard],
+                        data: { roles: [Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL] },
+                        loadComponent: () => import('./features/policies/upload-policy/upload-policy').then((m) => m.UploadPolicy)
+                    },
+                    {
+                        path: ':id',
+                        loadComponent: () => import('./features/policies/policy-details/policy-details').then((m) => m.PolicyDetails)
+                    },
+                    {
+                        path: ':id/edit',
+                        canActivate: [roleGuard],
+                        data: { roles: [Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL] },
+                        loadComponent: () => import('./features/policies/edit-policy/edit-policy').then((m) => m.EditPolicy)
+                    },
+                    {
+                        path: ':id/submit',
+                        canActivate: [roleGuard],
+                        data: { roles: [Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL] },
+                        loadComponent: () => import('./features/policies/submit-policy/submit-policy').then((m) => m.SubmitPolicy)
+                    },
+                    {
+                        path: ':id/status',
+                        loadComponent: () => import('./features/policies/policy-status/policy-status').then((m) => m.PolicyStatusComponent)
+                    },
+                    {
+                        path: ':id/archive',
+                        canActivate: [roleGuard],
+                        data: { roles: [Role.ADMINISTRATOR] },
+                        loadComponent: () => import('./features/policies/policy-archive/policy-archive').then((m) => m.PolicyArchive)
+                    },
+                    {
+                        path: ':id/submitted',
+                        loadComponent: () => import('./features/policies/policy-submitted/policy-submitted').then((m) => m.PolicySubmitted)
+                    }
+                ]
             },
             {
                 path: 'schemes',
-                loadComponent: () => import('./features/schemes/schemes').then((m) => m.Schemes),
                 canActivate: [roleGuard],
-                data: { roles: [Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL, Role.CITIZEN] }
+                data: { roles: [Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL, Role.CITIZEN, Role.RESEARCHER, Role.ORGANIZATION, Role.GUEST] },
+                children: [
+                    {
+                        path: '',
+                        loadComponent: () => import('./features/schemes/schemes').then((m) => m.Schemes)
+                    },
+                    {
+                        path: 'create',
+                        canActivate: [roleGuard],
+                        data: { roles: [Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL] },
+                        loadComponent: () => import('./features/schemes/create-scheme/create-scheme').then((m) => m.CreateScheme)
+                    },
+                    {
+                        path: ':id',
+                        loadComponent: () => import('./features/schemes/scheme-details/scheme-details').then((m) => m.SchemeDetails)
+                    },
+                    {
+                        path: ':id/edit',
+                        canActivate: [roleGuard],
+                        data: { roles: [Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL] },
+                        loadComponent: () => import('./features/schemes/edit-scheme/edit-scheme').then((m) => m.EditScheme)
+                    }
+                ]
+            },
+            {
+                path: 'search',
+                canActivate: [roleGuard],
+                data: { roles: [Role.CITIZEN, Role.RESEARCHER, Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL, Role.ORGANIZATION, Role.GUEST] },
+                loadComponent: () => import('./features/policies/policies').then((m) => m.Policies)
             },
             {
                 path: 'eligibility',
@@ -88,13 +173,13 @@ export const routes: Routes = [
                 path: 'approvals',
                 loadComponent: () => import('./features/approvals/approvals').then((m) => m.Approvals),
                 canActivate: [roleGuard],
-                data: { roles: [Role.GOVERNMENT_OFFICIAL] }
+                data: { roles: [Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL] }
             },
             {
                 path: 'reports',
                 loadComponent: () => import('./features/reports/reports').then((m) => m.Reports),
                 canActivate: [roleGuard],
-                data: { roles: [Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL, Role.RESEARCHER] }
+                data: { roles: [Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL, Role.RESEARCHER, Role.ORGANIZATION] }
             },
             {
                 path: 'feedback',

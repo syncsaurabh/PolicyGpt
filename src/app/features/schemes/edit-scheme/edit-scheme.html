@@ -1,0 +1,337 @@
+<div class="edit-policy-page">
+  @if (notFound()) {
+    <div class="not-found-card">
+      <h2>Scheme Not Found</h2>
+      <p>The scheme you are trying to edit does not exist or has been removed from the repository.</p>
+      <button type="button" class="btn-back-policies" (click)="cancel()">
+        Back to Schemes
+      </button>
+    </div>
+  } @else {
+    <!-- Page Header -->
+    <section class="page-title-section">
+      <h1 class="page-title">Edit Scheme</h1>
+      <p class="page-subtitle">Update scheme guidelines, parameters and save your changes</p>
+    </section>
+
+    <!-- Error Message Alert -->
+    @if (errorMessage()) {
+      <div class="alert-error" role="alert">
+        <svg class="alert-icon" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+        </svg>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <!-- Edit Scheme Card -->
+    <div class="form-card">
+      <h2 class="card-heading">Scheme Information: {{ schemeId() }}</h2>
+
+      <form class="policy-form" (ngSubmit)="saveChanges()">
+        <!-- Row 1: Scheme Name & Scheme ID -->
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="scheme_name" class="field-label">
+              Scheme Name <span class="req-star">*</span>
+            </label>
+            <input 
+              type="text"
+              id="scheme_name"
+              class="form-control"
+              [(ngModel)]="schemeName"
+              name="schemeName"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="scheme_id" class="field-label">
+              Scheme ID <span class="req-star">*</span>
+            </label>
+            <input 
+              type="text"
+              id="scheme_id"
+              class="form-control readonly-field"
+              [value]="schemeId()"
+              readonly
+            />
+          </div>
+        </div>
+
+        <!-- Row 2: Category & State -->
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="category" class="field-label">
+              Category <span class="req-star">*</span>
+            </label>
+            <div class="select-wrapper">
+              <select 
+                id="category"
+                class="form-control select-control"
+                [(ngModel)]="category"
+                name="category"
+                required>
+                @for (c of categories; track c) {
+                  <option [value]="c">{{ c }}</option>
+                }
+              </select>
+              <div class="select-arrow">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="state" class="field-label">
+              State / Jurisdiction <span class="req-star">*</span>
+            </label>
+            <div class="select-wrapper">
+              <select 
+                id="state"
+                class="form-control select-control"
+                [(ngModel)]="state"
+                name="state"
+                required>
+                @for (st of states; track st) {
+                  <option [value]="st">{{ st }}</option>
+                }
+              </select>
+              <div class="select-arrow">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 3: Ministry & Department -->
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="ministry" class="field-label">
+              Ministry <span class="req-star">*</span>
+            </label>
+            <div class="select-wrapper">
+              <select 
+                id="ministry"
+                class="form-control select-control"
+                [(ngModel)]="ministry"
+                name="ministry"
+                required>
+                @for (m of ministries; track m) {
+                  <option [value]="m">{{ m }}</option>
+                }
+              </select>
+              <div class="select-arrow">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="department" class="field-label">
+              Department <span class="req-star">*</span>
+            </label>
+            <div class="select-wrapper">
+              <select 
+                id="department"
+                class="form-control select-control"
+                [(ngModel)]="department"
+                name="department"
+                required>
+                @for (d of departments; track d) {
+                  <option [value]="d">{{ d }}</option>
+                }
+              </select>
+              <div class="select-arrow">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 4: Start Date & End Date -->
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="start_date" class="field-label">
+              Start Date <span class="req-star">*</span>
+            </label>
+            <div class="date-input-wrapper">
+              <input 
+                type="text"
+                id="start_date"
+                class="form-control"
+                [(ngModel)]="startDate"
+                name="startDate"
+                required
+              />
+              <div class="date-icon-container">
+                <svg class="calendar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="end_date" class="field-label">End Date</label>
+            <div class="date-input-wrapper">
+              <input 
+                type="text"
+                id="end_date"
+                class="form-control"
+                [(ngModel)]="endDate"
+                name="endDate"
+              />
+              <div class="date-icon-container">
+                <svg class="calendar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 5: Status & Application URL -->
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="status" class="field-label">
+              Status <span class="req-star">*</span>
+            </label>
+            <div class="select-wrapper">
+              <select 
+                id="status"
+                class="form-control select-control"
+                [(ngModel)]="status"
+                name="status"
+                required>
+                @for (st of statuses; track st) {
+                  <option [value]="st">{{ st }}</option>
+                }
+              </select>
+              <div class="select-arrow">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="app_url" class="field-label">Application URL</label>
+            <div class="tags-input-wrapper">
+              <input 
+                type="url"
+                id="app_url"
+                class="form-control"
+                [(ngModel)]="applicationUrl"
+                name="applicationUrl"
+              />
+              <div class="tag-icon-container">
+                <svg class="tag-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 6: Description -->
+        <div class="form-group">
+          <label for="description" class="field-label">
+            Description / Summary <span class="req-star">*</span>
+          </label>
+          <textarea 
+            id="description"
+            class="form-control textarea-control"
+            rows="3"
+            [(ngModel)]="description"
+            name="description"
+            required>
+          </textarea>
+        </div>
+
+        <!-- Row 7: Benefits -->
+        <div class="form-group">
+          <label for="benefits" class="field-label">
+            Benefits <span class="req-star">*</span>
+          </label>
+          <textarea 
+            id="benefits"
+            class="form-control textarea-control"
+            rows="3"
+            [(ngModel)]="benefits"
+            name="benefits"
+            required>
+          </textarea>
+        </div>
+
+        <!-- Row 8: Eligibility Information -->
+        <div class="form-group">
+          <label for="eligibility" class="field-label">
+            Eligibility Information <span class="req-star">*</span>
+          </label>
+          <textarea 
+            id="eligibility"
+            class="form-control textarea-control"
+            rows="3"
+            [(ngModel)]="eligibilityCriteria"
+            name="eligibilityCriteria"
+            required>
+          </textarea>
+        </div>
+
+        <!-- Row 9: Application Process -->
+        <div class="form-group">
+          <label for="app_process" class="field-label">
+            Application Process <span class="req-star">*</span>
+          </label>
+          <textarea 
+            id="app_process"
+            class="form-control textarea-control"
+            rows="3"
+            [(ngModel)]="applicationProcess"
+            name="applicationProcess"
+            required>
+          </textarea>
+        </div>
+
+        <!-- Row 10: Tags -->
+        <div class="form-group">
+          <label for="tags" class="field-label">Tags (comma-separated)</label>
+          <div class="tags-input-wrapper">
+            <input 
+              type="text"
+              id="tags"
+              class="form-control"
+              [(ngModel)]="tags"
+              name="tags"
+            />
+            <div class="tag-icon-container">
+              <svg class="tag-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons Footer -->
+        <div class="form-actions-footer">
+          <button type="button" class="btn-form-cancel" (click)="cancel()">
+            Cancel
+          </button>
+          <button type="submit" class="btn-form-save-changes" [disabled]="isSaving()">
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</div>

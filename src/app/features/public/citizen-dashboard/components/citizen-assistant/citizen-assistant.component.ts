@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [FormsModule],
   templateUrl: './citizen-assistant.component.html',
-  styleUrl: './citizen-assistant.component.scss'
+  styleUrl: './citizen-assistant.component.css'
 })
 export class CitizenAssistantComponent {
   protected assistantQuery = signal<string>('');
