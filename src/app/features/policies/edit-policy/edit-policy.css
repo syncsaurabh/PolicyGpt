@@ -5,6 +5,7 @@
   width: 100%;
 }
 
+.edit-policy-page,
 .upload-policy-page {
   display: flex;
   flex-direction: column;
@@ -13,6 +14,42 @@
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
+}
+
+.not-found-card {
+  background-color: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.not-found-card h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main, #0f172a);
+  margin: 0;
+}
+
+.not-found-card p {
+  color: var(--text-muted, #64748b);
+  margin: 0;
+}
+
+.btn-back-policies {
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: var(--brand-blue, #2563eb);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 8px;
 }
 
 .page-title-section {
@@ -116,6 +153,13 @@
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
+.form-control.readonly-field {
+  background-color: var(--bg-card-subtle, #f8fafc);
+  color: var(--text-muted, #64748b);
+  cursor: not-allowed;
+  user-select: none;
+}
+
 .textarea-control {
   resize: vertical;
   min-height: 90px;
@@ -154,6 +198,7 @@
   align-items: center;
 }
 
+.date-icon-container,
 .tag-icon-container {
   position: absolute;
   right: 12px;
@@ -163,11 +208,102 @@
   color: var(--text-muted, #94a3b8);
 }
 
+.calendar-icon,
 .tag-icon {
   width: 18px;
   height: 18px;
 }
 
+/* Policy Document Section */
+.doc-edit-section {
+  margin-top: 4px;
+}
+
+.doc-file-box {
+  border: 2px dashed var(--border-color, #cbd5e1);
+  border-radius: 10px;
+  padding: 24px 20px;
+  text-align: center;
+  background-color: var(--bg-card-subtle, #f8fafc);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.doc-file-box:hover {
+  border-color: var(--brand-blue, #2563eb);
+}
+
+.hidden-file-input {
+  display: none;
+}
+
+.cloud-upload-icon-container {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-blue, #2563eb);
+  margin-bottom: 2px;
+}
+
+.cloud-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.doc-file-info-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.doc-icon-small {
+  width: 16px;
+  height: 16px;
+  color: var(--brand-blue, #2563eb);
+}
+
+.doc-name-text {
+  font-size: 0.925rem;
+  font-weight: 600;
+  color: var(--text-main, #0f172a);
+}
+
+.doc-meta-text {
+  font-size: 0.8rem;
+  color: var(--text-muted, #64748b);
+}
+
+.browse-action-row {
+  margin-top: 6px;
+}
+
+.btn-browse-replace {
+  padding: 7px 18px;
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--brand-blue, #2563eb);
+  background-color: #ffffff;
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-browse-replace:hover {
+  background-color: rgba(37, 99, 235, 0.05);
+  border-color: var(--brand-blue, #2563eb);
+}
+
+/* Form Actions Footer */
 .form-actions-footer {
   display: flex;
   justify-content: flex-end;
@@ -188,19 +324,14 @@
   border: 1px solid var(--border-color, #cbd5e1);
   border-radius: 8px;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.btn-form-save-draft {
-  padding: 10px 20px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-main, #0f172a);
-  background-color: var(--bg-card-subtle, #f1f5f9);
-  border: 1px solid var(--border-color, #cbd5e1);
-  border-radius: 8px;
-  cursor: pointer;
+.btn-form-cancel:hover {
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
+.btn-form-save-changes,
 .btn-form-submit {
   padding: 10px 24px;
   font-size: 0.875rem;
@@ -210,8 +341,16 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
+.btn-form-save-changes:hover:not(:disabled),
 .btn-form-submit:hover:not(:disabled) {
   background-color: var(--brand-blue-dark, #1d4ed8);
+}
+
+.btn-form-save-changes:disabled,
+.btn-form-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

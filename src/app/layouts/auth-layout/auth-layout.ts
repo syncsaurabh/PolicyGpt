@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-auth-layout',
@@ -8,4 +9,6 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './auth-layout.html',
   styleUrl: './auth-layout.css'
 })
-export class AuthLayoutComponent {}
+export class AuthLayoutComponent {
+  protected readonly themeService = inject(ThemeService);
+}

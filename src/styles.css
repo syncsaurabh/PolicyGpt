@@ -436,7 +436,16 @@ svg {
 [data-theme="dark"] .official-section,
 [data-theme="dark"] .rbac-action-card,
 [data-theme="dark"] .type-filter-tabs,
-[data-theme="dark"] .review-table {
+[data-theme="dark"] .review-table,
+[data-theme="dark"] .filter-controls-card,
+[data-theme="dark"] .notifications-list-card,
+[data-theme="dark"] .preferences-card,
+[data-theme="dark"] .toggle-card,
+[data-theme="dark"] .roles-checkbox-grid,
+[data-theme="dark"] .details-message,
+[data-theme="dark"] .entity-context-chip,
+[data-theme="dark"] .table-responsive-card,
+[data-theme="dark"] .notification-dropdown {
   background-color: #172033 !important;
   border-color: rgba(148, 163, 184, 0.15) !important;
   color: #CBD5E1 !important;
@@ -771,6 +780,8 @@ svg {
 
 [data-theme="dark"] .btn-view-doc,
 [data-theme="dark"] .btn-doc-view,
+[data-theme="dark"] .btn-browse-replace,
+[data-theme="dark"] .btn-browse-files,
 [data-theme="dark"] .btn-change-file {
   background-color: #172033 !important;
   border: 1px solid rgba(59, 130, 246, 0.4) !important;
@@ -907,6 +918,7 @@ svg {
 }
 
 [data-theme="dark"] .cloud-icon-circle,
+[data-theme="dark"] .cloud-upload-icon-container,
 [data-theme="dark"] .empty-icon-circle {
   background-color: #172033 !important;
   color: #60A5FA !important;

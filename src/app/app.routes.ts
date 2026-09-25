@@ -167,7 +167,7 @@ export const routes: Routes = [
                 path: 'notifications',
                 loadComponent: () => import('./features/notifications/notifications').then((m) => m.Notifications),
                 canActivate: [roleGuard],
-                data: { roles: [Role.CITIZEN] }
+                data: { roles: [Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL, Role.CITIZEN, Role.RESEARCHER, Role.ORGANIZATION] }
             },
             {
                 path: 'approvals',

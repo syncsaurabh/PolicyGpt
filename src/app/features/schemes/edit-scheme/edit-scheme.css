@@ -203,6 +203,7 @@
   cursor: pointer;
 }
 
+.btn-form-save-changes,
 .btn-form-submit {
   padding: 10px 24px;
   font-size: 0.875rem;
@@ -214,6 +215,7 @@
   cursor: pointer;
 }
 
+.btn-form-save-changes:hover:not(:disabled),
 .btn-form-submit:hover:not(:disabled) {
   background-color: var(--brand-blue-dark, #1d4ed8);
 }

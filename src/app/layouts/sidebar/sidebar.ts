@@ -31,6 +31,7 @@ export const ROLE_SIDEBAR_CONFIG: Record<string, NavItem[]> = {
     { label: 'Schemes', path: '/schemes', icon: 'account_balance' },
     { label: 'Approvals', path: '/approvals', icon: 'fact_check' },
     { label: 'Reports', path: '/reports', icon: 'analytics' },
+    { label: 'Notifications', path: '/notifications', icon: 'notifications' },
   ],
   CITIZEN: [
     { label: 'Dashboard', path: '/dashboard', icon: 'grid_view' },
@@ -47,12 +48,14 @@ export const ROLE_SIDEBAR_CONFIG: Record<string, NavItem[]> = {
     { label: 'Policies', path: '/policies', icon: 'description' },
     { label: 'Compare', path: '/compare', icon: 'compare_arrows' },
     { label: 'Reports', path: '/reports', icon: 'analytics' },
+    { label: 'Notifications', path: '/notifications', icon: 'notifications' },
   ],
   ORGANIZATION: [
     { label: 'Dashboard', path: '/dashboard', icon: 'grid_view' },
     { label: 'Policies', path: '/policies', icon: 'description' },
     { label: 'Schemes', path: '/schemes', icon: 'account_balance' },
     { label: 'Reports', path: '/reports', icon: 'analytics' },
+    { label: 'Notifications', path: '/notifications', icon: 'notifications' },
     { label: 'Feedback', path: '/feedback', icon: 'rate_review' },
   ],
 };
