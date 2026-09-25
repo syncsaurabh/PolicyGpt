@@ -1,0 +1,28 @@
+$kind: http-request
+name: 'Add Eligibility Rule to Scheme'
+method: POST
+url: '{{baseUrl}}{{apiV1}}/schemes/:id/rules'
+order: 6000
+pathVariables:
+  - key: id
+    value: '{{schemeId}}'
+    description: 'Scheme ID'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "rule_name": "Income Limit",
+      "criteria_json": "{\"max_income\": 300000}",
+      "description": "Annual family income must not exceed INR 3,00,000.",
+      "is_active": true
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 201", function () {
+          pm.response.to.have.status(201);
+      });

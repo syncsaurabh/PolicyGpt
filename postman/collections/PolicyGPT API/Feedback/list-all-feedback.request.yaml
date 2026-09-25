@@ -1,0 +1,32 @@
+$kind: http-request
+name: 'List All Feedback (Admin/Official)'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/feedback?page=1&page_size=10'
+order: 3000
+queryParams:
+  - key: page
+    value: '1'
+  - key: page_size
+    value: '10'
+  - key: status_filter
+    value: ''
+    description: 'Filter by status: SUBMITTED, IN_REVIEW, RESOLVED, CLOSED'
+    disabled: true
+  - key: feedback_type
+    value: ''
+    description: 'Filter by type: FEEDBACK, ISSUE, INQUIRY, SUGGESTION, COMPLAINT'
+    disabled: true
+  - key: priority
+    value: ''
+    description: 'Filter by priority: LOW, MEDIUM, HIGH, URGENT'
+    disabled: true
+  - key: category
+    value: ''
+    disabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });

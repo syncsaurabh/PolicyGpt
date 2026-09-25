@@ -1,0 +1,21 @@
+$kind: http-request
+name: 'List Reports History'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/reports?page=1&page_size=10'
+order: 1000
+queryParams:
+  - key: page
+    value: '1'
+  - key: page_size
+    value: '10'
+  - key: report_type
+    value: ''
+    description: 'Filter by type: POLICY_REPORT, SCHEME_REPORT, DEPARTMENT_REPORT, USER_ACTIVITY_REPORT, ANALYTICS_REPORT'
+    disabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });

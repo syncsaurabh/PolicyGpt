@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Optional, Union
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 import json
@@ -24,6 +24,22 @@ class Settings(BaseSettings):
         "http://localhost:4200",
         "http://127.0.0.1:4200",
     ]
+
+    # Gmail SMTP Configuration
+    SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USERNAME: Optional[str] = None
+    SMTP_PASSWORD: Optional[str] = None
+    SMTP_FROM: Optional[str] = None
+    SMTP_TLS: bool = True
+
+    # Twilio SMS Configuration
+    TWILIO_ACCOUNT_SID: Optional[str] = None
+    TWILIO_AUTH_TOKEN: Optional[str] = None
+    TWILIO_PHONE_NUMBER: Optional[str] = None
+
+    # Firebase Cloud Messaging
+    FIREBASE_CREDENTIALS_PATH: Optional[str] = None
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod

@@ -1,0 +1,27 @@
+$kind: http-request
+name: 'Update Scheme'
+method: PUT
+url: '{{baseUrl}}{{apiV1}}/schemes/:id'
+order: 4000
+pathVariables:
+  - key: id
+    value: '{{schemeId}}'
+    description: 'Scheme ID'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "PM Scholarship Scheme 2024 (Revised)",
+      "benefits": "INR 12,000 per year for undergraduate studies.",
+      "status": "ACTIVE"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });

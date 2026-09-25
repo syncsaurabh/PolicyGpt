@@ -1,0 +1,16 @@
+$kind: http-request
+name: 'Mark Notification as Read'
+method: PUT
+url: '{{baseUrl}}{{apiV1}}/notifications/:id/read'
+order: 6000
+pathVariables:
+  - key: id
+    value: '1'
+    description: 'Notification ID'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });

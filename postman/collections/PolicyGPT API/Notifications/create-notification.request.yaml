@@ -1,0 +1,27 @@
+$kind: http-request
+name: 'Create Targeted Notification'
+method: POST
+url: '{{baseUrl}}{{apiV1}}/notifications'
+order: 8000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "user_id": 1,
+      "title": "New Policy Published",
+      "message": "A new education policy has been published. Please review.",
+      "notification_type": "NEW_POLICY",
+      "channel": "IN_APP",
+      "entity_type": "policy",
+      "entity_id": "1"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 201", function () {
+          pm.response.to.have.status(201);
+      });

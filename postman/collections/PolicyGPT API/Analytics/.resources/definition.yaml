@@ -1,0 +1,9 @@
+$kind: collection
+name: Analytics
+description: 'Platform analytics and KPI dashboards. Requires ADMINISTRATOR, GOVERNMENT_OFFICIAL, or RESEARCHER role (user analytics requires ADMINISTRATOR only).'
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'
+order: 8000

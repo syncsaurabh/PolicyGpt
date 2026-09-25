@@ -1,0 +1,25 @@
+$kind: http-request
+name: 'User Activity Report (JSON, Admin only)'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/reports/user-activity'
+order: 5000
+queryParams:
+  - key: start_date
+    value: ''
+    disabled: true
+  - key: end_date
+    value: ''
+    disabled: true
+  - key: role
+    value: ''
+    disabled: true
+  - key: event_type
+    value: ''
+    disabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });

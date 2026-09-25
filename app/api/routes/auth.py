@@ -89,7 +89,7 @@ async def login(
         email = form.get("username") or form.get("email")
         password = form.get("password")
 
-    if not email or not password:
+    if not email or not password or not isinstance(email, str) or not isinstance(password, str):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Email/username and password are required"

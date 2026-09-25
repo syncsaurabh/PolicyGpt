@@ -1,0 +1,25 @@
+$kind: http-request
+name: 'Broadcast Notification'
+method: POST
+url: '{{baseUrl}}{{apiV1}}/notifications/broadcast'
+order: 9000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "title": "System Maintenance Notice",
+      "message": "The portal will be under maintenance on Sunday 2:00 AM - 4:00 AM IST.",
+      "notification_type": "SYSTEM_ALERT",
+      "channel": "IN_APP",
+      "target_roles": ["CITIZEN", "GOVERNMENT_OFFICIAL"]
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });

@@ -1,0 +1,25 @@
+$kind: http-request
+name: 'List My Feedback'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/feedback/my?page=1&page_size=10'
+order: 2000
+queryParams:
+  - key: page
+    value: '1'
+  - key: page_size
+    value: '10'
+  - key: status_filter
+    value: ''
+    description: 'Filter by status: SUBMITTED, IN_REVIEW, RESOLVED, CLOSED'
+    disabled: true
+  - key: feedback_type
+    value: ''
+    description: 'Filter by type: FEEDBACK, ISSUE, INQUIRY, SUGGESTION, COMPLAINT'
+    disabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });

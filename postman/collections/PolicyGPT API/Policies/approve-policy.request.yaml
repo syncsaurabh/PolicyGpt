@@ -1,0 +1,26 @@
+$kind: http-request
+name: 'Approve Policy'
+method: POST
+url: '{{baseUrl}}{{apiV1}}/policies/:id/approve'
+order: 7000
+pathVariables:
+  - key: id
+    value: '{{policyId}}'
+    description: 'Policy ID'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "reason": "Policy meets all required criteria.",
+      "publish": true
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });

@@ -1,0 +1,26 @@
+$kind: http-request
+name: 'Resolve Feedback (Admin/Official)'
+method: POST
+url: '{{baseUrl}}{{apiV1}}/feedback/:id/resolve'
+order: 6000
+pathVariables:
+  - key: id
+    value: '{{feedbackId}}'
+    description: 'Feedback ID'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "admin_response": "Thank you for your feedback. We have noted your suggestion and will improve the search functionality in the next release.",
+      "status": "RESOLVED"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });

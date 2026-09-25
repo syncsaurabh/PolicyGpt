@@ -1,0 +1,22 @@
+$kind: http-request
+name: 'Get Scheme by ID'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/schemes/:id'
+order: 3000
+pathVariables:
+  - key: id
+    value: '{{schemeId}}'
+    description: 'Scheme ID'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response has scheme fields and eligibility_rules", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("id");
+          pm.expect(json).to.have.property("name");
+          pm.expect(json).to.have.property("eligibility_rules");
+      });

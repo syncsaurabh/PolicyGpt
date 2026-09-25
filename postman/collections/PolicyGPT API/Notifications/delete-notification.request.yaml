@@ -1,0 +1,16 @@
+$kind: http-request
+name: 'Delete Notification'
+method: DELETE
+url: '{{baseUrl}}{{apiV1}}/notifications/:id'
+order: 7000
+pathVariables:
+  - key: id
+    value: '1'
+    description: 'Notification ID'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });

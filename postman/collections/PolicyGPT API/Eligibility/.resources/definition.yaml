@@ -1,0 +1,4 @@
+$kind: collection
+name: Eligibility
+description: 'Citizen eligibility check against live government schemes. No authentication required.'
+order: 6000

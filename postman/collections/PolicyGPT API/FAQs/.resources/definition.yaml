@@ -1,0 +1,9 @@
+$kind: collection
+name: 'FAQs & Helpdesk'
+description: 'Frequently Asked Questions management. List and get are public. Create/update/delete require ADMINISTRATOR role.'
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'
+order: 12000

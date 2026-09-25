@@ -107,9 +107,58 @@ def government_user(db_session: Session) -> User:
 
 
 @pytest.fixture
+def researcher_user(db_session: Session) -> User:
+    """Create a test user with RESEARCHER role."""
+    user = User(
+        name="Dr. Researcher",
+        email="researcher@example.com",
+        password_hash=get_password_hash("ResearchPass123!"),
+        role=UserRole.RESEARCHER,
+        is_active=True,
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
+
+
+@pytest.fixture
+def organization_user(db_session: Session) -> User:
+    """Create a test user with ORGANIZATION role."""
+    user = User(
+        name="NGO Lead",
+        email="ngo@example.com",
+        password_hash=get_password_hash("NgoPass123!"),
+        role=UserRole.ORGANIZATION,
+        is_active=True,
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
+
+
+@pytest.fixture
+def guest_user(db_session: Session) -> User:
+    """Create a test user with GUEST_USER role."""
+    user = User(
+        name="Guest Visitor",
+        email="guest@example.com",
+        password_hash=get_password_hash("GuestPass123!"),
+        role=UserRole.GUEST_USER,
+        is_active=True,
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
+
+
+@pytest.fixture
 def auth_headers():
     """Helper fixture to generate Authorization headers for a given user."""
     def _get_headers(user: User) -> dict:
         token = create_access_token(subject=user.id, role=user.role.value)
         return {"Authorization": f"Bearer {token}"}
     return _get_headers
+

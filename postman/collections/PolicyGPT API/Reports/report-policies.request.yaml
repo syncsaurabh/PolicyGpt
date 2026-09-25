@@ -1,0 +1,36 @@
+$kind: http-request
+name: 'Policy Report (JSON)'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/reports/policies'
+order: 2000
+queryParams:
+  - key: start_date
+    value: ''
+    disabled: true
+  - key: end_date
+    value: ''
+    disabled: true
+  - key: department
+    value: ''
+    disabled: true
+  - key: category
+    value: ''
+    disabled: true
+  - key: state
+    value: ''
+    disabled: true
+  - key: status_filter
+    value: ''
+    disabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response has report_title and data", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("report_title");
+          pm.expect(json).to.have.property("data");
+      });

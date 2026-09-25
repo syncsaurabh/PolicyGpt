@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'RBAC Test - Government Official'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/users/government/test'
+order: 4000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200 (requires GOVERNMENT_OFFICIAL role)", function () {
+          pm.response.to.have.status(200);
+      });

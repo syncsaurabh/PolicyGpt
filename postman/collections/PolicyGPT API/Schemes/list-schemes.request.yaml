@@ -1,0 +1,43 @@
+$kind: http-request
+name: 'List Schemes'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/schemes?page=1&page_size=10'
+order: 1000
+queryParams:
+  - key: page
+    value: '1'
+  - key: page_size
+    value: '10'
+  - key: category
+    value: 'Scholarships'
+    description: 'Filter by category (Scholarships, Farmer Welfare, Healthcare, Housing, etc.)'
+    disabled: true
+  - key: status
+    value: 'ACTIVE'
+    description: 'Filter by status (ACTIVE, INACTIVE, ARCHIVED, PUBLISHED, DRAFT)'
+    disabled: true
+  - key: department
+    value: ''
+    disabled: true
+  - key: state
+    value: ''
+    disabled: true
+  - key: policy_id
+    value: ''
+    description: 'Filter by parent policy ID'
+    disabled: true
+  - key: keyword
+    value: ''
+    disabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response has pagination fields", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("total_count");
+          pm.expect(json).to.have.property("results");
+      });

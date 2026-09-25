@@ -1,0 +1,9 @@
+$kind: collection
+name: Users
+description: 'Current user profile management and RBAC verification endpoints. All requests require a valid Bearer token.'
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'
+order: 2000

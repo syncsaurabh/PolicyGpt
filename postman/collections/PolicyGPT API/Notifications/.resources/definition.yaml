@@ -1,0 +1,9 @@
+$kind: collection
+name: Notifications
+description: 'User notification management. All endpoints require authentication. Create/broadcast require ADMINISTRATOR or GOVERNMENT_OFFICIAL role.'
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'
+order: 9000

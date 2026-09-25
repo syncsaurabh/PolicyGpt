@@ -1,0 +1,20 @@
+$kind: http-request
+name: 'Delete FAQ (Admin only)'
+method: DELETE
+url: '{{baseUrl}}{{apiV1}}/faqs/:id'
+order: 5000
+pathVariables:
+  - key: id
+    value: '{{faqId}}'
+    description: 'FAQ ID'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response has message", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("message");
+      });

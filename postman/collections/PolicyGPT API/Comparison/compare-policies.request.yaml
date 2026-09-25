@@ -1,0 +1,27 @@
+$kind: http-request
+name: 'Compare Policies'
+method: POST
+url: '{{baseUrl}}{{apiV1}}/comparison'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "policy_ids": [1, 2]
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response has comparison_type and items", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("comparison_type");
+          pm.expect(json).to.have.property("items");
+          pm.expect(json.items).to.be.an("array");
+      });

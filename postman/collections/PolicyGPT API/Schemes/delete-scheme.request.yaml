@@ -1,0 +1,16 @@
+$kind: http-request
+name: 'Archive Scheme (Soft Delete)'
+method: DELETE
+url: '{{baseUrl}}{{apiV1}}/schemes/:id'
+order: 5000
+pathVariables:
+  - key: id
+    value: '{{schemeId}}'
+    description: 'Scheme ID'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
