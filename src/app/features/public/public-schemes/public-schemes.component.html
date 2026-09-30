@@ -161,10 +161,12 @@
                       class="bookmark-action-btn"
                       [class.active]="scheme.bookmarked"
                       (click)="toggleBookmark(scheme, $event)"
-                      title="Bookmark scheme"
-                      aria-label="Bookmark scheme"
+                      [title]="scheme.bookmarked ? 'Remove bookmark' : 'Bookmark scheme'"
+                      [attr.aria-label]="scheme.bookmarked ? 'Remove bookmark' : 'Bookmark scheme'"
                     >
-                      <span class="tag-icon">🏷️</span>
+                      <svg viewBox="0 0 24 24" [attr.fill]="scheme.bookmarked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" class="bookmark-svg">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                      </svg>
                     </button>
                   </div>
 

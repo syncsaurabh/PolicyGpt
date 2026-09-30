@@ -1,8 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { AssistantPopupComponent } from './features/assistant/assistant-popup/assistant-popup.component';
 
 @Component({
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, AssistantPopupComponent],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',
@@ -10,3 +11,4 @@ import { RouterOutlet } from '@angular/router';
 export class App {
   protected readonly title = signal('policy-gpt-frontend');
 }
+

@@ -45,8 +45,10 @@
               [class.active]="detail()!.isBookmarked"
               (click)="toggleSaveScheme()"
             >
-              <span class="save-icon">🏷️</span>
-              {{ detail()!.isBookmarked ? 'Saved' : 'Save Scheme' }}
+              <svg viewBox="0 0 24 24" [attr.fill]="detail()!.isBookmarked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+              </svg>
+              {{ detail()!.isBookmarked ? 'Bookmarked' : (itemType() === 'scheme' ? 'Bookmark Scheme' : 'Bookmark Policy') }}
             </button>
 
             <button 

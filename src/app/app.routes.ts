@@ -69,7 +69,30 @@ export const routes: Routes = [
         children: [
             {
                 path: 'dashboard',
-                loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard)
+                children: [
+                    {
+                        path: '',
+                        loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard)
+                    },
+                    {
+                        path: 'admin',
+                        canActivate: [roleGuard],
+                        data: { roles: [Role.ADMINISTRATOR] },
+                        loadComponent: () => import('./features/dashboard/admin-dashboard/admin-dashboard.component').then((m) => m.AdminDashboardComponent)
+                    },
+                    {
+                        path: 'government',
+                        canActivate: [roleGuard],
+                        data: { roles: [Role.GOVERNMENT_OFFICIAL] },
+                        loadComponent: () => import('./features/dashboard/government-dashboard/government-dashboard.component').then((m) => m.GovernmentDashboardComponent)
+                    },
+                    {
+                        path: 'citizen',
+                        canActivate: [roleGuard],
+                        data: { roles: [Role.CITIZEN] },
+                        loadComponent: () => import('./features/dashboard/citizen-dashboard/citizen-dashboard.component').then((m) => m.CitizenDashboardComponent)
+                    }
+                ]
             },
             {
                 path: 'policies',
@@ -179,10 +202,12 @@ export const routes: Routes = [
                 path: 'reports',
                 loadComponent: () => import('./features/reports/reports').then((m) => m.Reports),
                 canActivate: [roleGuard],
-                data: { roles: [Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL, Role.RESEARCHER, Role.ORGANIZATION] }
+                data: { roles: [Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL] }
             },
             {
                 path: 'feedback',
+                canActivate: [roleGuard],
+                data: { roles: [Role.CITIZEN, Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL, Role.RESEARCHER, Role.ORGANIZATION] },
                 loadComponent: () => import('./features/feedback/feedback').then((m) => m.Feedback)
             },
 

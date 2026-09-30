@@ -2,36 +2,36 @@
 <div class="eligibility-root" [class.inside-dashboard]="isInsideDashboard()">
   <!-- BEGIN: MainHeader (only shown for standalone public view) -->
   @if (!isInsideDashboard()) {
-    <header class="eligibility-header" data-purpose="site-header">
-      <div class="header-inner">
-        <!-- Logo Branding -->
-        <div class="logo-area">
-          <a routerLink="/citizen" class="logo-link">
-            <span class="logo-text">PolicyGPT</span>
-          </a>
-        </div>
-
-        <!-- Navigation Links -->
-        <nav class="nav-links">
-          <a routerLink="/citizen" class="nav-link">Home</a>
-          <a routerLink="/citizen" fragment="popular-schemes" class="nav-link">Policies</a>
-          <a routerLink="/citizen" fragment="popular-schemes" class="nav-link">Schemes</a>
-          <a routerLink="/eligibility" class="nav-link active">Eligibility Check</a>
-          <a routerLink="/citizen" fragment="how-it-works" class="nav-link">About</a>
-          <a routerLink="/citizen" fragment="ai-assistant" class="nav-link">Help</a>
-
-          <!-- Utility Icons / Auth Buttons -->
-          <div class="nav-utilities">
-            @if (auth.isAuthenticated()) {
-              <a routerLink="/dashboard" class="nav-link auth-dashboard-link">Role Dashboard</a>
-            } @else {
-              <a routerLink="/login" class="nav-link btn-nav-login">Login</a>
-              <a routerLink="/register" class="btn-primary btn-nav-register">Register</a>
-            }
-          </div>
-        </nav>
+  <header class="eligibility-header" data-purpose="site-header">
+    <div class="header-inner">
+      <!-- Logo Branding -->
+      <div class="logo-area">
+        <a routerLink="/citizen" class="logo-link">
+          <span class="logo-text">PolicyGPT</span>
+        </a>
       </div>
-    </header>
+
+      <!-- Navigation Links -->
+      <nav class="nav-links">
+        <a routerLink="/citizen" class="nav-link">Home</a>
+        <a routerLink="/citizen" fragment="popular-schemes" class="nav-link">Policies</a>
+        <a routerLink="/citizen" fragment="popular-schemes" class="nav-link">Schemes</a>
+        <a routerLink="/eligibility" class="nav-link active">Eligibility Check</a>
+        <a routerLink="/citizen" fragment="how-it-works" class="nav-link">About</a>
+        <a routerLink="/citizen" fragment="ai-assistant" class="nav-link">Help</a>
+
+        <!-- Utility Icons / Auth Buttons -->
+        <div class="nav-utilities">
+          @if (auth.isAuthenticated()) {
+          <a routerLink="/dashboard" class="nav-link auth-dashboard-link">Role Dashboard</a>
+          } @else {
+          <a routerLink="/login" class="nav-link btn-nav-login">Login</a>
+          <a routerLink="/register" class="btn-primary btn-nav-register">Register</a>
+          }
+        </div>
+      </nav>
+    </div>
+  </header>
   }
   <!-- END: MainHeader -->
 
@@ -40,13 +40,13 @@
     <!-- Breadcrumbs -->
     <nav class="breadcrumb-nav" aria-label="Breadcrumb">
       @if (isInsideDashboard()) {
-        <a routerLink="/dashboard">Dashboard</a>
-        <span class="sep">/</span>
-        <span class="current">Eligibility Check</span>
+      <a routerLink="/dashboard">Dashboard</a>
+      <span class="sep">/</span>
+      <span class="current">Eligibility Check</span>
       } @else {
-        <a routerLink="/citizen">Home</a>
-        <span class="sep">/</span>
-        <span class="current">Eligibility Checker</span>
+      <a routerLink="/citizen">Home</a>
+      <span class="sep">/</span>
+      <span class="current">Eligibility Checker</span>
       }
     </nav>
 
@@ -54,67 +54,64 @@
     <div class="header-stepper-row">
       <div>
         @if (currentStep() === 'form') {
-          <h1 class="page-heading">Check Your Eligibility</h1>
-          <p class="page-subheading">Find government schemes you may be eligible for based on your profile</p>
+        <h1 class="page-heading">Check Your Eligibility</h1>
+        <p class="page-subheading">Find government schemes you may be eligible for based on your profile</p>
         } @else if (currentStep() === 'review') {
-          <h1 class="page-heading">Review Your Information</h1>
-          <p class="page-subheading">Please review your details before we check your eligibility</p>
+        <h1 class="page-heading">Review Your Information</h1>
+        <p class="page-subheading">Please review your details before we check your eligibility</p>
         } @else if (currentStep() === 'analyzing') {
-          <h1 class="page-heading">Analyzing Your Eligibility</h1>
-          <p class="page-subheading">We're checking your information and finding government schemes that match your profile</p>
+        <h1 class="page-heading">Analyzing Your Eligibility</h1>
+        <p class="page-subheading">We're checking your information and finding government schemes that match your
+          profile</p>
         } @else if (currentStep() === 'results') {
-          <h1 class="page-heading">Your Eligibility Results</h1>
-          <p class="page-subheading">We found government schemes that may match your profile</p>
+        <h1 class="page-heading">Your Eligibility Results</h1>
+        <p class="page-subheading">We found government schemes that may match your profile</p>
         }
       </div>
 
       <!-- Stepper Component -->
       <div class="stepper-wrapper">
         <div class="stepper-line-bg"></div>
-        <div 
-          class="stepper-line-fill"
-          [style.width]="currentStep() === 'form' ? '0%' : (currentStep() === 'review' ? '50%' : '100%')"
-        ></div>
+        <div class="stepper-line-fill"
+          [style.width]="currentStep() === 'form' ? '0%' : (currentStep() === 'review' ? '50%' : '100%')"></div>
 
         <!-- Step 1 Milestone -->
         <div class="step-milestone">
-          <div class="step-circle" [class.completed]="currentStep() !== 'form'" [class.active]="currentStep() === 'form'">
+          <div class="step-circle" [class.completed]="currentStep() !== 'form'"
+            [class.active]="currentStep() === 'form'">
             @if (currentStep() !== 'form') {
-              <svg class="check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-              </svg>
+            <svg class="check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+            </svg>
             }
           </div>
-          <span class="step-label" [class.highlight]="currentStep() === 'form' || currentStep() !== 'form'">Personal</span>
+          <span class="step-label"
+            [class.highlight]="currentStep() === 'form' || currentStep() !== 'form'">Personal</span>
         </div>
 
         <!-- Step 2 Milestone -->
         <div class="step-milestone">
-          <div class="step-circle" 
-            [class.completed]="currentStep() === 'analyzing' || currentStep() === 'results'" 
-            [class.active]="currentStep() === 'review'"
-            [class.pending]="currentStep() === 'form'"
-          >
+          <div class="step-circle" [class.completed]="currentStep() === 'analyzing' || currentStep() === 'results'"
+            [class.active]="currentStep() === 'review'" [class.pending]="currentStep() === 'form'">
             @if (currentStep() === 'analyzing' || currentStep() === 'results') {
-              <svg class="check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-              </svg>
+            <svg class="check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+            </svg>
             }
           </div>
-          <span class="step-label" [class.highlight]="currentStep() === 'review' || currentStep() === 'analyzing' || currentStep() === 'results'">Review</span>
+          <span class="step-label"
+            [class.highlight]="currentStep() === 'review' || currentStep() === 'analyzing' || currentStep() === 'results'">Review</span>
         </div>
 
         <!-- Step 3 Milestone -->
         <div class="step-milestone">
-          <div class="step-circle" 
-            [class.completed]="currentStep() === 'results'" 
+          <div class="step-circle" [class.completed]="currentStep() === 'results'"
             [class.active]="currentStep() === 'analyzing'"
-            [class.pending]="currentStep() === 'form' || currentStep() === 'review'"
-          >
+            [class.pending]="currentStep() === 'form' || currentStep() === 'review'">
             @if (currentStep() === 'results') {
-              <svg class="check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-              </svg>
+            <svg class="check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+            </svg>
             }
           </div>
           <span class="step-label" [class.highlight]="currentStep() === 'results'">Results</span>
@@ -126,475 +123,430 @@
     <!-- UI 1: STEP 1 - PERSONAL INFORMATION FORM   -->
     <!-- ========================================== -->
     @if (currentStep() === 'form') {
-      <section class="wizard-card" data-purpose="form-step">
-        <div class="card-header">
-          <h2 class="card-title">Personal Information</h2>
-          <p class="card-desc">Provide your details to find schemes that match your eligibility</p>
+    <section class="wizard-card" data-purpose="form-step">
+      <div class="card-header">
+        <h2 class="card-title">Personal Information</h2>
+        <p class="card-desc">Provide your details to find schemes that match your eligibility</p>
+      </div>
+
+      @if (errorMessage()) {
+      <div class="form-error-banner">
+        <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+          </path>
+        </svg>
+        <span>{{ errorMessage() }}</span>
+      </div>
+      }
+
+      <form (ngSubmit)="goToReview()" class="eligibility-form">
+        <div class="form-grid">
+          <!-- Age -->
+          <div class="form-group">
+            <label for="age" class="form-label">Age</label>
+            <input type="number" id="age" name="age" class="form-input" placeholder="Enter your age" [ngModel]="age()"
+              (ngModelChange)="age.set($event)" min="1" max="120" required />
+          </div>
+
+          <!-- Gender -->
+          <div class="form-group">
+            <label for="gender" class="form-label">Gender</label>
+            <select id="gender" name="gender" class="form-select" [ngModel]="gender()"
+              (ngModelChange)="gender.set($event)">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <!-- Annual Income -->
+          <div class="form-group">
+            <label for="income" class="form-label">Annual Income</label>
+            <div class="input-currency-wrapper">
+              <span class="currency-symbol">₹</span>
+              <input type="number" id="income" name="income" class="form-input input-with-symbol"
+                placeholder="Enter annual income" [ngModel]="income()" (ngModelChange)="income.set($event)" min="0"
+                step="1000" required />
+            </div>
+          </div>
+
+          <!-- Occupation -->
+          <div class="form-group">
+            <label for="occupation" class="form-label">Occupation</label>
+            <select id="occupation" name="occupation" class="form-select" [ngModel]="occupation()"
+              (ngModelChange)="occupation.set($event)">
+              @for (item of occupationList; track item.value) {
+              <option [value]="item.value">{{ item.label }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Education -->
+          <div class="form-group">
+            <label for="education" class="form-label">Education</label>
+            <select id="education" name="education" class="form-select" [ngModel]="education()"
+              (ngModelChange)="education.set($event)">
+              @for (item of educationList; track item.value) {
+              <option [value]="item.value">{{ item.label }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- State / Location -->
+          <div class="form-group">
+            <label for="state" class="form-label">State / Location</label>
+            <select id="state" name="state" class="form-select" [ngModel]="state()" (ngModelChange)="state.set($event)">
+              @for (st of statesList; track st) {
+              <option [value]="st">{{ st }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Social Category -->
+          <div class="form-group">
+            <label for="social_category" class="form-label">Social Category</label>
+            <select id="social_category" name="social_category" class="form-select" [ngModel]="socialCategory()"
+              (ngModelChange)="socialCategory.set($event)">
+              @for (cat of categoryList; track cat.value) {
+              <option [value]="cat.value">{{ cat.label }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Disability Status -->
+          <div class="form-group">
+            <label for="disability_status" class="form-label">Disability Status</label>
+            <select id="disability_status" name="disability_status" class="form-select" [ngModel]="disabilityStatus()"
+              (ngModelChange)="disabilityStatus.set($event)">
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
         </div>
 
-        @if (errorMessage()) {
-          <div class="form-error-banner">
-            <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-            </svg>
-            <span>{{ errorMessage() }}</span>
-          </div>
-        }
-
-        <form (ngSubmit)="goToReview()" class="eligibility-form">
-          <div class="form-grid">
-            <!-- Age -->
-            <div class="form-group">
-              <label for="age" class="form-label">Age</label>
-              <input 
-                type="number" 
-                id="age" 
-                name="age" 
-                class="form-input" 
-                placeholder="Enter your age" 
-                [ngModel]="age()" 
-                (ngModelChange)="age.set($event)"
-                min="1" 
-                max="120"
-                required
-              />
-            </div>
-
-            <!-- Gender -->
-            <div class="form-group">
-              <label for="gender" class="form-label">Gender</label>
-              <select 
-                id="gender" 
-                name="gender" 
-                class="form-select"
-                [ngModel]="gender()" 
-                (ngModelChange)="gender.set($event)"
-              >
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-
-            <!-- Annual Income -->
-            <div class="form-group">
-              <label for="income" class="form-label">Annual Income</label>
-              <div class="input-currency-wrapper">
-                <span class="currency-symbol">₹</span>
-                <input 
-                  type="number" 
-                  id="income" 
-                  name="income" 
-                  class="form-input input-with-symbol" 
-                  placeholder="Enter annual income"
-                  [ngModel]="income()" 
-                  (ngModelChange)="income.set($event)"
-                  min="0"
-                  step="1000"
-                  required
-                />
-              </div>
-            </div>
-
-            <!-- Occupation -->
-            <div class="form-group">
-              <label for="occupation" class="form-label">Occupation</label>
-              <select 
-                id="occupation" 
-                name="occupation" 
-                class="form-select"
-                [ngModel]="occupation()" 
-                (ngModelChange)="occupation.set($event)"
-              >
-                @for (item of occupationList; track item.value) {
-                  <option [value]="item.value">{{ item.label }}</option>
-                }
-              </select>
-            </div>
-
-            <!-- Education -->
-            <div class="form-group">
-              <label for="education" class="form-label">Education</label>
-              <select 
-                id="education" 
-                name="education" 
-                class="form-select"
-                [ngModel]="education()" 
-                (ngModelChange)="education.set($event)"
-              >
-                @for (item of educationList; track item.value) {
-                  <option [value]="item.value">{{ item.label }}</option>
-                }
-              </select>
-            </div>
-
-            <!-- State / Location -->
-            <div class="form-group">
-              <label for="state" class="form-label">State / Location</label>
-              <select 
-                id="state" 
-                name="state" 
-                class="form-select"
-                [ngModel]="state()" 
-                (ngModelChange)="state.set($event)"
-              >
-                @for (st of statesList; track st) {
-                  <option [value]="st">{{ st }}</option>
-                }
-              </select>
-            </div>
-
-            <!-- Social Category -->
-            <div class="form-group">
-              <label for="social_category" class="form-label">Social Category</label>
-              <select 
-                id="social_category" 
-                name="social_category" 
-                class="form-select"
-                [ngModel]="socialCategory()" 
-                (ngModelChange)="socialCategory.set($event)"
-              >
-                @for (cat of categoryList; track cat.value) {
-                  <option [value]="cat.value">{{ cat.label }}</option>
-                }
-              </select>
-            </div>
-
-            <!-- Disability Status -->
-            <div class="form-group">
-              <label for="disability_status" class="form-label">Disability Status</label>
-              <select 
-                id="disability_status" 
-                name="disability_status" 
-                class="form-select"
-                [ngModel]="disabilityStatus()" 
-                (ngModelChange)="disabilityStatus.set($event)"
-              >
-                <option value="no">No</option>
-                <option value="yes">Yes</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Form Actions -->
-          <div class="form-actions-row">
-            @if (isInsideDashboard()) {
-              <a routerLink="/dashboard" class="btn-secondary">
-                ← Back to Dashboard
-              </a>
-            } @else {
-              <a routerLink="/citizen" class="btn-secondary">
-                ← Back
-              </a>
-            }
-            <button type="submit" class="btn-primary">
-              Continue →
-            </button>
-          </div>
-        </form>
-      </section>
+        <!-- Form Actions -->
+        <div class="form-actions-row">
+          @if (isInsideDashboard()) {
+          <a routerLink="/dashboard" class="btn-secondary">
+            ← Back to Dashboard
+          </a>
+          } @else {
+          <a routerLink="/citizen" class="btn-secondary">
+            ← Back
+          </a>
+          }
+          <button type="submit" class="btn-primary">
+            Continue →
+          </button>
+        </div>
+      </form>
+    </section>
     }
 
     <!-- ========================================== -->
     <!-- UI 2: STEP 2 - REVIEW YOUR INFORMATION     -->
     <!-- ========================================== -->
     @if (currentStep() === 'review') {
-      <div class="review-page-content" data-purpose="review-step">
-        <div class="section-intro">
-          <h2 class="section-title">Review Your Details</h2>
-          <p class="section-desc">Review the information you provided before finding matching schemes</p>
-        </div>
+    <div class="review-page-content" data-purpose="review-step">
+      <div class="section-intro">
+        <h2 class="section-title">Review Your Details</h2>
+        <p class="section-desc">Review the information you provided before finding matching schemes</p>
+      </div>
 
-        <!-- Main Review Card -->
-        <div class="review-card">
-          <!-- Personal Details Block -->
-          <div class="review-section">
-            <div class="review-block-header">
-              <h3 class="block-title">Personal Details</h3>
-              <button type="button" class="btn-edit" (click)="backToForm()">Edit</button>
-            </div>
-
-            <div class="review-table">
-              <div class="review-row">
-                <span class="row-label">Age</span>
-                <span class="row-value">{{ age() }}</span>
-              </div>
-              <div class="review-row">
-                <span class="row-label">Gender</span>
-                <span class="row-value" style="text-transform: capitalize;">{{ gender() }}</span>
-              </div>
-              <div class="review-row">
-                <span class="row-label">State / Location</span>
-                <span class="row-value">{{ state() }}</span>
-              </div>
-            </div>
+      <!-- Main Review Card -->
+      <div class="review-card">
+        <!-- Personal Details Block -->
+        <div class="review-section">
+          <div class="review-block-header">
+            <h3 class="block-title">Personal Details</h3>
+            <button type="button" class="btn-edit" (click)="backToForm()">Edit</button>
           </div>
 
-          <hr class="review-divider" />
-
-          <!-- Eligibility Details Block -->
-          <div class="review-section">
-            <div class="review-block-header">
-              <h3 class="block-title">Eligibility Details</h3>
-              <button type="button" class="btn-edit" (click)="backToForm()">Edit</button>
+          <div class="review-table">
+            <div class="review-row">
+              <span class="row-label">Age</span>
+              <span class="row-value">{{ age() }}</span>
             </div>
-
-            <div class="review-table">
-              <div class="review-row">
-                <span class="row-label">Annual Income</span>
-                <span class="row-value">{{ formatCurrency(income()) }}</span>
-              </div>
-              <div class="review-row">
-                <span class="row-label">Occupation</span>
-                <span class="row-value">{{ getOccupationLabel(occupation()) }}</span>
-              </div>
-              <div class="review-row">
-                <span class="row-label">Education</span>
-                <span class="row-value">{{ getEducationLabel(education()) }}</span>
-              </div>
-              <div class="review-row">
-                <span class="row-label">Social Category</span>
-                <span class="row-value">{{ socialCategory() }}</span>
-              </div>
-              <div class="review-row">
-                <span class="row-label">Disability Status</span>
-                <span class="row-value" style="text-transform: capitalize;">{{ disabilityStatus() }}</span>
-              </div>
+            <div class="review-row">
+              <span class="row-label">Gender</span>
+              <span class="row-value" style="text-transform: capitalize;">{{ gender() }}</span>
             </div>
-          </div>
-
-          <!-- Info Banner -->
-          <div class="info-callout">
-            <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <span>Your information will be used to find government schemes that may match your eligibility</span>
+            <div class="review-row">
+              <span class="row-label">State / Location</span>
+              <span class="row-value">{{ state() }}</span>
+            </div>
           </div>
         </div>
 
-        <!-- Review Action Buttons -->
-        <div class="form-actions-row">
-          <button type="button" class="btn-secondary" (click)="backToForm()">
-            ← Back
-          </button>
-          <button type="button" class="btn-primary" (click)="runAnalysis()">
-            Find Eligible Schemes →
-          </button>
+        <hr class="review-divider" />
+
+        <!-- Eligibility Details Block -->
+        <div class="review-section">
+          <div class="review-block-header">
+            <h3 class="block-title">Eligibility Details</h3>
+            <button type="button" class="btn-edit" (click)="backToForm()">Edit</button>
+          </div>
+
+          <div class="review-table">
+            <div class="review-row">
+              <span class="row-label">Annual Income</span>
+              <span class="row-value">{{ formatCurrency(income()) }}</span>
+            </div>
+            <div class="review-row">
+              <span class="row-label">Occupation</span>
+              <span class="row-value">{{ getOccupationLabel(occupation()) }}</span>
+            </div>
+            <div class="review-row">
+              <span class="row-label">Education</span>
+              <span class="row-value">{{ getEducationLabel(education()) }}</span>
+            </div>
+            <div class="review-row">
+              <span class="row-label">Social Category</span>
+              <span class="row-value">{{ socialCategory() }}</span>
+            </div>
+            <div class="review-row">
+              <span class="row-label">Disability Status</span>
+              <span class="row-value" style="text-transform: capitalize;">{{ disabilityStatus() }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info Banner -->
+        <div class="info-callout">
+          <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span>Your information will be used to find government schemes that may match your eligibility</span>
         </div>
       </div>
+
+      <!-- Review Action Buttons -->
+      <div class="form-actions-row">
+        <button type="button" class="btn-secondary" (click)="backToForm()">
+          ← Back
+        </button>
+        <button type="button" class="btn-primary" (click)="runAnalysis()">
+          Find Eligible Schemes →
+        </button>
+      </div>
+    </div>
     }
 
     <!-- ========================================== -->
     <!-- UI 3: STEP 3 - ANALYZING YOUR ELIGIBILITY  -->
     <!-- ========================================== -->
     @if (currentStep() === 'analyzing') {
-      <div class="analyzing-page-content" data-purpose="analyzing-step">
-        <div class="analyzing-card">
-          <div class="analyzing-header">
-            <h2 class="analyzing-title">Analyzing Your Profile</h2>
-            <p class="analyzing-desc">We're checking your details and matching them with eligible government schemes</p>
+    <div class="analyzing-page-content" data-purpose="analyzing-step">
+      <div class="analyzing-card">
+        <div class="analyzing-header">
+          <h2 class="analyzing-title">Analyzing Your Profile</h2>
+          <p class="analyzing-desc">We're checking your details and matching them with eligible government schemes</p>
+        </div>
+
+        <!-- Circular Rotating Loader -->
+        <div class="loader-spinner-wrapper">
+          <div class="spinner-ring"></div>
+        </div>
+
+        <!-- Checklist -->
+        <div class="analysis-checklist">
+          <!-- Item 1: Personal Info -->
+          <div class="checklist-item" [class.checked]="scanStep() >= 1">
+            @if (scanStep() >= 1) {
+            <svg class="check-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+            </svg>
+            } @else {
+            <span class="pending-dot"></span>
+            }
+            <span>Checking personal information</span>
           </div>
 
-          <!-- Circular Rotating Loader -->
-          <div class="loader-spinner-wrapper">
-            <div class="spinner-ring"></div>
+          <!-- Item 2: Eligibility Criteria -->
+          <div class="checklist-item" [class.checked]="scanStep() >= 2">
+            @if (scanStep() >= 2) {
+            <svg class="check-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+            </svg>
+            } @else {
+            <span class="pending-dot"></span>
+            }
+            <span>Checking eligibility criteria</span>
           </div>
 
-          <!-- Checklist -->
-          <div class="analysis-checklist">
-            <!-- Item 1: Personal Info -->
-            <div class="checklist-item" [class.checked]="scanStep() >= 1">
-              @if (scanStep() >= 1) {
-                <svg class="check-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-                </svg>
-              } @else {
-                <span class="pending-dot"></span>
-              }
-              <span>Checking personal information</span>
-            </div>
-
-            <!-- Item 2: Eligibility Criteria -->
-            <div class="checklist-item" [class.checked]="scanStep() >= 2">
-              @if (scanStep() >= 2) {
-                <svg class="check-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-                </svg>
-              } @else {
-                <span class="pending-dot"></span>
-              }
-              <span>Checking eligibility criteria</span>
-            </div>
-
-            <!-- Item 3: Matching Schemes -->
-            <div class="checklist-item" [class.checked]="scanStep() >= 3">
-              @if (scanStep() >= 3) {
-                <svg class="check-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-                </svg>
-              } @else {
-                <span class="pending-dot pulsing"></span>
-              }
-              <span>Matching government schemes</span>
-            </div>
-          </div>
-
-          <!-- Progress Bar -->
-          <div class="progress-bar-track">
-            <div class="progress-bar-fill" [style.width]="scanProgress() + '%'"></div>
-          </div>
-
-          <!-- Status Message -->
-          <div class="analyzing-status">
-            <p class="status-primary">{{ scanStatusText() }}</p>
-            <p class="status-sub">Please wait a moment</p>
+          <!-- Item 3: Matching Schemes -->
+          <div class="checklist-item" [class.checked]="scanStep() >= 3">
+            @if (scanStep() >= 3) {
+            <svg class="check-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+            </svg>
+            } @else {
+            <span class="pending-dot pulsing"></span>
+            }
+            <span>Matching government schemes</span>
           </div>
         </div>
 
-        <div class="form-actions-row">
-          <button type="button" class="btn-secondary" (click)="backToForm()">
-            ← Back
-          </button>
+        <!-- Progress Bar -->
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" [style.width]="scanProgress() + '%'"></div>
+        </div>
+
+        <!-- Status Message -->
+        <div class="analyzing-status">
+          <p class="status-primary">{{ scanStatusText() }}</p>
+          <p class="status-sub">Please wait a moment</p>
         </div>
       </div>
+
+      <div class="form-actions-row">
+        <button type="button" class="btn-secondary" (click)="backToForm()">
+          ← Back
+        </button>
+      </div>
+    </div>
     }
 
     <!-- ========================================== -->
     <!-- UI 4: STEP 4 - ELIGIBILITY RESULTS         -->
     <!-- ========================================== -->
     @if (currentStep() === 'results') {
-      <div class="results-page-content" data-purpose="results-step">
-        <!-- Summary Green Banner -->
-        <section class="summary-banner" data-purpose="summary-banner">
-          <div class="summary-banner-inner">
-            <h2 class="summary-title">Eligibility Summary</h2>
-            <div class="summary-stats-row">
-              <div class="stats-left">
-                <span class="stat-pill">{{ totalMatches() }} Schemes Matched</span>
-                <span class="stat-pill accent-pill">{{ eligibleCount() }} Eligible</span>
-              </div>
-              <div class="stats-right">
-                <span class="stat-pill">{{ potentialMatchesCount() }} Potential Matches</span>
-              </div>
+    <div class="results-page-content" data-purpose="results-step">
+      <!-- Summary Green Banner -->
+      <section class="summary-banner" data-purpose="summary-banner">
+        <div class="summary-banner-inner">
+          <h2 class="summary-title">Eligibility Summary</h2>
+          <div class="summary-stats-row">
+            <div class="stats-left">
+              <span class="stat-pill">{{ totalMatches() }} Schemes Matched</span>
+              <span class="stat-pill accent-pill">{{ eligibleCount() }} Eligible</span>
             </div>
-            <div class="summary-confirm">
-              <svg class="confirm-check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-              </svg>
-              <span>Your profile matches the eligibility criteria of several government schemes</span>
+            <div class="stats-right">
+              <span class="stat-pill">{{ potentialMatchesCount() }} Potential Matches</span>
             </div>
           </div>
-        </section>
-
-        <!-- Match Score & Recommended Schemes Section -->
-        <section class="match-section">
-          <div class="match-header-row">
-            <div>
-              <h2 class="match-heading">Your Eligibility Match</h2>
-              <p class="match-subheading">Based on your profile, these schemes are the best matches for you</p>
-            </div>
-            <button type="button" class="btn-link-all" (click)="restartCheck()">
-              Check Another Profile →
-            </button>
+          <div class="summary-confirm">
+            <svg class="confirm-check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span>Your profile matches the eligibility criteria of several government schemes</span>
           </div>
+        </div>
+      </section>
 
-          <!-- Grid: Radial Gauge Card & Recommended Scheme Cards -->
-          <div class="schemes-cards-grid">
-            <!-- Radial Progress Gauge Card -->
-            <div class="match-gauge-card">
-              <h3 class="gauge-title">Eligibility Match</h3>
-
-              <div class="gauge-display-box">
-                <div class="gauge-svg-wrapper">
-                  <svg class="gauge-svg" viewBox="0 0 80 80">
-                    <circle cx="40" cy="40" r="35" fill="none" stroke="#e2e8f0" stroke-width="4"></circle>
-                    <circle class="gauge-circle" cx="40" cy="40" r="35" fill="none" stroke="#1e293b" stroke-linecap="round" stroke-width="4"></circle>
-                  </svg>
-                  <span class="gauge-number">{{ matchScore() }}%</span>
-                </div>
-                <p class="gauge-badge">Strong Match</p>
-              </div>
-
-              <p class="gauge-caption">Your profile matches several scheme criteria</p>
-            </div>
-
-            <!-- Recommended Schemes Cards -->
-            @for (scheme of results(); track scheme.scheme_id) {
-              <div class="scheme-result-card">
-                <div class="scheme-card-top">
-                  <h4 class="scheme-card-title">{{ scheme.scheme_name }}</h4>
-                  <span class="scheme-category-tag">{{ scheme.category || 'Welfare' }}</span>
-                  <p class="scheme-card-benefit">{{ scheme.benefits || 'Financial support for eligible citizens meeting verified program criteria.' }}</p>
-                </div>
-
-                <div class="scheme-card-bottom">
-                  <div class="scheme-stats-line">
-                    <span class="match-percent-text">{{ scheme.match_percentage || 85 }}% Match</span>
-                    <span class="eligible-badge">
-                      <svg class="eligible-check-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-                      </svg>
-                      Eligible
-                    </span>
-                  </div>
-                  <button type="button" class="btn-view-details" (click)="openSchemeDetails(scheme)">
-                    View Details →
-                  </button>
-                </div>
-              </div>
-            }
+      <!-- Match Score & Recommended Schemes Section -->
+      <section class="match-section">
+        <div class="match-header-row">
+          <div>
+            <h2 class="match-heading">Your Eligibility Match</h2>
+            <p class="match-subheading">Based on your profile, these schemes are the best matches for you</p>
           </div>
-        </section>
-
-        <!-- What To Do Next Workflow Roadmap -->
-        <section class="next-steps-section">
-          <h2 class="next-steps-heading">What to Do Next</h2>
-          <div class="workflow-flow-bar">
-            <!-- Step 01 -->
-            <div class="workflow-step">
-              <span class="step-num-badge">01</span>
-              <span class="step-name">Select Scheme</span>
-            </div>
-            <span class="workflow-arrow">→</span>
-
-            <!-- Step 02 -->
-            <div class="workflow-step">
-              <span class="step-num-badge">02</span>
-              <span class="step-name">Check Documents</span>
-            </div>
-            <span class="workflow-arrow">→</span>
-
-            <!-- Step 03 -->
-            <div class="workflow-step">
-              <span class="step-num-badge">03</span>
-              <span class="step-name">Visit Official Portal</span>
-            </div>
-            <span class="workflow-arrow">→</span>
-
-            <!-- Step 04 -->
-            <div class="workflow-step">
-              <span class="step-num-badge">04</span>
-              <span class="step-name">Submit Application</span>
-            </div>
-          </div>
-        </section>
-
-        <!-- Bottom Action Bar -->
-        <div class="results-actions-bar">
-          <button type="button" class="btn-secondary" (click)="restartCheck()">
-            ← Edit Profile / Start Over
+          <button type="button" class="btn-link-all" (click)="restartCheck()">
+            Check Another Profile →
           </button>
-          @if (isInsideDashboard()) {
-            <a routerLink="/schemes" class="btn-primary">
-              Explore All Schemes →
-            </a>
-          } @else {
-            <a routerLink="/citizen" class="btn-primary">
-              Explore More Schemes →
-            </a>
+        </div>
+
+        <!-- Grid: Radial Gauge Card & Recommended Scheme Cards -->
+        <div class="schemes-cards-grid">
+          <!-- Radial Progress Gauge Card -->
+          <div class="match-gauge-card">
+            <h3 class="gauge-title">Eligibility Match</h3>
+
+            <div class="gauge-display-box">
+              <div class="gauge-svg-wrapper">
+                <svg class="gauge-svg" viewBox="0 0 80 80">
+                  <circle cx="40" cy="40" r="35" fill="none" stroke="#e2e8f0" stroke-width="4"></circle>
+                  <circle class="gauge-circle" cx="40" cy="40" r="35" fill="none" stroke="#1e293b"
+                    stroke-linecap="round" stroke-width="4"></circle>
+                </svg>
+                <span class="gauge-number">{{ matchScore() }}%</span>
+              </div>
+              <p class="gauge-badge">Strong Match</p>
+            </div>
+
+            <p class="gauge-caption">Your profile matches several scheme criteria</p>
+          </div>
+
+          <!-- Recommended Schemes Cards -->
+          @for (scheme of results(); track scheme.scheme_id) {
+          <div class="scheme-result-card">
+            <div class="scheme-card-top">
+              <h4 class="scheme-card-title">{{ scheme.scheme_name }}</h4>
+              <span class="scheme-category-tag">{{ scheme.category || 'Welfare' }}</span>
+              <p class="scheme-card-benefit">{{ scheme.benefits || 'Financial support for eligible citizens meeting
+                verified program criteria.' }}</p>
+            </div>
+
+            <div class="scheme-card-bottom">
+              <div class="scheme-stats-line">
+                <span class="match-percent-text">{{ scheme.match_percentage || 85 }}% Match</span>
+                <span class="eligible-badge">
+                  <svg class="eligible-check-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  Eligible
+                </span>
+              </div>
+              <button type="button" class="btn-view-details" (click)="openSchemeDetails(scheme)">
+                View Details →
+              </button>
+            </div>
+          </div>
           }
         </div>
+      </section>
+
+      <!-- What To Do Next Workflow Roadmap -->
+      <section class="next-steps-section">
+        <h2 class="next-steps-heading">What to Do Next</h2>
+        <div class="workflow-flow-bar">
+          <!-- Step 01 -->
+          <div class="workflow-step">
+            <span class="step-num-badge">01</span>
+            <span class="step-name">Select Scheme</span>
+          </div>
+          <span class="workflow-arrow">→</span>
+
+          <!-- Step 02 -->
+          <div class="workflow-step">
+            <span class="step-num-badge">02</span>
+            <span class="step-name">Check Documents</span>
+          </div>
+          <span class="workflow-arrow">→</span>
+
+          <!-- Step 03 -->
+          <div class="workflow-step">
+            <span class="step-num-badge">03</span>
+            <span class="step-name">Visit Official Portal</span>
+          </div>
+          <span class="workflow-arrow">→</span>
+
+          <!-- Step 04 -->
+          <div class="workflow-step">
+            <span class="step-num-badge">04</span>
+            <span class="step-name">Submit Application</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Action Bar -->
+      <div class="results-actions-bar">
+        <button type="button" class="btn-secondary" (click)="restartCheck()">
+          ← Edit Profile / Start Over
+        </button>
+        @if (isInsideDashboard()) {
+        <a routerLink="/schemes" class="btn-primary">
+          Explore All Schemes →
+        </a>
+        } @else {
+        <a routerLink="/citizen" class="btn-primary">
+          Explore More Schemes →
+        </a>
+        }
       </div>
+    </div>
     }
   </main>
   <!-- END: MainContent -->
@@ -603,62 +555,62 @@
   <!-- UI 5: STEP 5 - SCHEME DETAILS & APPLICATION GUIDANCE MODAL -->
   <!-- ======================================================== -->
   @if (showModal() && selectedScheme()) {
-    <div class="modal-backdrop" (click)="closeSchemeModal()">
-      <div class="modal-card" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <div>
-            <span class="modal-category-badge">{{ selectedScheme()?.category || 'General Welfare' }}</span>
-            <h3 class="modal-title">{{ selectedScheme()?.scheme_name }}</h3>
-          </div>
-          <button type="button" class="modal-close-btn" (click)="closeSchemeModal()" aria-label="Close modal">
-            ✕
-          </button>
+  <div class="modal-backdrop" (click)="closeSchemeModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <span class="modal-category-badge">{{ selectedScheme()?.category || 'General Welfare' }}</span>
+          <h3 class="modal-title">{{ selectedScheme()?.scheme_name }}</h3>
+        </div>
+        <button type="button" class="modal-close-btn" (click)="closeSchemeModal()" aria-label="Close modal">
+          ✕
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-status-row">
+          <span class="modal-score-badge">{{ selectedScheme()?.match_percentage || 85 }}% Profile Match</span>
+          <span class="modal-eligible-badge">✓ Criteria Verified</span>
         </div>
 
-        <div class="modal-body">
-          <div class="modal-status-row">
-            <span class="modal-score-badge">{{ selectedScheme()?.match_percentage || 85 }}% Profile Match</span>
-            <span class="modal-eligible-badge">✓ Criteria Verified</span>
-          </div>
-
-          <div class="modal-section">
-            <h4 class="modal-subheading">Scheme Overview &amp; Benefits</h4>
-            <p class="modal-text">{{ selectedScheme()?.benefits }}</p>
-          </div>
-
-          @if (selectedScheme()?.matched_rules && selectedScheme()!.matched_rules!.length > 0) {
-            <div class="modal-section">
-              <h4 class="modal-subheading">Matched Eligibility Criteria</h4>
-              <ul class="matched-rules-list">
-                @for (rule of selectedScheme()!.matched_rules!; track rule) {
-                  <li>
-                    <svg class="rule-check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <span>{{ rule }}</span>
-                  </li>
-                }
-              </ul>
-            </div>
-          }
-
-          <div class="modal-section">
-            <h4 class="modal-subheading">Application Guidance &amp; Next Steps</h4>
-            <p class="modal-text">
-              {{ selectedScheme()?.application_guidance || 'Keep your identity documents, Aadhaar, and relevant income proofs ready before visiting the portal.' }}
-            </p>
-          </div>
+        <div class="modal-section">
+          <h4 class="modal-subheading">Scheme Overview &amp; Benefits</h4>
+          <p class="modal-text">{{ selectedScheme()?.benefits }}</p>
         </div>
 
-        <div class="modal-footer">
-          <button type="button" class="btn-secondary" (click)="closeSchemeModal()">Close</button>
-          <a routerLink="/citizen" fragment="popular-schemes" (click)="closeSchemeModal()" class="btn-primary">
-            Visit Scheme Portal
-          </a>
+        @if (selectedScheme()?.matched_rules && selectedScheme()!.matched_rules!.length > 0) {
+        <div class="modal-section">
+          <h4 class="modal-subheading">Matched Eligibility Criteria</h4>
+          <ul class="matched-rules-list">
+            @for (rule of selectedScheme()!.matched_rules!; track rule) {
+            <li>
+              <svg class="rule-check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>{{ rule }}</span>
+            </li>
+            }
+          </ul>
+        </div>
+        }
+
+        <div class="modal-section">
+          <h4 class="modal-subheading">Application Guidance &amp; Next Steps</h4>
+          <p class="modal-text">
+            {{ selectedScheme()?.application_guidance || 'Keep your identity documents, Aadhaar, and relevant income
+            proofs ready before visiting the portal.' }}
+          </p>
         </div>
       </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="closeSchemeModal()">Close</button>
+        <a routerLink="/citizen" fragment="popular-schemes" (click)="closeSchemeModal()" class="btn-primary">
+          Visit Scheme Portal
+        </a>
+      </div>
     </div>
+  </div>
   }
 </div>
 <!-- END: SiteWrapper -->
-

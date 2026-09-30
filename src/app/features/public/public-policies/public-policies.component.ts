@@ -5,6 +5,8 @@ import { Router, RouterLink } from '@angular/router';
 import { CitizenHeaderComponent } from '../citizen-dashboard/components/citizen-header/citizen-header.component';
 import { CitizenFooterComponent } from '../citizen-dashboard/components/citizen-footer/citizen-footer.component';
 import { PolicyService } from '../../../core/services/policy.service';
+import { DashboardService } from '../../../core/services/dashboard.service';
+import { Auth } from '../../../core/services/auth';
 import { PolicyReadDto } from '../../../models/policy.model';
 
 export interface PublicPolicyCard {
@@ -29,6 +31,8 @@ export interface PublicPolicyCard {
 })
 export class PublicPoliciesComponent implements OnInit {
   private readonly policyService = inject(PolicyService);
+  private readonly dashboardService = inject(DashboardService);
+  private readonly auth = inject(Auth);
   private readonly router = inject(Router);
 
   searchQuery = signal<string>('');
@@ -157,6 +161,8 @@ export class PublicPoliciesComponent implements OnInit {
 
   fetchPolicies(): void {
     this.isLoading.set(true);
+    const localBookmarks = this.getLocalBookmarks();
+
     this.policyService.listPolicies().subscribe({
       next: (res) => {
         this.isLoading.set(false);
@@ -172,24 +178,81 @@ export class PublicPoliciesComponent implements OnInit {
             state: dto.state || 'Central / All India',
             ministry: dto.ministry || dto.department || 'Government of India',
             targetBeneficiary: dto.sector || 'Families',
-            bookmarked: false
+            bookmarked: localBookmarks.has(String(dto.id))
           }));
 
           const combined = [...mapped];
           for (const fb of this.fallbackPolicies) {
             if (!combined.some(c => String(c.id).toLowerCase() === String(fb.id).toLowerCase() || c.title.toLowerCase() === fb.title.toLowerCase())) {
-              combined.push(fb);
+              combined.push({
+                ...fb,
+                bookmarked: localBookmarks.has(String(fb.id))
+              });
             }
           }
           this.policiesList.set(combined);
         } else {
-          this.policiesList.set(this.fallbackPolicies);
+          this.policiesList.set(this.fallbackPolicies.map(fb => ({
+            ...fb,
+            bookmarked: localBookmarks.has(String(fb.id))
+          })));
+        }
+
+        // Sync with backend if user is authenticated citizen
+        if (this.auth.isAuthenticated()) {
+          this.syncBackendBookmarks();
         }
       },
       error: () => {
         this.isLoading.set(false);
-        this.policiesList.set(this.fallbackPolicies);
+        this.policiesList.set(this.fallbackPolicies.map(fb => ({
+          ...fb,
+          bookmarked: localBookmarks.has(String(fb.id))
+        })));
+        if (this.auth.isAuthenticated()) {
+          this.syncBackendBookmarks();
+        }
       }
+    });
+  }
+
+  private getLocalBookmarks(): Set<string> {
+    try {
+      const stored = localStorage.getItem('policy_bookmarks');
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch {
+      return new Set();
+    }
+  }
+
+  private saveLocalBookmarks(bookmarks: Set<string>): void {
+    try {
+      localStorage.setItem('policy_bookmarks', JSON.stringify(Array.from(bookmarks)));
+    } catch {}
+  }
+
+  private syncBackendBookmarks(): void {
+    this.dashboardService.getCitizenDashboard().subscribe({
+      next: (dash) => {
+        if (dash.saved_policies) {
+          const backendIds = new Set<string>();
+          dash.saved_policies.forEach(sp => {
+            if (sp.policy_id) backendIds.add(String(sp.policy_id));
+            if (sp.id) backendIds.add(String(sp.id));
+          });
+          const localSet = this.getLocalBookmarks();
+          backendIds.forEach(id => localSet.add(id));
+          this.saveLocalBookmarks(localSet);
+
+          this.policiesList.update(list =>
+            list.map(p => ({
+              ...p,
+              bookmarked: backendIds.has(String(p.id)) || localSet.has(String(p.id))
+            }))
+          );
+        }
+      },
+      error: () => {}
     });
   }
 
@@ -226,9 +289,37 @@ export class PublicPoliciesComponent implements OnInit {
 
   toggleBookmark(item: PublicPolicyCard, event: Event): void {
     event.stopPropagation();
+    const willBookmark = !item.bookmarked;
+
+    // Optimistically update list
     this.policiesList.update(list =>
-      list.map(p => p.id === item.id ? { ...p, bookmarked: !p.bookmarked } : p)
+      list.map(p => p.id === item.id ? { ...p, bookmarked: willBookmark } : p)
     );
+
+    // Update local storage
+    const localSet = this.getLocalBookmarks();
+    if (willBookmark) {
+      localSet.add(String(item.id));
+    } else {
+      localSet.delete(String(item.id));
+    }
+    this.saveLocalBookmarks(localSet);
+
+    // Sync with backend if authenticated
+    const numId = typeof item.id === 'number' ? item.id : parseInt(String(item.id).replace(/\D/g, ''), 10);
+    if (numId && !isNaN(numId) && this.auth.isAuthenticated()) {
+      if (willBookmark) {
+        this.dashboardService.savePolicy({ policy_id: numId }).subscribe({
+          next: () => {},
+          error: () => {}
+        });
+      } else {
+        this.dashboardService.removeSavedPolicy(numId).subscribe({
+          next: () => {},
+          error: () => {}
+        });
+      }
+    }
   }
 
   goToDetails(policyId: string | number): void {

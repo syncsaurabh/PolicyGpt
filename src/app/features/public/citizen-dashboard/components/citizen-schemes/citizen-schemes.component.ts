@@ -1,5 +1,7 @@
-import { Component, input, output, signal, computed } from '@angular/core';
+import { Component, input, output, signal, computed, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { DashboardService } from '../../../../../core/services/dashboard.service';
+import { Auth } from '../../../../../core/services/auth';
 
 export interface SchemeItem {
   id: string;
@@ -17,7 +19,10 @@ export interface SchemeItem {
   templateUrl: './citizen-schemes.component.html',
   styleUrl: './citizen-schemes.component.css'
 })
-export class CitizenSchemesComponent {
+export class CitizenSchemesComponent implements OnInit {
+  private readonly dashboardService = inject(DashboardService);
+  private readonly auth = inject(Auth);
+
   readonly searchQuery = input<string>('');
   readonly selectedCategory = input<string | null>(null);
 
@@ -53,6 +58,28 @@ export class CitizenSchemesComponent {
 
   protected activeSchemeModal = signal<SchemeItem | null>(null);
 
+  ngOnInit(): void {
+    const localBookmarks = this.getLocalBookmarks();
+    this.schemes.update(list =>
+      list.map(s => ({ ...s, bookmarked: localBookmarks.has(s.id) }))
+    );
+  }
+
+  private getLocalBookmarks(): Set<string> {
+    try {
+      const stored = localStorage.getItem('scheme_bookmarks');
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch {
+      return new Set();
+    }
+  }
+
+  private saveLocalBookmarks(bookmarks: Set<string>): void {
+    try {
+      localStorage.setItem('scheme_bookmarks', JSON.stringify(Array.from(bookmarks)));
+    } catch {}
+  }
+
   protected filteredSchemes = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();
     const cat = this.selectedCategory()?.toLowerCase();
@@ -70,9 +97,24 @@ export class CitizenSchemesComponent {
   });
 
   toggleBookmark(schemeId: string): void {
+    let willBookmark = false;
     this.schemes.update(current => 
-      current.map(s => s.id === schemeId ? { ...s, bookmarked: !s.bookmarked } : s)
+      current.map(s => {
+        if (s.id === schemeId) {
+          willBookmark = !s.bookmarked;
+          return { ...s, bookmarked: willBookmark };
+        }
+        return s;
+      })
     );
+
+    const localBookmarks = this.getLocalBookmarks();
+    if (willBookmark) {
+      localBookmarks.add(schemeId);
+    } else {
+      localBookmarks.delete(schemeId);
+    }
+    this.saveLocalBookmarks(localBookmarks);
   }
 
   viewDetails(scheme: SchemeItem): void {

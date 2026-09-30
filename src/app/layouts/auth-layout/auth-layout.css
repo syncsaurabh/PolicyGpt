@@ -23,12 +23,10 @@
   overflow: hidden;
   padding: 55px 70px;
   color: #ffffff;
-  background: linear-gradient(
-    145deg,
-    #092f5f 0%,
-    #0757a5 55%,
-    #0c73d8 100%
-  );
+  background: linear-gradient(145deg,
+      #092f5f 0%,
+      #0757a5 55%,
+      #0c73d8 100%);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -309,12 +307,10 @@
 :host-context([data-theme="dark"]) .branding-panel,
 :host-context(body.dark-theme) .branding-panel,
 [data-theme="dark"] .branding-panel {
-  background: linear-gradient(
-    145deg,
-    #051d3b 0%,
-    #074786 55%,
-    #0b5db1 100%
-  );
+  background: linear-gradient(145deg,
+      #051d3b 0%,
+      #074786 55%,
+      #0b5db1 100%);
 }
 
 :host-context([data-theme="dark"]) .theme-btn,

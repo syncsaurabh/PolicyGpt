@@ -5,6 +5,8 @@ import { Router, RouterLink } from '@angular/router';
 import { CitizenHeaderComponent } from '../citizen-dashboard/components/citizen-header/citizen-header.component';
 import { CitizenFooterComponent } from '../citizen-dashboard/components/citizen-footer/citizen-footer.component';
 import { SchemeService } from '../../../core/services/scheme.service';
+import { DashboardService } from '../../../core/services/dashboard.service';
+import { Auth } from '../../../core/services/auth';
 import { SchemeReadDto } from '../../../models/scheme.model';
 
 export interface PublicSchemeCard {
@@ -29,6 +31,8 @@ export interface PublicSchemeCard {
 })
 export class PublicSchemesComponent implements OnInit {
   private readonly schemeService = inject(SchemeService);
+  private readonly dashboardService = inject(DashboardService);
+  private readonly auth = inject(Auth);
   private readonly router = inject(Router);
 
   searchQuery = signal<string>('');
@@ -163,6 +167,8 @@ export class PublicSchemesComponent implements OnInit {
 
   fetchSchemes(): void {
     this.isLoading.set(true);
+    const localBookmarks = this.getLocalBookmarks();
+
     this.schemeService.listSchemes().subscribe({
       next: (res) => {
         this.isLoading.set(false);
@@ -178,24 +184,81 @@ export class PublicSchemesComponent implements OnInit {
             state: dto.state || 'Central / All India',
             ministry: dto.ministry || dto.department || 'Government of India',
             targetBeneficiary: dto.target_audience || 'Families',
-            bookmarked: false
+            bookmarked: localBookmarks.has(String(dto.id))
           }));
 
           const combined = [...mapped];
           for (const fb of this.fallbackSchemes) {
             if (!combined.some(c => String(c.id).toLowerCase() === String(fb.id).toLowerCase() || c.title.toLowerCase() === fb.title.toLowerCase())) {
-              combined.push(fb);
+              combined.push({
+                ...fb,
+                bookmarked: localBookmarks.has(String(fb.id))
+              });
             }
           }
           this.schemesList.set(combined);
         } else {
-          this.schemesList.set(this.fallbackSchemes);
+          this.schemesList.set(this.fallbackSchemes.map(fb => ({
+            ...fb,
+            bookmarked: localBookmarks.has(String(fb.id))
+          })));
+        }
+
+        // Sync with backend if user is authenticated
+        if (this.auth.isAuthenticated()) {
+          this.syncBackendBookmarks();
         }
       },
       error: () => {
         this.isLoading.set(false);
-        this.schemesList.set(this.fallbackSchemes);
+        this.schemesList.set(this.fallbackSchemes.map(fb => ({
+          ...fb,
+          bookmarked: localBookmarks.has(String(fb.id))
+        })));
+        if (this.auth.isAuthenticated()) {
+          this.syncBackendBookmarks();
+        }
       }
+    });
+  }
+
+  private getLocalBookmarks(): Set<string> {
+    try {
+      const stored = localStorage.getItem('scheme_bookmarks');
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch {
+      return new Set();
+    }
+  }
+
+  private saveLocalBookmarks(bookmarks: Set<string>): void {
+    try {
+      localStorage.setItem('scheme_bookmarks', JSON.stringify(Array.from(bookmarks)));
+    } catch {}
+  }
+
+  private syncBackendBookmarks(): void {
+    this.dashboardService.getCitizenDashboard().subscribe({
+      next: (dash) => {
+        if (dash.saved_policies) {
+          const backendIds = new Set<string>();
+          dash.saved_policies.forEach(sp => {
+            if (sp.scheme_id) backendIds.add(String(sp.scheme_id));
+            if (sp.item_type === 'scheme' && sp.id) backendIds.add(String(sp.id));
+          });
+          const localSet = this.getLocalBookmarks();
+          backendIds.forEach(id => localSet.add(id));
+          this.saveLocalBookmarks(localSet);
+
+          this.schemesList.update(list =>
+            list.map(s => ({
+              ...s,
+              bookmarked: backendIds.has(String(s.id)) || localSet.has(String(s.id))
+            }))
+          );
+        }
+      },
+      error: () => {}
     });
   }
 
@@ -232,9 +295,37 @@ export class PublicSchemesComponent implements OnInit {
 
   toggleBookmark(scheme: PublicSchemeCard, event: Event): void {
     event.stopPropagation();
+    const willBookmark = !scheme.bookmarked;
+
+    // Optimistically update list
     this.schemesList.update(list =>
-      list.map(s => s.id === scheme.id ? { ...s, bookmarked: !s.bookmarked } : s)
+      list.map(s => s.id === scheme.id ? { ...s, bookmarked: willBookmark } : s)
     );
+
+    // Update local storage
+    const localSet = this.getLocalBookmarks();
+    if (willBookmark) {
+      localSet.add(String(scheme.id));
+    } else {
+      localSet.delete(String(scheme.id));
+    }
+    this.saveLocalBookmarks(localSet);
+
+    // Sync with backend if authenticated
+    const numId = typeof scheme.id === 'number' ? scheme.id : parseInt(String(scheme.id).replace(/\D/g, ''), 10);
+    if (numId && !isNaN(numId) && this.auth.isAuthenticated()) {
+      if (willBookmark) {
+        this.dashboardService.savePolicy({ scheme_id: numId }).subscribe({
+          next: () => {},
+          error: () => {}
+        });
+      } else {
+        this.dashboardService.removeSavedPolicy(numId).subscribe({
+          next: () => {},
+          error: () => {}
+        });
+      }
+    }
   }
 
   goToDetails(schemeId: string | number): void {

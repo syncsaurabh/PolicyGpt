@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { Scheme } from './services/scheme';
 import { SchemeItem, SchemeStatus, SCHEME_CATEGORIES, SCHEME_STATES } from '../../models/scheme.model';
 import { Auth } from '../../core/services/auth';
+import { DashboardService } from '../../core/services/dashboard.service';
 
 @Component({
   selector: 'app-schemes',
@@ -17,9 +18,88 @@ export class Schemes implements OnInit {
   private readonly router = inject(Router);
   protected readonly schemeService = inject(Scheme);
   protected readonly auth = inject(Auth);
+  protected readonly dashboardService = inject(DashboardService);
+
+  // Bookmarked scheme IDs
+  protected bookmarkedSchemeIds = signal<Set<string>>(new Set());
 
   ngOnInit(): void {
     this.schemeService.refreshSchemes().subscribe();
+    this.initBookmarks();
+  }
+
+  private initBookmarks(): void {
+    try {
+      const stored = localStorage.getItem('scheme_bookmarks');
+      if (stored) {
+        this.bookmarkedSchemeIds.set(new Set(JSON.parse(stored)));
+      }
+    } catch {}
+
+    if (this.auth.isAuthenticated()) {
+      this.dashboardService.getCitizenDashboard().subscribe({
+        next: (dash) => {
+          if (dash.saved_policies) {
+            const set = new Set(this.bookmarkedSchemeIds());
+            dash.saved_policies.forEach(sp => {
+              if (sp.scheme_id) set.add(String(sp.scheme_id));
+              if (sp.item_type === 'scheme' && sp.id) set.add(String(sp.id));
+            });
+            this.bookmarkedSchemeIds.set(set);
+            try {
+              localStorage.setItem('scheme_bookmarks', JSON.stringify(Array.from(set)));
+            } catch {}
+          }
+        },
+        error: () => {}
+      });
+    }
+  }
+
+  isSchemeBookmarked(schemeId: string | number): boolean {
+    const idStr = String(schemeId);
+    const numDigits = idStr.replace(/\D/g, '');
+    return this.bookmarkedSchemeIds().has(idStr) || (numDigits ? this.bookmarkedSchemeIds().has(numDigits) : false);
+  }
+
+  toggleBookmarkScheme(scheme: SchemeItem, event: Event): void {
+    event.stopPropagation();
+    this.closeActionMenu();
+
+    const idStr = String(scheme.id);
+    const numId = typeof scheme.id === 'number' ? scheme.id : parseInt(String(scheme.id).replace(/\D/g, ''), 10);
+    const currentlyBookmarked = this.isSchemeBookmarked(scheme.id);
+    const set = new Set(this.bookmarkedSchemeIds());
+
+    if (currentlyBookmarked) {
+      set.delete(idStr);
+      if (numId) set.delete(String(numId));
+      this.bookmarkedSchemeIds.set(set);
+      try {
+        localStorage.setItem('scheme_bookmarks', JSON.stringify(Array.from(set)));
+      } catch {}
+
+      if (numId && this.auth.isAuthenticated()) {
+        this.dashboardService.removeSavedPolicy(numId).subscribe({
+          next: () => {},
+          error: () => {}
+        });
+      }
+    } else {
+      set.add(idStr);
+      if (numId) set.add(String(numId));
+      this.bookmarkedSchemeIds.set(set);
+      try {
+        localStorage.setItem('scheme_bookmarks', JSON.stringify(Array.from(set)));
+      } catch {}
+
+      if (numId && this.auth.isAuthenticated()) {
+        this.dashboardService.savePolicy({ scheme_id: numId }).subscribe({
+          next: () => {},
+          error: () => {}
+        });
+      }
+    }
   }
 
   // Search & Filter State

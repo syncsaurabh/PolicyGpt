@@ -5,6 +5,8 @@ import { CitizenHeaderComponent } from '../citizen-dashboard/components/citizen-
 import { CitizenFooterComponent } from '../citizen-dashboard/components/citizen-footer/citizen-footer.component';
 import { PolicyService } from '../../../core/services/policy.service';
 import { SchemeService } from '../../../core/services/scheme.service';
+import { DashboardService } from '../../../core/services/dashboard.service';
+import { Auth } from '../../../core/services/auth';
 
 export interface PublicDetailModel {
   id: string | number;
@@ -35,6 +37,8 @@ export class PublicDetailsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly policyService = inject(PolicyService);
   private readonly schemeService = inject(SchemeService);
+  private readonly dashboardService = inject(DashboardService);
+  private readonly auth = inject(Auth);
 
   isLoading = signal<boolean>(false);
   itemType = signal<'policy' | 'scheme'>('policy');
@@ -335,8 +339,38 @@ export class PublicDetailsComponent implements OnInit {
   }
 
   toggleSaveScheme(): void {
-    if (this.detail()) {
-      this.detail.update(d => d ? { ...d, isBookmarked: !d.isBookmarked } : null);
+    const current = this.detail();
+    if (!current) return;
+
+    const willBookmark = !current.isBookmarked;
+    this.detail.update(d => d ? { ...d, isBookmarked: willBookmark } : null);
+
+    const storageKey = this.itemType() === 'scheme' ? 'scheme_bookmarks' : 'policy_bookmarks';
+    try {
+      const stored = localStorage.getItem(storageKey);
+      const set = stored ? new Set(JSON.parse(stored)) : new Set();
+      if (willBookmark) {
+        set.add(String(current.id));
+      } else {
+        set.delete(String(current.id));
+      }
+      localStorage.setItem(storageKey, JSON.stringify(Array.from(set)));
+    } catch {}
+
+    const numId = typeof current.id === 'number' ? current.id : parseInt(String(current.id).replace(/\D/g, ''), 10);
+    if (numId && !isNaN(numId) && this.auth.isAuthenticated()) {
+      if (willBookmark) {
+        const payload = this.itemType() === 'scheme' ? { scheme_id: numId } : { policy_id: numId };
+        this.dashboardService.savePolicy(payload).subscribe({
+          next: () => {},
+          error: () => {}
+        });
+      } else {
+        this.dashboardService.removeSavedPolicy(numId).subscribe({
+          next: () => {},
+          error: () => {}
+        });
+      }
     }
   }
 

@@ -1,4 +1,769 @@
-<app-coming-soon 
-  featureTitle="Submit System Feedback" 
-  description="The feedback collection form and algorithm adjustment suggestions dashboard are currently under development. We appreciate your interest in helping us improve.">
-</app-coming-soon>
+<div class="feedback-page-root">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-titles">
+        <h1 class="page-title">
+          {{ isOfficialOrAdmin ? 'Feedback & Support Management' : 'Feedback & Support' }}
+        </h1>
+        <p class="page-subtitle">
+          {{ isOfficialOrAdmin ? 'Manage citizen inquiries, resolve support tickets, and review feedback.' : 'Submit inquiries, report technical issues, or provide feedback on government schemes and policies.' }}
+        </p>
+      </div>
+      <div class="header-actions">
+        <!-- Scope Switcher for Admin/Officials -->
+        @if (isOfficialOrAdmin) {
+          <div class="scope-toggle">
+            <button
+              type="button"
+              class="btn-scope"
+              [class.active]="activeScope() === 'all'"
+              (click)="setScope('all')"
+            >
+              <span class="material-symbols-outlined">dataset</span>
+              All Tickets
+            </button>
+            <button
+              type="button"
+              class="btn-scope"
+              [class.active]="activeScope() === 'my'"
+              (click)="setScope('my')"
+            >
+              <span class="material-symbols-outlined">person</span>
+              My Tickets
+            </button>
+          </div>
+        }
+
+        <button type="button" class="btn btn-primary" (click)="openCreateModal()">
+          <span class="material-symbols-outlined">add</span>
+          New Support Request
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Metrics Cards -->
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-icon primary">
+        <span class="material-symbols-outlined">confirmation_number</span>
+      </div>
+      <div class="metric-info">
+        <span class="metric-label">{{ isOfficialOrAdmin && activeScope() === 'all' ? 'Total Platform Tickets' : 'My Total Tickets' }}</span>
+        <span class="metric-value">{{ totalCount() }}</span>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon warning">
+        <span class="material-symbols-outlined">pending_actions</span>
+      </div>
+      <div class="metric-info">
+        <span class="metric-label">Current Page Items</span>
+        <span class="metric-value">{{ tickets().length }}</span>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon success">
+        <span class="material-symbols-outlined">support_agent</span>
+      </div>
+      <div class="metric-info">
+        <span class="metric-label">Support Status</span>
+        <span class="metric-value">{{ isOfficialOrAdmin ? 'Triage Active' : 'Help Desk Online' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters & Search Toolbar -->
+  <div class="filters-panel">
+    <div class="filters-grid">
+      <!-- Status Filter -->
+      <div class="filter-group">
+        <label for="status-filter">Status</label>
+        <select id="status-filter" [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event); onFilterChange()" class="form-select">
+          @for (opt of statusOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Type Filter -->
+      <div class="filter-group">
+        <label for="type-filter">Type</label>
+        <select id="type-filter" [ngModel]="selectedType()" (ngModelChange)="selectedType.set($event); onFilterChange()" class="form-select">
+          <option value="ALL">All Types</option>
+          @for (opt of typeOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Priority Filter -->
+      <div class="filter-group">
+        <label for="priority-filter">Priority</label>
+        <select id="priority-filter" [ngModel]="selectedPriority()" (ngModelChange)="selectedPriority.set($event); onFilterChange()" class="form-select">
+          <option value="ALL">All Priorities</option>
+          @for (opt of priorityOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Category Filter -->
+      <div class="filter-group">
+        <label for="category-filter">Category</label>
+        <input
+          id="category-filter"
+          type="text"
+          [ngModel]="categoryFilter()"
+          (ngModelChange)="categoryFilter.set($event)"
+          (keyup.enter)="onFilterChange()"
+          placeholder="Filter by category..."
+          class="form-input"
+        />
+      </div>
+
+      <!-- Actions -->
+      <div class="filter-actions">
+        <button type="button" class="btn btn-secondary" (click)="onFilterChange()">
+          <span class="material-symbols-outlined">filter_alt</span>
+          Apply
+        </button>
+        <button type="button" class="btn btn-outline" (click)="resetFilters()" title="Reset Filters">
+          <span class="material-symbols-outlined">restart_alt</span>
+          Reset
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p class="loading-text">Loading support tickets...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (!isLoading() && errorMessage()) {
+    <div class="error-banner">
+      <span class="material-symbols-outlined error-icon">error</span>
+      <div class="error-content">
+        <h4>Unable to Load Tickets</h4>
+        <p>{{ errorMessage() }}</p>
+      </div>
+      <button type="button" class="btn btn-secondary btn-sm" (click)="loadTickets()">
+        Retry
+      </button>
+    </div>
+  }
+
+  <!-- Tickets List / Table -->
+  @if (!isLoading() && !errorMessage()) {
+    @if (tickets().length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">
+          <span class="material-symbols-outlined">inbox</span>
+        </div>
+        <h3 class="empty-title">No support tickets found</h3>
+        <p class="empty-desc">
+          @if (selectedStatus() !== 'ALL' || selectedType() !== 'ALL' || selectedPriority() !== 'ALL' || categoryFilter()) {
+            No tickets match your active filter criteria. Try resetting filters.
+          } @else {
+            {{ isOfficialOrAdmin ? 'No tickets have been submitted under this scope.' : 'You have not submitted any feedback or support tickets yet. Need help with a scheme or policy?' }}
+          }
+        </p>
+        <button type="button" class="btn btn-primary" (click)="openCreateModal()">
+          <span class="material-symbols-outlined">add</span>
+          Submit New Request
+        </button>
+      </div>
+    } @else {
+      <div class="table-container">
+        <table class="tickets-table">
+          <thead>
+            <tr>
+              <th>Ticket ID</th>
+              <th>Subject</th>
+              @if (isOfficialOrAdmin && activeScope() === 'all') {
+                <th>Citizen</th>
+              }
+              <th>Type</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th>Category</th>
+              <th>Submitted Date</th>
+              <th class="text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (ticket of tickets(); track ticket.id) {
+              <tr class="ticket-row" (click)="viewTicketDetails(ticket)">
+                <td class="ticket-id">
+                  <span class="id-badge">#{{ ticket.id }}</span>
+                </td>
+                <td class="ticket-subject">
+                  <div class="subject-title">{{ ticket.subject }}</div>
+                </td>
+                @if (isOfficialOrAdmin && activeScope() === 'all') {
+                  <td class="user-cell">
+                    <div class="user-name-text">{{ ticket.user_name || 'Citizen' }}</div>
+                    <div class="user-email-text">{{ ticket.user_email || 'ID: ' + ticket.user_id }}</div>
+                  </td>
+                }
+                <td>
+                  <span class="type-pill">
+                    <span class="material-symbols-outlined pill-icon">{{ getTypeIcon(ticket.feedback_type) }}</span>
+                    {{ ticket.feedback_type }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="getStatusBadgeClass(ticket.status)">
+                    {{ ticket.status }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="getPriorityBadgeClass(ticket.priority)">
+                    {{ ticket.priority }}
+                  </span>
+                </td>
+                <td>
+                  <span class="category-text">{{ ticket.category || 'General' }}</span>
+                </td>
+                <td class="date-cell">
+                  {{ formatDate(ticket.created_at) }}
+                </td>
+                <td class="text-right action-cell">
+                  <button
+                    type="button"
+                    class="btn-view"
+                    (click)="$event.stopPropagation(); viewTicketDetails(ticket)"
+                    title="View details, resolve, and audit history"
+                  >
+                    <span class="material-symbols-outlined">{{ isOfficialOrAdmin ? 'tune' : 'visibility' }}</span>
+                    {{ isOfficialOrAdmin ? 'Manage' : 'View' }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Footer -->
+      <div class="pagination-bar">
+        <span class="pagination-info">
+          Showing Page <strong>{{ page() }}</strong> of <strong>{{ totalPages() }}</strong> ({{ totalCount() }} Total)
+        </span>
+        <div class="pagination-controls">
+          <button
+            type="button"
+            class="btn-page"
+            [disabled]="page() <= 1"
+            (click)="goToPage(page() - 1)"
+          >
+            <span class="material-symbols-outlined">chevron_left</span>
+            Previous
+          </button>
+          <span class="page-number-indicator">{{ page() }}</span>
+          <button
+            type="button"
+            class="btn-page"
+            [disabled]="page() >= totalPages()"
+            (click)="goToPage(page() + 1)"
+          >
+            Next
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    }
+  }
+
+  <!-- ======================================================== -->
+  <!-- MODAL: Submit New Feedback / Support Request Form       -->
+  <!-- ======================================================== -->
+  @if (showCreateModal()) {
+    <div class="modal-backdrop" (click)="closeCreateModal()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-wrapper">
+            <span class="material-symbols-outlined modal-icon">add_task</span>
+            <h2 class="modal-title">Submit Feedback & Support Request</h2>
+          </div>
+          <button type="button" class="btn-close" (click)="closeCreateModal()" [disabled]="isSubmitting()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <form class="modal-body" (submit)="$event.preventDefault(); submitFeedback()">
+          <!-- Success Message -->
+          @if (submitSuccessMsg()) {
+            <div class="alert alert-success">
+              <span class="material-symbols-outlined">check_circle</span>
+              <span>{{ submitSuccessMsg() }}</span>
+            </div>
+          }
+
+          <!-- Error Message -->
+          @if (submitErrorMsg()) {
+            <div class="alert alert-danger">
+              <span class="material-symbols-outlined">error</span>
+              <span>{{ submitErrorMsg() }}</span>
+            </div>
+          }
+
+          <!-- Subject Input (Required) -->
+          <div class="form-group">
+            <label for="form-subject" class="form-label">
+              Subject <span class="required-star">*</span>
+            </label>
+            <input
+              id="form-subject"
+              type="text"
+              [ngModel]="formSubject()"
+              (ngModelChange)="formSubject.set($event)"
+              name="subject"
+              required
+              maxlength="255"
+              placeholder="e.g. Issue applying for PM Kisan Scheme"
+              class="form-input"
+              [disabled]="isSubmitting()"
+            />
+          </div>
+
+          <!-- Type & Priority Grid -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="form-type" class="form-label">Request Type</label>
+              <select
+                id="form-type"
+                [ngModel]="formFeedbackType()"
+                (ngModelChange)="formFeedbackType.set($event)"
+                name="feedback_type"
+                class="form-select"
+                [disabled]="isSubmitting()"
+              >
+                @for (opt of typeOptions; track opt.value) {
+                  <option [value]="opt.value">{{ opt.label }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="form-priority" class="form-label">Priority</label>
+              <select
+                id="form-priority"
+                [ngModel]="formPriority()"
+                (ngModelChange)="formPriority.set($event)"
+                name="priority"
+                class="form-select"
+                [disabled]="isSubmitting()"
+              >
+                @for (opt of priorityOptions; track opt.value) {
+                  <option [value]="opt.value">{{ opt.label }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <!-- Category & Reference ID Grid -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="form-category" class="form-label">Category (Optional)</label>
+              <input
+                id="form-category"
+                type="text"
+                [ngModel]="formCategory()"
+                (ngModelChange)="formCategory.set($event)"
+                name="category"
+                maxlength="100"
+                placeholder="e.g. Agriculture, Education, Portal Bug"
+                class="form-input"
+                [disabled]="isSubmitting()"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="form-ref" class="form-label">Reference ID (Optional)</label>
+              <input
+                id="form-ref"
+                type="text"
+                [ngModel]="formReferenceId()"
+                (ngModelChange)="formReferenceId.set($event)"
+                name="reference_id"
+                maxlength="100"
+                placeholder="e.g. APP-98234 or Scheme ID"
+                class="form-input"
+                [disabled]="isSubmitting()"
+              />
+            </div>
+          </div>
+
+          <!-- Description / Content (Required by Backend) -->
+          <div class="form-group">
+            <label for="form-content" class="form-label">
+              Description / Details <span class="required-star">*</span>
+            </label>
+            <textarea
+              id="form-content"
+              [ngModel]="formContent()"
+              (ngModelChange)="formContent.set($event)"
+              name="content"
+              rows="4"
+              required
+              placeholder="Describe your issue, suggestion, or question in detail..."
+              class="form-textarea"
+              [disabled]="isSubmitting()"
+            ></textarea>
+          </div>
+
+          <!-- Citizen Rating (Optional) -->
+          <div class="form-group">
+            <label class="form-label">Portal Experience Rating (Optional)</label>
+            <div class="rating-stars">
+              @for (star of [1, 2, 3, 4, 5]; track star) {
+                <button
+                  type="button"
+                  class="star-btn"
+                  [class.active]="formRating() !== null && formRating()! >= star"
+                  (click)="setRating(star)"
+                  [disabled]="isSubmitting()"
+                >
+                  <span class="material-symbols-outlined">
+                    {{ formRating() !== null && formRating()! >= star ? 'star' : 'star_outline' }}
+                  </span>
+                </button>
+              }
+              @if (formRating()) {
+                <span class="rating-text">{{ formRating() }} / 5 Stars</span>
+              }
+            </div>
+          </div>
+
+          <!-- Form Footer Actions -->
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-outline"
+              (click)="closeCreateModal()"
+              [disabled]="isSubmitting()"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="isSubmitting() || !formSubject().trim() || !formContent().trim()"
+            >
+              @if (isSubmitting()) {
+                <div class="spinner-sm"></div>
+                Submitting...
+              } @else {
+                <span class="material-symbols-outlined">send</span>
+                Submit Request
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- ======================================================== -->
+  <!-- DRAWER: Ticket Details, Admin Triage, Resolve & Timeline -->
+  <!-- ======================================================== -->
+  @if (showDetailDrawer() && selectedTicket()) {
+    <div class="drawer-backdrop" (click)="closeTicketDetails()">
+      <div class="drawer-container" (click)="$event.stopPropagation()">
+        <!-- Drawer Header -->
+        <div class="drawer-header">
+          <div class="drawer-title-box">
+            <span class="drawer-id-badge">Ticket #{{ selectedTicket()!.id }}</span>
+            <h2 class="drawer-title">{{ selectedTicket()!.subject }}</h2>
+          </div>
+          <button type="button" class="btn-close" (click)="closeTicketDetails()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <div class="drawer-body">
+          <!-- Metadata Pills Bar -->
+          <div class="detail-pills-bar">
+            <div class="pill-group">
+              <span class="pill-label">Status:</span>
+              <span class="badge" [ngClass]="getStatusBadgeClass(selectedTicket()!.status)">
+                {{ selectedTicket()!.status }}
+              </span>
+            </div>
+
+            <div class="pill-group">
+              <span class="pill-label">Priority:</span>
+              <span class="badge" [ngClass]="getPriorityBadgeClass(selectedTicket()!.priority)">
+                {{ selectedTicket()!.priority }}
+              </span>
+            </div>
+
+            <div class="pill-group">
+              <span class="pill-label">Type:</span>
+              <span class="type-pill">
+                <span class="material-symbols-outlined pill-icon">{{ getTypeIcon(selectedTicket()!.feedback_type) }}</span>
+                {{ selectedTicket()!.feedback_type }}
+              </span>
+            </div>
+
+            @if (selectedTicket()!.category) {
+              <div class="pill-group">
+                <span class="pill-label">Category:</span>
+                <span class="meta-tag">{{ selectedTicket()!.category }}</span>
+              </div>
+            }
+
+            @if (selectedTicket()!.user_name || selectedTicket()!.user_email) {
+              <div class="pill-group">
+                <span class="pill-label">Submitted by:</span>
+                <span class="meta-tag">{{ selectedTicket()!.user_name || selectedTicket()!.user_email }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Description Section -->
+          <div class="detail-section">
+            <h3 class="section-heading">Citizen Description / Details</h3>
+            <div class="content-box">
+              {{ selectedTicket()!.content || selectedTicket()!.description || 'No detailed description provided.' }}
+            </div>
+          </div>
+
+          <!-- Rating if present -->
+          @if (selectedTicket()!.rating) {
+            <div class="detail-section">
+              <h3 class="section-heading">Citizen Rating</h3>
+              <div class="stars-display">
+                @for (star of [1, 2, 3, 4, 5]; track star) {
+                  <span class="material-symbols-outlined star-icon" [class.filled]="selectedTicket()!.rating! >= star">
+                    {{ selectedTicket()!.rating! >= star ? 'star' : 'star_outline' }}
+                  </span>
+                }
+                <span class="stars-score">({{ selectedTicket()!.rating }}/5)</span>
+              </div>
+            </div>
+          }
+
+          <!-- ======================================================== -->
+          <!-- ADMIN TRIAGE & STATUS MANAGEMENT CONTROLS                -->
+          <!-- ======================================================== -->
+          @if (isOfficialOrAdmin) {
+            <div class="admin-action-card triage-panel">
+              <div class="admin-panel-header">
+                <span class="material-symbols-outlined admin-panel-icon">tune</span>
+                <h4 class="admin-panel-title">Triage & Status Update</h4>
+              </div>
+
+              @if (triageSuccessMsg()) {
+                <div class="alert alert-success">
+                  <span class="material-symbols-outlined">check_circle</span>
+                  <span>{{ triageSuccessMsg() }}</span>
+                </div>
+              }
+
+              @if (triageErrorMsg()) {
+                <div class="alert alert-danger">
+                  <span class="material-symbols-outlined">error</span>
+                  <span>{{ triageErrorMsg() }}</span>
+                </div>
+              }
+
+              <div class="triage-controls-grid">
+                <div class="form-group">
+                  <label for="edit-status" class="form-label">Update Status</label>
+                  <select
+                    id="edit-status"
+                    [ngModel]="editStatus()"
+                    (ngModelChange)="editStatus.set($event)"
+                    class="form-select"
+                    [disabled]="isUpdatingTriage()"
+                  >
+                    @for (status of [FeedbackStatus.OPEN, FeedbackStatus.SUBMITTED, FeedbackStatus.IN_PROGRESS, FeedbackStatus.IN_REVIEW, FeedbackStatus.RESOLVED, FeedbackStatus.CLOSED]; track status) {
+                      <option [value]="status">{{ status }}</option>
+                    }
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="edit-priority" class="form-label">Update Priority</label>
+                  <select
+                    id="edit-priority"
+                    [ngModel]="editPriority()"
+                    (ngModelChange)="editPriority.set($event)"
+                    class="form-select"
+                    [disabled]="isUpdatingTriage()"
+                  >
+                    @for (prio of priorityOptions; track prio.value) {
+                      <option [value]="prio.value">{{ prio.label }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+
+              <div class="triage-actions-bar">
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-sm"
+                  (click)="updateTicketTriage()"
+                  [disabled]="isUpdatingTriage()"
+                >
+                  @if (isUpdatingTriage()) {
+                    <div class="spinner-sm"></div>
+                    Updating...
+                  } @else {
+                    <span class="material-symbols-outlined">save</span>
+                    Save Triage
+                  }
+                </button>
+              </div>
+            </div>
+
+            <!-- ADMIN RESOLVE TICKET PANEL -->
+            <div class="admin-action-card resolve-panel">
+              <div class="admin-panel-header">
+                <span class="material-symbols-outlined admin-panel-icon resolve-icon">task_alt</span>
+                <h4 class="admin-panel-title">Post Official Resolution & Resolve</h4>
+              </div>
+
+              @if (resolveSuccessMsg()) {
+                <div class="alert alert-success">
+                  <span class="material-symbols-outlined">check_circle</span>
+                  <span>{{ resolveSuccessMsg() }}</span>
+                </div>
+              }
+
+              @if (resolveErrorMsg()) {
+                <div class="alert alert-danger">
+                  <span class="material-symbols-outlined">error</span>
+                  <span>{{ resolveErrorMsg() }}</span>
+                </div>
+              }
+
+              <div class="form-group">
+                <label for="admin-resolution" class="form-label">
+                  Resolution Remarks / Response Note <span class="required-star">*</span>
+                </label>
+                <textarea
+                  id="admin-resolution"
+                  [ngModel]="adminResolutionNote()"
+                  (ngModelChange)="adminResolutionNote.set($event)"
+                  rows="3"
+                  placeholder="Enter the official resolution response for the citizen..."
+                  class="form-textarea"
+                  [disabled]="isResolving()"
+                ></textarea>
+              </div>
+
+              <div class="resolve-actions-bar">
+                <button
+                  type="button"
+                  class="btn btn-success"
+                  (click)="resolveTicket()"
+                  [disabled]="isResolving() || !adminResolutionNote().trim()"
+                >
+                  @if (isResolving()) {
+                    <div class="spinner-sm"></div>
+                    Resolving Ticket...
+                  } @else {
+                    <span class="material-symbols-outlined">verified</span>
+                    Post Resolution & Mark Resolved
+                  }
+                </button>
+              </div>
+            </div>
+          }
+
+          <!-- Resolution Note Section (Displayed if resolved/admin responded) -->
+          @if (selectedTicket()!.admin_response || selectedTicket()!.resolution) {
+            <div class="detail-section resolution-card">
+              <div class="resolution-header">
+                <span class="material-symbols-outlined res-icon">verified</span>
+                <div class="res-title-box">
+                  <h4 class="res-title">Official Resolution Response</h4>
+                  @if (selectedTicket()!.resolver_name) {
+                    <span class="res-author">Resolved by: {{ selectedTicket()!.resolver_name }}</span>
+                  }
+                  @if (selectedTicket()!.resolved_at) {
+                    <span class="res-date">on {{ formatDate(selectedTicket()!.resolved_at) }}</span>
+                  }
+                </div>
+              </div>
+              <div class="res-content">
+                {{ selectedTicket()!.admin_response || selectedTicket()!.resolution }}
+              </div>
+            </div>
+          }
+
+          <!-- Timestamps info -->
+          <div class="meta-timestamps">
+            <div class="timestamp-item">
+              <span class="material-symbols-outlined">schedule</span>
+              <span>Submitted: {{ formatDate(selectedTicket()!.created_at) }}</span>
+            </div>
+            <div class="timestamp-item">
+              <span class="material-symbols-outlined">update</span>
+              <span>Last Updated: {{ formatDate(selectedTicket()!.updated_at) }}</span>
+            </div>
+          </div>
+
+          <!-- Lifecycle / Audit Timeline Section -->
+          <div class="detail-section history-section">
+            <div class="history-header">
+              <h3 class="section-heading">Ticket Lifecycle & History</h3>
+              @if (isLoadingHistory()) {
+                <div class="spinner-sm"></div>
+              }
+            </div>
+
+            @if (historyErrorMsg()) {
+              <div class="history-error">{{ historyErrorMsg() }}</div>
+            }
+
+            @if (!isLoadingHistory() && ticketHistory().length === 0) {
+              <div class="history-empty">
+                <p>No historical events logged for this ticket yet.</p>
+              </div>
+            }
+
+            @if (ticketHistory().length > 0) {
+              <div class="timeline">
+                @for (event of ticketHistory(); track event.id; let last = $last) {
+                  <div class="timeline-item" [class.is-last]="last">
+                    <div class="timeline-indicator">
+                      <div class="timeline-dot"></div>
+                      @if (!last) {
+                        <div class="timeline-line"></div>
+                      }
+                    </div>
+                    <div class="timeline-content">
+                      <div class="event-action">{{ event.action }}</div>
+                      @if (event.details) {
+                        <div class="event-details">{{ event.details }}</div>
+                      }
+                      <div class="event-date">{{ formatDate(event.created_at) }}</div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="drawer-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeTicketDetails()">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

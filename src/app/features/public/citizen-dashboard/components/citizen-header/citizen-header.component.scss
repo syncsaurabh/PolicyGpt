@@ -1,10 +1,15 @@
+:host {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+}
+
 .public-header {
   width: 100%;
   background-color: var(--bg-header, #ffffff);
   border-bottom: 1px solid var(--border-color, #e2e8f0);
-  position: sticky;
-  top: 0;
-  z-index: 50;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 
   .header-container {

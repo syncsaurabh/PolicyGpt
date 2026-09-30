@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { Policy } from './services/policy';
 import { PolicyItem, PolicyStatus } from '../../models/policy.model';
 import { Auth } from '../../core/services/auth';
+import { DashboardService } from '../../core/services/dashboard.service';
 
 @Component({
   selector: 'app-policies',
@@ -17,9 +18,88 @@ export class Policies implements OnInit {
   private readonly router = inject(Router);
   protected readonly policyService = inject(Policy);
   protected readonly auth = inject(Auth);
+  protected readonly dashboardService = inject(DashboardService);
+
+  // Bookmarked policy IDs
+  protected bookmarkedPolicyIds = signal<Set<string>>(new Set());
 
   ngOnInit(): void {
     this.policyService.refreshPolicies().subscribe();
+    this.initBookmarks();
+  }
+
+  private initBookmarks(): void {
+    try {
+      const stored = localStorage.getItem('policy_bookmarks');
+      if (stored) {
+        this.bookmarkedPolicyIds.set(new Set(JSON.parse(stored)));
+      }
+    } catch {}
+
+    if (this.auth.isAuthenticated()) {
+      this.dashboardService.getCitizenDashboard().subscribe({
+        next: (dash) => {
+          if (dash.saved_policies) {
+            const set = new Set(this.bookmarkedPolicyIds());
+            dash.saved_policies.forEach(sp => {
+              if (sp.policy_id) set.add(String(sp.policy_id));
+              if (sp.id) set.add(String(sp.id));
+            });
+            this.bookmarkedPolicyIds.set(set);
+            try {
+              localStorage.setItem('policy_bookmarks', JSON.stringify(Array.from(set)));
+            } catch {}
+          }
+        },
+        error: () => {}
+      });
+    }
+  }
+
+  isPolicyBookmarked(policyId: string | number): boolean {
+    const idStr = String(policyId);
+    const numDigits = idStr.replace(/\D/g, '');
+    return this.bookmarkedPolicyIds().has(idStr) || (numDigits ? this.bookmarkedPolicyIds().has(numDigits) : false);
+  }
+
+  toggleBookmarkPolicy(policy: PolicyItem, event: Event): void {
+    event.stopPropagation();
+    this.closeActionMenu();
+
+    const idStr = String(policy.id);
+    const numId = typeof policy.id === 'number' ? policy.id : parseInt(String(policy.id).replace(/\D/g, ''), 10);
+    const currentlyBookmarked = this.isPolicyBookmarked(policy.id);
+    const set = new Set(this.bookmarkedPolicyIds());
+
+    if (currentlyBookmarked) {
+      set.delete(idStr);
+      if (numId) set.delete(String(numId));
+      this.bookmarkedPolicyIds.set(set);
+      try {
+        localStorage.setItem('policy_bookmarks', JSON.stringify(Array.from(set)));
+      } catch {}
+
+      if (numId && this.auth.isAuthenticated()) {
+        this.dashboardService.removeSavedPolicy(numId).subscribe({
+          next: () => {},
+          error: () => {}
+        });
+      }
+    } else {
+      set.add(idStr);
+      if (numId) set.add(String(numId));
+      this.bookmarkedPolicyIds.set(set);
+      try {
+        localStorage.setItem('policy_bookmarks', JSON.stringify(Array.from(set)));
+      } catch {}
+
+      if (numId && this.auth.isAuthenticated()) {
+        this.dashboardService.savePolicy({ policy_id: numId }).subscribe({
+          next: () => {},
+          error: () => {}
+        });
+      }
+    }
   }
 
   // Search & Filter State

@@ -1,0 +1,86 @@
+<div class="chart-card">
+  <div class="chart-header">
+    <div class="header-titles">
+      <h3 class="chart-title">{{ title }}</h3>
+      <p *ngIf="subtitle" class="chart-subtitle">{{ subtitle }}</p>
+    </div>
+    <div *ngIf="!loading && total() > 0" class="total-pill">
+      <span class="total-count">{{ total() }}</span>
+      <span class="total-label">{{ totalLabel }}</span>
+    </div>
+  </div>
+
+  <!-- Loading Skeleton -->
+  <div *ngIf="loading" class="chart-loading-state">
+    <div class="skeleton-bar" *ngFor="let i of [1, 2, 3, 4]"></div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && (!items || items.length === 0 || total() === 0)" class="chart-empty-state">
+    <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+    </svg>
+    <span>{{ emptyMessage }}</span>
+  </div>
+
+  <!-- Horizontal Bar View -->
+  <div *ngIf="!loading && total() > 0 && chartType === 'horizontal-bar'" class="bars-container">
+    <div class="bar-item" *ngFor="let item of displayItems()">
+      <div class="bar-label-row">
+        <div class="label-with-dot">
+          <span class="color-dot" [style.background-color]="item.color"></span>
+          <span class="item-name" [title]="item.name">{{ item.name }}</span>
+        </div>
+        <div class="item-stats">
+          <span class="item-count">{{ item.count }}</span>
+          <span class="item-percent">({{ item.percentage }}%)</span>
+        </div>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" [style.width.%]="item.percentage" [style.background-color]="item.color"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Donut Chart View -->
+  <div *ngIf="!loading && total() > 0 && chartType === 'donut'" class="donut-container">
+    <div class="donut-svg-wrapper">
+      <svg viewBox="0 0 100 100" class="donut-svg">
+        <circle cx="50" cy="50" r="40" class="donut-bg-circle"></circle>
+        <circle
+          *ngFor="let slice of donutSlices()"
+          cx="50"
+          cy="50"
+          r="40"
+          class="donut-segment"
+          [attr.stroke]="slice.color"
+          [attr.stroke-dasharray]="slice.strokeDasharray"
+          [attr.stroke-dashoffset]="slice.strokeDashoffset"
+        ></circle>
+      </svg>
+      <div class="donut-center-text">
+        <span class="donut-total-num">{{ total() }}</span>
+        <span class="donut-total-sub">{{ totalLabel }}</span>
+      </div>
+    </div>
+
+    <div class="donut-legend">
+      <div class="legend-item" *ngFor="let item of displayItems()">
+        <span class="color-dot" [style.background-color]="item.color"></span>
+        <div class="legend-info">
+          <span class="legend-name" [title]="item.name">{{ item.name }}</span>
+          <span class="legend-val">{{ item.count }} <small>({{ item.percentage }}%)</small></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Badge List View -->
+  <div *ngIf="!loading && total() > 0 && chartType === 'badge-list'" class="badge-list-container">
+    <div class="query-badge" *ngFor="let item of displayItems()">
+      <span class="query-text">{{ item.name }}</span>
+      <span class="query-count">{{ item.count }}</span>
+    </div>
+  </div>
+</div>

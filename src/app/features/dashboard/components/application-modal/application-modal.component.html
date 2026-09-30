@@ -1,0 +1,109 @@
+<div class="modal-backdrop" *ngIf="isOpen" (click)="onClose()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title-wrap">
+        <div class="modal-icon-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+          </svg>
+        </div>
+        <div>
+          <h2 class="modal-title">Apply for Government Scheme</h2>
+          <p class="modal-subtitle">Submit your formal application for citizen welfare benefits</p>
+        </div>
+      </div>
+      <button type="button" class="btn-close" (click)="onClose()" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" class="modal-form">
+      <div class="modal-body">
+        <!-- Success Alert -->
+        <div *ngIf="successMessage" class="alert alert-success">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>{{ successMessage }}</span>
+        </div>
+
+        <!-- Error Alert -->
+        <div *ngIf="errorMessage" class="alert alert-danger">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <span>{{ errorMessage }}</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="scheme-select">Select Welfare Scheme <span class="required">*</span></label>
+          <select
+            id="scheme-select"
+            class="form-select"
+            [(ngModel)]="schemeId"
+            name="schemeId"
+            [disabled]="submitting || !!selectedScheme"
+            required
+          >
+            <option [ngValue]="null" disabled>Choose an eligible scheme...</option>
+            <option *ngFor="let s of availableSchemes" [ngValue]="s.scheme_id">
+              {{ s.scheme_name }} ({{ s.category || 'General' }})
+            </option>
+          </select>
+        </div>
+
+        <!-- Scheme Info Preview if selected -->
+        <div *ngIf="selectedScheme" class="scheme-preview-box">
+          <div class="preview-row">
+            <span class="preview-label">Department:</span>
+            <span class="preview-val">{{ selectedScheme.department || 'N/A' }}</span>
+          </div>
+          <div class="preview-row" *ngIf="selectedScheme.benefits">
+            <span class="preview-label">Benefits:</span>
+            <span class="preview-val">{{ selectedScheme.benefits }}</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="remarks-input">Applicant Remarks / Additional Details</label>
+          <textarea
+            id="remarks-input"
+            class="form-textarea"
+            [(ngModel)]="remarks"
+            name="remarks"
+            rows="3"
+            placeholder="Provide any application references, household parameters or notes..."
+            [disabled]="submitting"
+          ></textarea>
+        </div>
+
+        <div class="verification-notice">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <p>By submitting, you authorize automated verification against your citizen profile and scheme eligibility rules.</p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="onClose()" [disabled]="submitting">
+          Cancel
+        </button>
+        <button type="submit" class="btn-submit" [disabled]="submitting || !schemeId">
+          <span *ngIf="submitting" class="spinner-small"></span>
+          <span>{{ submitting ? 'Submitting Application...' : 'Confirm & Submit Application' }}</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

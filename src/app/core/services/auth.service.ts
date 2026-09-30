@@ -15,6 +15,7 @@ import {
 import { UserRead, UserRole } from '../../models/user.models';
 import { User } from '../../models/user.model';
 import { Role, normalizeRole, toDisplayRole, toBackendRole } from '../../models/role.model';
+import { AssistantService } from './assistant.service';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +23,7 @@ import { Role, normalizeRole, toDisplayRole, toBackendRole } from '../../models/
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly assistantService = inject(AssistantService);
 
   private readonly API_URL = environment.apiUrl;
   private readonly TOKEN_KEY = 'policy_gpt_token';
@@ -31,6 +33,7 @@ export class AuthService {
   private readonly currentUserSignal = signal<User | null>(this.loadStoredUser());
   readonly currentUser = this.currentUserSignal.asReadonly();
   readonly authenticated = computed(() => this.currentUserSignal() !== null && !!this.getToken());
+
 
   /**
    * Authenticate user with email and password via POST /auth/login.
@@ -191,6 +194,9 @@ export class AuthService {
    * Terminate user session and clear storage.
    */
   logout(redirect: boolean = true): void {
+    // Completely reset AI Assistant state to prevent any cross-user session leaks
+    this.assistantService.resetSession();
+
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     this.currentUserSignal.set(null);
@@ -204,6 +210,17 @@ export class AuthService {
    * Set and persist the current user state.
    */
   setCurrentUser(user: User | null): void {
+    const previousUser = this.currentUserSignal();
+    const identityChanged =
+      (!previousUser && user) ||
+      (previousUser && !user) ||
+      (previousUser && user && (previousUser.id !== user.id || previousUser.role !== user.role));
+
+    if (identityChanged) {
+      // Identity or role changed: immediately purge assistant state
+      this.assistantService.resetSession();
+    }
+
     if (user) {
       localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     } else {
@@ -211,6 +228,7 @@ export class AuthService {
     }
     this.currentUserSignal.set(user);
   }
+
 
   /**
    * Mapper from backend UserRead model to frontend User interface.
