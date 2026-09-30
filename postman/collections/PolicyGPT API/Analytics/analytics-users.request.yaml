@@ -1,0 +1,19 @@
+$kind: http-request
+name: 'Analytics - Users (Admin only)'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/analytics/users'
+order: 4000
+queryParams:
+  - key: start_date
+    value: ''
+    disabled: true
+  - key: end_date
+    value: ''
+    disabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });

@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'Get Notification Preferences'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/notifications/preferences'
+order: 3000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });

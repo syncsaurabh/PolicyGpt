@@ -1,0 +1,47 @@
+$kind: http-request
+name: 'Search Schemes'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/search/schemes?keyword=scholarship&page=1&page_size=10'
+order: 2000
+queryParams:
+  - key: keyword
+    value: 'scholarship'
+    description: 'Free-text keyword to match name and description'
+  - key: category
+    value: ''
+    description: 'Filter by scheme category'
+    disabled: true
+  - key: state
+    value: ''
+    disabled: true
+  - key: ministry
+    value: ''
+    disabled: true
+  - key: department
+    value: ''
+    disabled: true
+  - key: sector
+    value: ''
+    disabled: true
+  - key: publication_date
+    value: ''
+    description: 'Filter by publication date (YYYY-MM-DD)'
+    disabled: true
+  - key: status
+    value: ''
+    disabled: true
+  - key: page
+    value: '1'
+  - key: page_size
+    value: '10'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response has results array", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("results");
+      });

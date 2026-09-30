@@ -1,0 +1,49 @@
+$kind: http-request
+name: 'Create Scheme'
+method: POST
+url: '{{baseUrl}}{{apiV1}}/schemes'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "PM Scholarship Scheme 2024",
+      "description": "Scholarship for meritorious students from economically weaker sections.",
+      "benefits": "INR 10,000 per year for undergraduate studies.",
+      "target_audience": "Students from EWS families",
+      "category": "Scholarships",
+      "department": "Department of Higher Education",
+      "ministry": "Ministry of Education",
+      "state": "Central",
+      "sector": "Education",
+      "application_process": "Apply online at scholarships.gov.in with income certificate and marksheet.",
+      "policy_id": null,
+      "is_active": true,
+      "status": "ACTIVE",
+      "eligibility_rules": [
+        {
+          "rule_name": "Age Limit",
+          "criteria_json": "{\"min_age\": 17, \"max_age\": 25}",
+          "description": "Applicant must be between 17 and 25 years old.",
+          "is_active": true
+        }
+      ]
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 201", function () {
+          pm.response.to.have.status(201);
+      });
+      pm.test("Response has scheme id and name", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("id");
+          pm.expect(json).to.have.property("name");
+      });
+      if (pm.response.code === 201) {
+          pm.collectionVariables.set("schemeId", pm.response.json().id);
+      }

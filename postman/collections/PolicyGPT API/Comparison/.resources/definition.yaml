@@ -1,0 +1,4 @@
+$kind: collection
+name: Comparison
+description: 'Side-by-side comparison of 2-3 policies or schemes. Optional authentication for role-aware access.'
+order: 7000

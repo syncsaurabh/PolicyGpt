@@ -1,0 +1,25 @@
+$kind: http-request
+name: 'List Notifications'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/notifications?page=1&page_size=10&unread_only=false'
+order: 1000
+queryParams:
+  - key: page
+    value: '1'
+  - key: page_size
+    value: '10'
+  - key: unread_only
+    value: 'false'
+    description: 'Set to true to filter only unread notifications'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response has results and unread_count", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("results");
+          pm.expect(json).to.have.property("unread_count");
+      });

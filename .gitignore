@@ -1,0 +1,39 @@
+# Environments & Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.cert
+
+# Virtual Environments
+venv/
+env/
+ENV/
+.venv/
+
+# Python cache & bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Testing & coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# Local databases & logs
+*.db
+*.sqlite3
+*.log
+
+# IDE, Editor & Tooling cache
+.vscode/
+.idea/
+.postman/
+*.swp
+*.swo
+

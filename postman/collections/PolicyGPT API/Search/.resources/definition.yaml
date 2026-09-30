@@ -1,0 +1,4 @@
+$kind: collection
+name: Search
+description: 'Multi-field search across policies and schemes. Supports optional authentication for role-aware results.'
+order: 5000

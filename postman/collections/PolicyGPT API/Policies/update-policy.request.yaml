@@ -1,0 +1,28 @@
+$kind: http-request
+name: 'Update Policy'
+method: PUT
+url: '{{baseUrl}}{{apiV1}}/policies/:id'
+order: 4000
+pathVariables:
+  - key: id
+    value: '{{policyId}}'
+    description: 'Policy ID'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "title": "National Education Policy 2024 (Revised)",
+      "description": "Updated comprehensive policy to reform the education sector.",
+      "category": "Education",
+      "status": "DRAFT"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });

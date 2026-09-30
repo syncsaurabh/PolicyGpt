@@ -1,0 +1,16 @@
+$kind: http-request
+name: 'Get Feedback by ID'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/feedback/:id'
+order: 4000
+pathVariables:
+  - key: id
+    value: '{{feedbackId}}'
+    description: 'Feedback ID'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });

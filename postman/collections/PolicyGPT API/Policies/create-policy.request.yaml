@@ -1,0 +1,38 @@
+$kind: http-request
+name: 'Create Policy'
+method: POST
+url: '{{baseUrl}}{{apiV1}}/policies'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "title": "National Education Policy 2024",
+      "description": "Comprehensive policy to reform the education sector across India.",
+      "category": "Education",
+      "department": "Department of School Education",
+      "ministry": "Ministry of Education",
+      "state": "Central",
+      "sector": "Education",
+      "is_active": true,
+      "status": "DRAFT"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 201", function () {
+          pm.response.to.have.status(201);
+      });
+      pm.test("Response has policy id and title", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("id");
+          pm.expect(json).to.have.property("title");
+          pm.expect(json).to.have.property("status");
+      });
+      if (pm.response.code === 201) {
+          pm.collectionVariables.set("policyId", pm.response.json().id);
+      }

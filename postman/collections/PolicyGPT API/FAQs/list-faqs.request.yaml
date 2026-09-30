@@ -1,0 +1,26 @@
+$kind: http-request
+name: 'List FAQs'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/faqs'
+order: 1000
+queryParams:
+  - key: category
+    value: ''
+    description: 'Filter by FAQ category'
+    disabled: true
+  - key: keyword
+    value: ''
+    description: 'Search keyword in question or answer'
+    disabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response has total_count and results", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("total_count");
+          pm.expect(json).to.have.property("results");
+      });

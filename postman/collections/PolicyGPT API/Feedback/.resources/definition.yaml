@@ -1,0 +1,9 @@
+$kind: collection
+name: 'Feedback & Support'
+description: 'Citizen feedback, issue reports, and support ticket management. Submit is open to guests and authenticated users. Admin/Official endpoints require appropriate roles.'
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'
+order: 11000

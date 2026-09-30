@@ -1,0 +1,9 @@
+$kind: collection
+name: Reports
+description: 'Report generation and export. Requires ADMINISTRATOR, GOVERNMENT_OFFICIAL, or RESEARCHER role. User activity report requires ADMINISTRATOR only.'
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'
+order: 10000

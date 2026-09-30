@@ -1,0 +1,30 @@
+from typing import Generator
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase, sessionmaker, Session
+from app.core.config import settings
+
+# Engine configuration with conditional parameters (e.g. SQLite vs PostgreSQL)
+connect_args = {}
+if settings.DATABASE_URL.startswith("sqlite"):
+    connect_args = {"check_same_thread": False}
+
+engine = create_engine(
+    settings.DATABASE_URL,
+    connect_args=connect_args,
+    pool_pre_ping=True if not settings.DATABASE_URL.startswith("sqlite") else False,
+)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+def get_db() -> Generator[Session, None, None]:
+    """FastAPI dependency that provides a transactional database session."""
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

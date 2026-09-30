@@ -1,0 +1,16 @@
+$kind: http-request
+name: 'Department Report (JSON)'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/reports/departments'
+order: 4000
+queryParams:
+  - key: department
+    value: ''
+    disabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });

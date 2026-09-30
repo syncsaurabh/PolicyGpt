@@ -1,0 +1,34 @@
+$kind: http-request
+name: 'Check Eligibility'
+method: POST
+url: '{{baseUrl}}{{apiV1}}/eligibility/check'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "age": 24,
+      "gender": "male",
+      "income": 250000,
+      "occupation": "student",
+      "education": "graduate",
+      "location": "Maharashtra",
+      "social_category": "General",
+      "disability_status": false
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response has eligible_schemes and total_matches", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("eligible_schemes");
+          pm.expect(json).to.have.property("total_matches");
+          pm.expect(json.eligible_schemes).to.be.an("array");
+      });

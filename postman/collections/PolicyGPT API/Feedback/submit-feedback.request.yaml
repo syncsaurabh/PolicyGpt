@@ -1,0 +1,34 @@
+$kind: http-request
+name: 'Submit Feedback'
+method: POST
+url: '{{baseUrl}}{{apiV1}}/feedback'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "subject": "Difficulty finding relevant schemes",
+      "content": "The search functionality could be improved to show more relevant results for rural farmers.",
+      "feedback_type": "FEEDBACK",
+      "category": "Search",
+      "rating": 3,
+      "priority": "MEDIUM"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 201", function () {
+          pm.response.to.have.status(201);
+      });
+      pm.test("Response has feedback id and status", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("id");
+          pm.expect(json).to.have.property("status");
+      });
+      if (pm.response.code === 201) {
+          pm.collectionVariables.set("feedbackId", pm.response.json().id);
+      }

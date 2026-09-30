@@ -1,0 +1,9 @@
+$kind: collection
+name: Schemes
+description: 'Government public scheme management. Create/update/delete require ADMINISTRATOR or GOVERNMENT_OFFICIAL role.'
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'
+order: 4000

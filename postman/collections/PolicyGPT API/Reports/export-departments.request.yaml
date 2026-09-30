@@ -1,0 +1,19 @@
+$kind: http-request
+name: 'Export Department Report (PDF/Excel)'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/reports/export/departments?format=PDF'
+order: 8000
+queryParams:
+  - key: format
+    value: 'PDF'
+    description: 'Export format: PDF or EXCEL'
+  - key: department
+    value: ''
+    disabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });

@@ -1,0 +1,27 @@
+$kind: http-request
+name: 'Update Feedback Status (Admin/Official)'
+method: PUT
+url: '{{baseUrl}}{{apiV1}}/feedback/:id/status'
+order: 5000
+pathVariables:
+  - key: id
+    value: '{{feedbackId}}'
+    description: 'Feedback ID'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "status": "IN_REVIEW",
+      "priority": "HIGH",
+      "category": "Search"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });

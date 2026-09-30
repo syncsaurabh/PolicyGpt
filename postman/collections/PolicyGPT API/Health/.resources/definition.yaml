@@ -1,0 +1,4 @@
+$kind: collection
+name: Health
+description: 'System health check endpoint. No authentication required.'
+order: 0

@@ -1,0 +1,34 @@
+$kind: http-request
+name: 'Export Policy Report (PDF/Excel)'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/reports/export/policies?format=PDF'
+order: 6000
+queryParams:
+  - key: format
+    value: 'PDF'
+    description: 'Export format: PDF or EXCEL'
+  - key: start_date
+    value: ''
+    disabled: true
+  - key: end_date
+    value: ''
+    disabled: true
+  - key: department
+    value: ''
+    disabled: true
+  - key: category
+    value: ''
+    disabled: true
+  - key: state
+    value: ''
+    disabled: true
+  - key: status_filter
+    value: ''
+    disabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });

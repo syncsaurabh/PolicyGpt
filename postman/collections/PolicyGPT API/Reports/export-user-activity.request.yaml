@@ -1,0 +1,28 @@
+$kind: http-request
+name: 'Export User Activity Report (PDF/Excel, Admin only)'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/reports/export/user-activity?format=PDF'
+order: 9000
+queryParams:
+  - key: format
+    value: 'PDF'
+    description: 'Export format: PDF or EXCEL'
+  - key: start_date
+    value: ''
+    disabled: true
+  - key: end_date
+    value: ''
+    disabled: true
+  - key: role
+    value: ''
+    disabled: true
+  - key: event_type
+    value: ''
+    disabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });

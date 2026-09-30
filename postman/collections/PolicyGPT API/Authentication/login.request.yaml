@@ -1,0 +1,31 @@
+$kind: http-request
+name: 'Login'
+method: POST
+url: '{{baseUrl}}{{apiV1}}/auth/login'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "email": "jane.citizen@example.com",
+      "password": "Test@1234"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response has access_token", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("access_token");
+          pm.expect(json.token_type).to.eql("bearer");
+      });
+      if (pm.response.code === 200) {
+          const json = pm.response.json();
+          pm.collectionVariables.set("authToken", json.access_token);
+      }

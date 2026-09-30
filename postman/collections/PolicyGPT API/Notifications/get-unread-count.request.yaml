@@ -1,0 +1,16 @@
+$kind: http-request
+name: 'Get Unread Notification Count'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/notifications/unread-count'
+order: 2000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response has unread_count", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("unread_count");
+      });

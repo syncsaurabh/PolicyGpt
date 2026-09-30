@@ -1,0 +1,27 @@
+$kind: http-request
+name: 'Update FAQ (Admin only)'
+method: PUT
+url: '{{baseUrl}}{{apiV1}}/faqs/:id'
+order: 4000
+pathVariables:
+  - key: id
+    value: '{{faqId}}'
+    description: 'FAQ ID'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "answer": "You can apply for government schemes by visiting the official portal at schemes.gov.in or through the PolicyGPT portal. Select the relevant scheme and follow the online application process.",
+      "is_active": true,
+      "display_order": 1
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });

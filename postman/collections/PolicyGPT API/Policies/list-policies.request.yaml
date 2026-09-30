@@ -1,0 +1,53 @@
+$kind: http-request
+name: 'List Policies'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/policies?page=1&page_size=10'
+order: 1000
+queryParams:
+  - key: page
+    value: '1'
+    description: 'Page number'
+  - key: page_size
+    value: '10'
+    description: 'Items per page (max 100)'
+  - key: category
+    value: 'Education'
+    description: 'Filter by category (Education, Healthcare, Agriculture, Employment, Finance, etc.)'
+    disabled: true
+  - key: status
+    value: 'PUBLISHED'
+    description: 'Filter by status (DRAFT, PENDING_APPROVAL, APPROVED, PUBLISHED, REJECTED, ARCHIVED)'
+    disabled: true
+  - key: department
+    value: ''
+    description: 'Filter by department name'
+    disabled: true
+  - key: state
+    value: ''
+    description: 'Filter by target state'
+    disabled: true
+  - key: keyword
+    value: ''
+    description: 'Keyword search in title and description'
+    disabled: true
+  - key: sort_by
+    value: 'created_at'
+    description: 'Field to sort by'
+    disabled: true
+  - key: sort_order
+    value: 'desc'
+    description: 'Sort direction: asc or desc'
+    disabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response has pagination fields", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("total_count");
+          pm.expect(json).to.have.property("results");
+          pm.expect(json.results).to.be.an("array");
+      });

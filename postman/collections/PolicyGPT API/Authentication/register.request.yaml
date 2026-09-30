@@ -1,0 +1,29 @@
+$kind: http-request
+name: 'Register User'
+method: POST
+url: '{{baseUrl}}{{apiV1}}/auth/register'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Jane Citizen",
+      "email": "jane.citizen@example.com",
+      "password": "Test@1234",
+      "role": "CITIZEN"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 201", function () {
+          pm.response.to.have.status(201);
+      });
+      pm.test("Response has user id and email", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("id");
+          pm.expect(json).to.have.property("email");
+      });

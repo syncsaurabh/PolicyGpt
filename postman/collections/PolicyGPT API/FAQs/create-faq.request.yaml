@@ -1,0 +1,33 @@
+$kind: http-request
+name: 'Create FAQ (Admin only)'
+method: POST
+url: '{{baseUrl}}{{apiV1}}/faqs'
+order: 3000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "question": "How do I apply for a government scheme?",
+      "answer": "You can apply for government schemes by visiting the official portal at schemes.gov.in, selecting the relevant scheme, and following the online application process.",
+      "category": "Application Process",
+      "is_active": true,
+      "display_order": 1
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 201", function () {
+          pm.response.to.have.status(201);
+      });
+      pm.test("Response has faq id", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("id");
+          pm.expect(json).to.have.property("question");
+      });
+      if (pm.response.code === 201) {
+          pm.collectionVariables.set("faqId", pm.response.json().id);
+      }

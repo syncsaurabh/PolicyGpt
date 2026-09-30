@@ -1,0 +1,9 @@
+$kind: collection
+name: Policies
+description: 'Government policy lifecycle management. Create/update/delete require ADMINISTRATOR or GOVERNMENT_OFFICIAL role. Approval workflow endpoints require ADMINISTRATOR role.'
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'
+order: 3000

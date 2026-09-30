@@ -1,0 +1,21 @@
+$kind: http-request
+name: 'Get FAQ by ID'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/faqs/:id'
+order: 2000
+pathVariables:
+  - key: id
+    value: '1'
+    description: 'FAQ ID'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response has question and answer", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("question");
+          pm.expect(json).to.have.property("answer");
+      });

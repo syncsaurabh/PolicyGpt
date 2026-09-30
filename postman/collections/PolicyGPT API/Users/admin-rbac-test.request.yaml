@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'RBAC Test - Administrator'
+method: GET
+url: '{{baseUrl}}{{apiV1}}/users/admin/test'
+order: 3000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200 (requires ADMINISTRATOR role)", function () {
+          pm.response.to.have.status(200);
+      });
