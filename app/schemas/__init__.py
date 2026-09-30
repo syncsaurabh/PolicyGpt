@@ -60,6 +60,8 @@ from app.schemas.feedback import (
     FeedbackResolve,
     FeedbackRead,
     FeedbackPaginationResponse,
+    FeedbackHistoryItem,
+    FeedbackHistoryResponse,
 )
 from app.schemas.faq import (
     FAQCreate,
@@ -84,6 +86,15 @@ from app.schemas.dashboard import (
     AuditLogItem,
     AdminReportsSummary,
     AdminDashboardResponse,
+)
+from app.schemas.assistant import (
+    SourceCitation,
+    ChatRequest,
+    ChatResponse,
+    ConversationMessageRead,
+    ConversationDetailResponse,
+    ConversationListItem,
+    ConversationListResponse,
 )
 
 __all__ = [
@@ -151,6 +162,8 @@ __all__ = [
     "FeedbackResolve",
     "FeedbackRead",
     "FeedbackPaginationResponse",
+    "FeedbackHistoryItem",
+    "FeedbackHistoryResponse",
     "FAQCreate",
     "FAQUpdate",
     "FAQRead",
@@ -169,4 +182,11 @@ __all__ = [
     "AuditLogItem",
     "AdminReportsSummary",
     "AdminDashboardResponse",
+    "SourceCitation",
+    "ChatRequest",
+    "ChatResponse",
+    "ConversationMessageRead",
+    "ConversationDetailResponse",
+    "ConversationListItem",
+    "ConversationListResponse",
 ]

@@ -35,6 +35,16 @@ class SearchService:
             db.rollback()
 
     @staticmethod
+    def _is_test_record_name(name: Optional[str]) -> bool:
+        if not name:
+            return True
+        n = name.strip().lower()
+        if len(n) < 4:
+            return True
+        dummy_markers = ["test", "dummy", "demo", "sample", "temp", "foo", "bar", "schem1", "kishan t", "mail2"]
+        return any(m in n for m in dummy_markers)
+
+    @staticmethod
     def search_policies(
         db: Session,
         keyword: Optional[str] = None,
@@ -63,6 +73,10 @@ class SearchService:
             query = query.filter(
                 Policy.is_active == True,
                 Policy.status.in_([PolicyStatus.PUBLISHED.value, PolicyStatus.APPROVED.value]),
+                ~Policy.title.ilike("%test%"),
+                ~Policy.title.ilike("%dummy%"),
+                ~Policy.title.ilike("%demo%"),
+                ~Policy.title.ilike("%sample%"),
             )
         else:
             if status_filter:
@@ -70,7 +84,16 @@ class SearchService:
 
         if keyword:
             kw = f"%{keyword.strip()}%"
-            query = query.filter(or_(Policy.title.ilike(kw), Policy.description.ilike(kw)))
+            query = query.filter(
+                or_(
+                    Policy.title.ilike(kw),
+                    Policy.description.ilike(kw),
+                    Policy.category.ilike(kw),
+                    Policy.ministry.ilike(kw),
+                    Policy.department.ilike(kw),
+                    Policy.sector.ilike(kw),
+                )
+            )
 
         if category:
             query = query.filter(Policy.category.ilike(f"%{category.strip()}%"))
@@ -138,7 +161,7 @@ class SearchService:
         sort_order: str = "desc",
         current_user: Optional[User] = None,
     ) -> Tuple[List[Scheme], int, int]:
-        """Search public schemes with advanced multi-filter combinations, pagination, and logging."""
+        """Search public schemes with multi-field search, dummy exclusion, relevance ranking, and pagination."""
         query = db.query(Scheme)
 
         is_privileged = current_user is not None and current_user.role in (
@@ -150,6 +173,11 @@ class SearchService:
             query = query.filter(
                 Scheme.is_active == True,
                 Scheme.status.in_([SchemeStatus.ACTIVE.value, SchemeStatus.PUBLISHED.value]),
+                ~Scheme.name.ilike("%test%"),
+                ~Scheme.name.ilike("%dummy%"),
+                ~Scheme.name.ilike("%demo%"),
+                ~Scheme.name.ilike("%sample%"),
+                ~Scheme.name.ilike("%kishan t%"),
             )
         else:
             if status_filter:
@@ -157,7 +185,18 @@ class SearchService:
 
         if keyword:
             kw = f"%{keyword.strip()}%"
-            query = query.filter(or_(Scheme.name.ilike(kw), Scheme.description.ilike(kw)))
+            query = query.filter(
+                or_(
+                    Scheme.name.ilike(kw),
+                    Scheme.description.ilike(kw),
+                    Scheme.benefits.ilike(kw),
+                    Scheme.target_audience.ilike(kw),
+                    Scheme.category.ilike(kw),
+                    Scheme.department.ilike(kw),
+                    Scheme.ministry.ilike(kw),
+                    Scheme.sector.ilike(kw),
+                )
+            )
 
         if category:
             query = query.filter(Scheme.category.ilike(f"%{category.strip()}%"))
@@ -177,17 +216,54 @@ class SearchService:
         if publication_date:
             query = query.filter(cast(Scheme.publication_date, Date) == publication_date)
 
-        # Sorting
-        sort_col = getattr(Scheme, sort_by, Scheme.created_at)
-        if sort_order.lower() == "asc":
-            query = query.order_by(asc(sort_col))
-        else:
-            query = query.order_by(desc(sort_col))
+        # Relevance ranking in memory if keyword is provided
+        if keyword:
+            raw_candidates = query.all()
+            tokens = [t.lower() for t in keyword.strip().split() if len(t) > 1]
+            scored = []
+            for s in raw_candidates:
+                score = 0
+                name_l = (s.name or "").lower()
+                cat_l = (s.category or "").lower()
+                target_l = (s.target_audience or "").lower()
+                ben_l = (s.benefits or "").lower()
+                desc_l = (s.description or "").lower()
+                dept_l = (s.department or "").lower()
 
-        total_count = query.count()
-        total_pages = math.ceil(total_count / page_size) if total_count > 0 else 1
-        offset = (page - 1) * page_size
-        results = query.offset(offset).limit(page_size).all()
+                for t in tokens:
+                    if t in name_l:
+                        score += 10
+                    if t in cat_l:
+                        score += 6
+                    if t in target_l:
+                        score += 5
+                    if t in ben_l:
+                        score += 4
+                    if t in desc_l:
+                        score += 3
+                    if t in dept_l:
+                        score += 2
+
+                scored.append((score, s))
+
+            scored.sort(key=lambda x: x[0], reverse=True)
+            ranked_schemes = [s for score, s in scored]
+            total_count = len(ranked_schemes)
+            total_pages = math.ceil(total_count / page_size) if total_count > 0 else 1
+            offset = (page - 1) * page_size
+            results = ranked_schemes[offset:offset + page_size]
+        else:
+            # Standard database sorting
+            sort_col = getattr(Scheme, sort_by, Scheme.created_at)
+            if sort_order.lower() == "asc":
+                query = query.order_by(asc(sort_col))
+            else:
+                query = query.order_by(desc(sort_col))
+
+            total_count = query.count()
+            total_pages = math.ceil(total_count / page_size) if total_count > 0 else 1
+            offset = (page - 1) * page_size
+            results = query.offset(offset).limit(page_size).all()
 
         # Record history
         SearchService._record_search_history(

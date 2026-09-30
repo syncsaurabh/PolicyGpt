@@ -735,12 +735,50 @@ class NotificationService:
         return count
 
     @staticmethod
-    def trigger_feedback_resolved(db: Session, user_id: Optional[int], feedback_id: int, subject: str):
+    def trigger_feedback_submitted(
+        db: Session,
+        feedback_id: int,
+        subject: str,
+        feedback_type: str = "FEEDBACK",
+        user_name: Optional[str] = None,
+    ):
+        """Notify administrators and support officials when a new feedback or support ticket is submitted."""
+        admins_and_officials = db.query(User).filter(
+            User.is_active == True,
+            User.role.in_([UserRole.ADMINISTRATOR, UserRole.GOVERNMENT_OFFICIAL]),
+        ).all()
+
+        type_label = feedback_type.title()
+        title = f"New {type_label}: {subject}"
+        submitter_str = f" from {user_name}" if user_name else ""
+        message = f"A new {feedback_type.lower()} ticket '{subject}' was submitted{submitter_str}. Action may be required."
+
+        for staff_user in admins_and_officials:
+            NotificationService.create_notification(
+                db=db,
+                user_id=staff_user.id,
+                title=title,
+                message=message,
+                notification_type=NotificationType.FEEDBACK_SUBMITTED.value,
+                channel=NotificationChannel.IN_APP.value,
+                entity_type="Feedback",
+                entity_id=feedback_id,
+            )
+
+    @staticmethod
+    def trigger_feedback_resolved(
+        db: Session,
+        user_id: Optional[int],
+        feedback_id: int,
+        subject: str,
+        resolution: Optional[str] = None,
+    ):
         """Notify citizen when their support query or feedback ticket receives a response."""
         if not user_id:
             return
         title = f"Query Resolved: {subject}"
-        message = f"An official response has been posted for your query '{subject}'. Please review the resolution details."
+        res_info = f"\nResolution: {resolution}" if resolution else ""
+        message = f"An official response has been posted for your query '{subject}'. Please review the resolution details.{res_info}"
         NotificationService.create_notification(
             db=db,
             user_id=user_id,

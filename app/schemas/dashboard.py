@@ -17,7 +17,9 @@ from app.schemas.eligibility import SchemeEligibilityResult
 
 class SavedPolicyItem(BaseModel):
     id: int
-    policy_id: int
+    policy_id: Optional[int] = None
+    scheme_id: Optional[int] = None
+    item_type: str = "policy"  # 'policy' or 'scheme'
     title: str
     category: Optional[str] = None
     department: Optional[str] = None
@@ -32,7 +34,8 @@ class SavedPolicyItem(BaseModel):
 
 
 class SavedPolicyCreate(BaseModel):
-    policy_id: int
+    policy_id: Optional[int] = None
+    scheme_id: Optional[int] = None
     notes: Optional[str] = None
 
 
@@ -82,7 +85,7 @@ class SchemeApplicationCreate(BaseModel):
 
 
 class CitizenDashboardResponse(BaseModel):
-    saved_policies: List[SavedPolicyItem] = Field(default_factory=list, description="Policies bookmarked by the citizen")
+    saved_policies: List[SavedPolicyItem] = Field(default_factory=list, description="Policies and schemes bookmarked by the citizen")
     eligible_schemes: List[SchemeEligibilityResult] = Field(default_factory=list, description="Schemes matching citizen profile eligibility criteria")
     recent_notifications: List[CitizenNotificationItem] = Field(default_factory=list, description="Recent in-app alerts and notifications for the citizen")
     search_history: List[CitizenSearchHistoryItem] = Field(default_factory=list, description="Recent policy and scheme search queries executed by the citizen")

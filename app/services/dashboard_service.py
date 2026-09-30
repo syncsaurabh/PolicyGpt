@@ -39,16 +39,16 @@ class DashboardService:
     def get_citizen_dashboard(db: Session, current_user: User) -> CitizenDashboardResponse:
         """
         Aggregate personalized dashboard data strictly for the authenticated Citizen.
-        - Saved Policies
+        - Saved Policies & Schemes
         - Eligible Schemes (via EligibilityService)
         - Recent Notifications
         - Search History
         - Scheme Application Statuses
         """
-        # 1. Saved Policies (User Isolation)
+        # 1. Saved Policies & Schemes (User Isolation)
         saved_records = (
             db.query(SavedPolicy)
-            .options(joinedload(SavedPolicy.policy))
+            .options(joinedload(SavedPolicy.policy), joinedload(SavedPolicy.scheme))
             .filter(SavedPolicy.user_id == current_user.id)
             .order_by(desc(SavedPolicy.created_at))
             .all()
@@ -60,6 +60,8 @@ class DashboardService:
                     SavedPolicyItem(
                         id=sp.id,
                         policy_id=sp.policy.id,
+                        scheme_id=None,
+                        item_type="policy",
                         title=sp.policy.title,
                         category=sp.policy.category,
                         department=sp.policy.department,
@@ -67,6 +69,24 @@ class DashboardService:
                         state=sp.policy.state,
                         sector=sp.policy.sector,
                         status=sp.policy.status,
+                        saved_at=sp.created_at,
+                        notes=sp.notes,
+                    )
+                )
+            elif sp.scheme:
+                saved_policies.append(
+                    SavedPolicyItem(
+                        id=sp.id,
+                        policy_id=None,
+                        scheme_id=sp.scheme.id,
+                        item_type="scheme",
+                        title=sp.scheme.name,
+                        category=sp.scheme.category,
+                        department=sp.scheme.department,
+                        ministry=sp.scheme.ministry,
+                        state=sp.scheme.state,
+                        sector=sp.scheme.sector,
+                        status=sp.scheme.status,
                         saved_at=sp.created_at,
                         notes=sp.notes,
                     )
@@ -122,12 +142,13 @@ class DashboardService:
             for s in search_records
         ]
 
-        # 5. Application Status (User Isolation)
+        # 5. Application Statuses (User Isolation - limit 10)
         app_records = (
             db.query(SchemeApplication)
             .options(joinedload(SchemeApplication.scheme))
             .filter(SchemeApplication.user_id == current_user.id)
             .order_by(desc(SchemeApplication.created_at))
+            .limit(10)
             .all()
         )
         application_status: List[ApplicationStatusItem] = []
@@ -158,15 +179,64 @@ class DashboardService:
     # --- Citizen Helper Management Operations ---
 
     @staticmethod
-    def save_policy(db: Session, user_id: int, policy_id: int, notes: Optional[str] = None) -> SavedPolicy:
-        """Save/bookmark a policy for a citizen."""
-        policy = db.query(Policy).filter(Policy.id == policy_id, Policy.is_active == True).first()
-        if not policy:
+    def save_policy(
+        db: Session,
+        user_id: int,
+        policy_id: Optional[int] = None,
+        scheme_id: Optional[int] = None,
+        notes: Optional[str] = None
+    ) -> SavedPolicy:
+        """Save/bookmark a policy or scheme for a citizen."""
+        if not policy_id and not scheme_id:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Policy with ID {policy_id} not found",
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Either policy_id or scheme_id must be provided",
             )
 
+        if policy_id:
+            policy = db.query(Policy).filter(Policy.id == policy_id, Policy.is_active == True).first()
+            if not policy:
+                # Also check if it might be a scheme if policy wasn't found
+                scheme = db.query(Scheme).filter(Scheme.id == policy_id, Scheme.is_active == True).first()
+                if scheme:
+                    scheme_id = policy_id
+                    policy_id = None
+                else:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail=f"Policy with ID {policy_id} not found",
+                    )
+
+        if scheme_id:
+            scheme = db.query(Scheme).filter(Scheme.id == scheme_id, Scheme.is_active == True).first()
+            if not scheme:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Scheme with ID {scheme_id} not found",
+                )
+            existing = db.query(SavedPolicy).filter(
+                SavedPolicy.user_id == user_id,
+                SavedPolicy.scheme_id == scheme_id,
+            ).first()
+            if existing:
+                if notes is not None:
+                    existing.notes = notes
+                    db.commit()
+                    db.refresh(existing)
+                return existing
+
+            saved = SavedPolicy(
+                user_id=user_id,
+                scheme_id=scheme_id,
+                policy_id=None,
+                notes=notes,
+            )
+            db.add(saved)
+            db.commit()
+            db.refresh(saved)
+            return saved
+
+        # Save policy
         existing = db.query(SavedPolicy).filter(
             SavedPolicy.user_id == user_id,
             SavedPolicy.policy_id == policy_id,
@@ -181,6 +251,7 @@ class DashboardService:
         saved = SavedPolicy(
             user_id=user_id,
             policy_id=policy_id,
+            scheme_id=None,
             notes=notes,
         )
         db.add(saved)
@@ -189,16 +260,16 @@ class DashboardService:
         return saved
 
     @staticmethod
-    def remove_saved_policy(db: Session, user_id: int, policy_id: int) -> bool:
-        """Remove a saved policy bookmark for a citizen."""
+    def remove_saved_policy(db: Session, user_id: int, item_id: int) -> bool:
+        """Remove a saved policy or scheme bookmark for a citizen."""
         saved = db.query(SavedPolicy).filter(
             SavedPolicy.user_id == user_id,
-            SavedPolicy.policy_id == policy_id,
+            (SavedPolicy.policy_id == item_id) | (SavedPolicy.scheme_id == item_id) | (SavedPolicy.id == item_id)
         ).first()
         if not saved:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Saved policy record not found",
+                detail="Saved item record not found",
             )
         db.delete(saved)
         db.commit()
@@ -246,15 +317,6 @@ class DashboardService:
 
     @staticmethod
     def get_government_dashboard(db: Session, current_user: User) -> GovernmentDashboardResponse:
-        """
-        Aggregate operational and intelligence data for Government Officials.
-        Reuses underlying Python analytics services directly without internal HTTP overhead:
-        1. Policy Statistics
-        2. Scheme Usage Analytics
-        3. User Activity
-        4. Department Reports
-        5. Notification Statistics
-        """
         policy_stats = AnalyticsService.get_policy_analytics(db=db)
         scheme_usage = AnalyticsService.get_scheme_analytics(db=db)
         user_activity = AnalyticsService.get_usage_statistics(db=db)
@@ -275,19 +337,10 @@ class DashboardService:
 
     @staticmethod
     def get_admin_dashboard(db: Session, current_user: User) -> AdminDashboardResponse:
-        """
-        Aggregate governance, compliance, and system management data for Administrators:
-        1. User Management (growth, role breakdown, activity)
-        2. Policy Management (approval lifecycle, distributions)
-        3. Analytics (platform overview metrics)
-        4. Reports Summary (generated reports volume & recent logs)
-        5. Audit Logs (recent security and admin actions)
-        """
         user_mgmt = AnalyticsService.get_user_analytics(db=db)
         policy_mgmt = AnalyticsService.get_policy_analytics(db=db)
         overview_analytics = AnalyticsService.get_overview_analytics(db=db)
 
-        # Reports Summary
         total_reports = db.query(Report).count()
         recent_report_rows = (
             db.query(Report)
@@ -312,14 +365,12 @@ class DashboardService:
             recent_reports=recent_reports,
         )
 
-        # Audit Logs (limit 20)
         audit_rows = (
             db.query(AuditLog)
             .order_by(desc(AuditLog.created_at))
             .limit(20)
             .all()
         )
-        # Fetch user emails efficiently
         user_ids = {a.user_id for a in audit_rows if a.user_id is not None}
         user_map = {}
         if user_ids:

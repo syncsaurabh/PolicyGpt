@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from fastapi import HTTPException, status
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
@@ -45,8 +45,10 @@ class FAQService:
         category: Optional[str] = None,
         keyword: Optional[str] = None,
         is_active_only: bool = True,
-    ) -> List[FAQ]:
-        """List FAQs with optional category and search query filters."""
+        page: int = 1,
+        page_size: int = 50,
+    ) -> Tuple[List[FAQ], int, int]:
+        """List FAQs with optional category and search query filters and pagination."""
         query = db.query(FAQ)
         if is_active_only:
             query = query.filter(FAQ.is_active == True)
@@ -56,7 +58,12 @@ class FAQService:
             kw = f"%{keyword.strip()}%"
             query = query.filter(or_(FAQ.question.ilike(kw), FAQ.answer.ilike(kw)))
 
-        return query.order_by(FAQ.display_order.asc(), FAQ.created_at.desc()).all()
+        total_count = query.count()
+        total_pages = (total_count + page_size - 1) // page_size if total_count > 0 else 1
+        offset = (page - 1) * page_size
+        results = query.order_by(FAQ.display_order.asc(), FAQ.created_at.desc()).offset(offset).limit(page_size).all()
+
+        return results, total_count, total_pages
 
     @staticmethod
     def update_faq(db: Session, faq_id: int, faq_update: FAQUpdate, current_user: User) -> FAQ:

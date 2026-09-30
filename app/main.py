@@ -14,6 +14,7 @@ from app.api.routes.reports import router as reports_router
 from app.api.routes.feedback import router as feedback_router
 from app.api.routes.faqs import router as faqs_router
 from app.api.routes.dashboard import router as dashboard_router
+from app.api.routes.assistant import router as assistant_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -54,6 +55,7 @@ app.include_router(notifications_router, prefix=settings.API_V1_STR)
 app.include_router(reports_router, prefix=settings.API_V1_STR)
 app.include_router(feedback_router, prefix=settings.API_V1_STR)
 app.include_router(faqs_router, prefix=settings.API_V1_STR)
+app.include_router(assistant_router, prefix=settings.API_V1_STR)
 
 
 if __name__ == "__main__":

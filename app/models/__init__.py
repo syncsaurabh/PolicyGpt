@@ -22,6 +22,7 @@ from app.models.audit_log import AuditLog
 from app.models.search_history import SearchHistory
 from app.models.saved_policy import SavedPolicy
 from app.models.application import SchemeApplication, ApplicationStatus
+from app.models.assistant import AssistantConversation, AssistantMessage
 
 __all__ = [
     "User",
@@ -52,4 +53,6 @@ __all__ = [
     "SavedPolicy",
     "SchemeApplication",
     "ApplicationStatus",
+    "AssistantConversation",
+    "AssistantMessage",
 ]

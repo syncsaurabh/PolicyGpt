@@ -45,13 +45,13 @@ def get_citizen_dashboard(
     "/citizen/saved-policies",
     response_model=SavedPolicyItem,
     status_code=status.HTTP_201_CREATED,
-    summary="Bookmark a Policy",
-    description="Save a policy to the citizen's personal dashboard bookmarks.",
+    summary="Bookmark a Policy or Scheme",
+    description="Save a policy or scheme to the citizen's personal dashboard bookmarks.",
     responses={
-        201: {"description": "Policy successfully saved to bookmarks"},
+        201: {"description": "Item successfully saved to bookmarks"},
         401: {"description": "Unauthenticated access"},
         403: {"description": "Forbidden - requires CITIZEN role"},
-        404: {"description": "Policy not found"},
+        404: {"description": "Policy or scheme not found"},
     },
 )
 def save_policy(
@@ -59,23 +59,53 @@ def save_policy(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles(UserRole.CITIZEN)),
 ) -> SavedPolicyItem:
-    """Save or bookmark a policy for the authenticated citizen."""
+    """Save or bookmark a policy or scheme for the authenticated citizen."""
     saved = DashboardService.save_policy(
         db=db,
         user_id=current_user.id,
         policy_id=payload.policy_id,
+        scheme_id=payload.scheme_id,
         notes=payload.notes,
     )
+    if saved.policy:
+        return SavedPolicyItem(
+            id=saved.id,
+            policy_id=saved.policy.id,
+            scheme_id=None,
+            item_type="policy",
+            title=saved.policy.title,
+            category=saved.policy.category,
+            department=saved.policy.department,
+            ministry=saved.policy.ministry,
+            state=saved.policy.state,
+            sector=saved.policy.sector,
+            status=saved.policy.status,
+            saved_at=saved.created_at,
+            notes=saved.notes,
+        )
+    elif saved.scheme:
+        return SavedPolicyItem(
+            id=saved.id,
+            policy_id=None,
+            scheme_id=saved.scheme.id,
+            item_type="scheme",
+            title=saved.scheme.name,
+            category=saved.scheme.category,
+            department=saved.scheme.department,
+            ministry=saved.scheme.ministry,
+            state=saved.scheme.state,
+            sector=saved.scheme.sector,
+            status=saved.scheme.status,
+            saved_at=saved.created_at,
+            notes=saved.notes,
+        )
     return SavedPolicyItem(
         id=saved.id,
-        policy_id=saved.policy.id if saved.policy else payload.policy_id,
-        title=saved.policy.title if saved.policy else "Policy",
-        category=saved.policy.category if saved.policy else None,
-        department=saved.policy.department if saved.policy else None,
-        ministry=saved.policy.ministry if saved.policy else None,
-        state=saved.policy.state if saved.policy else None,
-        sector=saved.policy.sector if saved.policy else None,
-        status=saved.policy.status if saved.policy else "ACTIVE",
+        policy_id=payload.policy_id,
+        scheme_id=payload.scheme_id,
+        item_type="policy" if payload.policy_id else "scheme",
+        title="Saved Item",
+        status="ACTIVE",
         saved_at=saved.created_at,
         notes=saved.notes,
     )
@@ -83,13 +113,13 @@ def save_policy(
 
 @router.delete(
     "/citizen/saved-policies/{policy_id}",
-    summary="Remove a Policy Bookmark",
-    description="Remove a saved policy from the citizen's personal bookmarks.",
+    summary="Remove a Bookmark",
+    description="Remove a saved policy or scheme from the citizen's personal bookmarks.",
     responses={
-        200: {"description": "Policy removed from bookmarks"},
+        200: {"description": "Item removed from bookmarks"},
         401: {"description": "Unauthenticated access"},
         403: {"description": "Forbidden - requires CITIZEN role"},
-        404: {"description": "Saved policy not found"},
+        404: {"description": "Saved item not found"},
     },
 )
 def remove_saved_policy(
@@ -97,9 +127,9 @@ def remove_saved_policy(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles(UserRole.CITIZEN)),
 ) -> Dict[str, str]:
-    """Remove a bookmarked policy for the authenticated citizen."""
-    DashboardService.remove_saved_policy(db=db, user_id=current_user.id, policy_id=policy_id)
-    return {"detail": f"Policy {policy_id} removed from saved policies"}
+    """Remove a bookmarked policy or scheme for the authenticated citizen."""
+    DashboardService.remove_saved_policy(db=db, user_id=current_user.id, item_id=policy_id)
+    return {"detail": f"Bookmark {policy_id} removed from saved items"}
 
 
 @router.post(

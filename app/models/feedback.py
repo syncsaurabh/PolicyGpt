@@ -13,13 +13,16 @@ if TYPE_CHECKING:
 class FeedbackType(str, Enum):
     FEEDBACK = "FEEDBACK"
     ISSUE = "ISSUE"
+    SUPPORT = "SUPPORT"
     INQUIRY = "INQUIRY"
     SUGGESTION = "SUGGESTION"
     COMPLAINT = "COMPLAINT"
 
 
 class FeedbackStatus(str, Enum):
+    OPEN = "OPEN"
     SUBMITTED = "SUBMITTED"
+    IN_PROGRESS = "IN_PROGRESS"
     IN_REVIEW = "IN_REVIEW"
     RESOLVED = "RESOLVED"
     CLOSED = "CLOSED"

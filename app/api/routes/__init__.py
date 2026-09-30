@@ -12,6 +12,7 @@ from app.api.routes.reports import router as reports_router
 from app.api.routes.feedback import router as feedback_router
 from app.api.routes.faqs import router as faqs_router
 from app.api.routes.dashboard import router as dashboard_router
+from app.api.routes.assistant import router as assistant_router
 
 __all__ = [
     "auth_router",
@@ -27,4 +28,5 @@ __all__ = [
     "feedback_router",
     "faqs_router",
     "dashboard_router",
+    "assistant_router",
 ]

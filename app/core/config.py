@@ -41,6 +41,12 @@ class Settings(BaseSettings):
     # Firebase Cloud Messaging
     FIREBASE_CREDENTIALS_PATH: Optional[str] = None
 
+    # AI Assistant & LLM Configuration
+    GEMINI_API_KEY: Optional[str] = None
+    OPENAI_API_KEY: Optional[str] = None
+    LLM_PROVIDER: str = "auto"
+    LLM_MODEL_NAME: str = "gemini-1.5-flash"
+
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
