@@ -1,0 +1,310 @@
+<div class="edit-policy-page">
+  @if (notFound()) {
+    <div class="not-found-card">
+      <h2>Policy Not Found</h2>
+      <p>The policy you are trying to edit does not exist or has been removed.</p>
+      <button type="button" class="btn-back-policies" (click)="cancel()">
+        Back to Policies
+      </button>
+    </div>
+  } @else {
+    <!-- Page Header -->
+    <section class="page-title-section">
+      <h1 class="page-title">Edit Policy</h1>
+      <p class="page-subtitle">Update policy information and save your changes</p>
+    </section>
+
+    <!-- Error Message Alert -->
+    @if (errorMessage()) {
+      <div class="alert-error" role="alert">
+        <svg class="alert-icon" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+        </svg>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <!-- Edit Policy Card -->
+    <div class="form-card">
+      <h2 class="card-heading">Policy Information</h2>
+
+      <form class="policy-form" (ngSubmit)="saveChanges()">
+        <!-- Row 1: Policy Name & Policy ID -->
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="policy_name" class="field-label">
+              Policy Name <span class="req-star">*</span>
+            </label>
+            <input 
+              type="text"
+              id="policy_name"
+              class="form-control"
+              [(ngModel)]="policyName"
+              name="policyName"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="policy_id" class="field-label">
+              Policy ID <span class="req-star">*</span>
+            </label>
+            <input 
+              type="text"
+              id="policy_id"
+              class="form-control readonly-field"
+              [value]="policyId()"
+              readonly
+            />
+          </div>
+        </div>
+
+        <!-- Row 2: Description -->
+        <div class="form-group">
+          <label for="description" class="field-label">
+            Description <span class="req-star">*</span>
+          </label>
+          <textarea 
+            id="description"
+            class="form-control textarea-control"
+            rows="4"
+            [(ngModel)]="description"
+            name="description"
+            required>
+          </textarea>
+        </div>
+
+        <!-- Row 3: Ministry & Department -->
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="ministry" class="field-label">
+              Ministry <span class="req-star">*</span>
+            </label>
+            <div class="select-wrapper">
+              <select 
+                id="ministry"
+                class="form-control select-control"
+                [(ngModel)]="ministry"
+                name="ministry"
+                required>
+                @for (m of ministries; track m) {
+                  <option [value]="m">{{ m }}</option>
+                }
+              </select>
+              <div class="select-arrow">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="department" class="field-label">
+              Department <span class="req-star">*</span>
+            </label>
+            <div class="select-wrapper">
+              <select 
+                id="department"
+                class="form-control select-control"
+                [(ngModel)]="department"
+                name="department"
+                required>
+                @for (d of departments; track d) {
+                  <option [value]="d">{{ d }}</option>
+                }
+              </select>
+              <div class="select-arrow">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 4: Category & Sector -->
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="category" class="field-label">
+              Category <span class="req-star">*</span>
+            </label>
+            <div class="select-wrapper">
+              <select 
+                id="category"
+                class="form-control select-control"
+                [(ngModel)]="category"
+                name="category"
+                required>
+                @for (c of categories; track c) {
+                  <option [value]="c">{{ c }}</option>
+                }
+              </select>
+              <div class="select-arrow">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="sector" class="field-label">
+              Sector <span class="req-star">*</span>
+            </label>
+            <div class="select-wrapper">
+              <select 
+                id="sector"
+                class="form-control select-control"
+                [(ngModel)]="sector"
+                name="sector"
+                required>
+                @for (s of sectors; track s) {
+                  <option [value]="s">{{ s }}</option>
+                }
+              </select>
+              <div class="select-arrow">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 5: Publication Date & Effective Date -->
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="pub_date" class="field-label">
+              Publication Date <span class="req-star">*</span>
+            </label>
+            <div class="date-input-wrapper">
+              <input 
+                type="text"
+                id="pub_date"
+                class="form-control"
+                [(ngModel)]="publicationDate"
+                name="publicationDate"
+                required
+              />
+              <div class="date-icon-container">
+                <svg class="calendar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="effective_date" class="field-label">
+              Effective Date <span class="req-star">*</span>
+            </label>
+            <div class="date-input-wrapper">
+              <input 
+                type="text"
+                id="effective_date"
+                class="form-control"
+                [(ngModel)]="effectiveDate"
+                name="effectiveDate"
+                required
+              />
+              <div class="date-icon-container">
+                <svg class="calendar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 6: Expiry Date & Tags -->
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="expiry_date" class="field-label">Expiry Date</label>
+            <div class="date-input-wrapper">
+              <input 
+                type="text"
+                id="expiry_date"
+                class="form-control"
+                placeholder="—"
+                [(ngModel)]="expiryDate"
+                name="expiryDate"
+              />
+              <div class="date-icon-container">
+                <svg class="calendar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="tags" class="field-label">Tags</label>
+            <div class="tags-input-wrapper">
+              <input 
+                type="text"
+                id="tags"
+                class="form-control"
+                placeholder="e.g. Education, Students, Schools"
+                [(ngModel)]="tags"
+                name="tags"
+              />
+              <div class="tag-icon-container">
+                <svg class="tag-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Policy Document Section -->
+        <div class="form-group doc-edit-section">
+          <label class="field-label">
+            Policy Document <span class="req-star">*</span>
+          </label>
+
+          <div class="doc-file-box">
+            <div class="cloud-upload-icon-container">
+              <svg class="cloud-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+              </svg>
+            </div>
+
+            <div class="doc-file-info-line">
+              <svg class="doc-icon-small" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
+              </svg>
+              <span class="doc-name-text">{{ currentDocument().name }}</span>
+            </div>
+
+            <span class="doc-meta-text">{{ currentDocument().type }} • {{ currentDocument().size }}</span>
+
+            <div class="browse-action-row">
+              <input 
+                #fileInput 
+                type="file" 
+                class="hidden-file-input" 
+                accept=".pdf,.docx" 
+                (change)="onFileSelected($event)"
+              />
+              <button type="button" class="btn-browse-replace" (click)="fileInput.click()">
+                Browse files
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons Footer -->
+        <div class="form-actions-footer">
+          <button type="button" class="btn-form-cancel" (click)="cancel()">
+            Cancel
+          </button>
+          <button type="submit" class="btn-form-save-changes" [disabled]="isSaving()">
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</div>

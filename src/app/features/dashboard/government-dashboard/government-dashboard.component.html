@@ -1,0 +1,254 @@
+<div class="gov-dashboard-root">
+  <!-- Top Action Header -->
+  <header class="dash-header">
+    <div class="header-main">
+      <div class="header-titles">
+        <div class="title-row">
+          <h1>Government Official Portal</h1>
+          <span class="role-pill">Department Operations</span>
+        </div>
+        <p class="dash-subtitle">Policy authoring, scheme administration, departmental compliance, and public benefit telemetry.</p>
+      </div>
+      <div class="header-actions">
+        <button
+          type="button"
+          class="btn-refresh"
+          (click)="loadData(true)"
+          [disabled]="loading() || refreshing()"
+          title="Refresh dashboard data"
+        >
+          <svg class="refresh-icon" [class.spinning]="refreshing()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 4v6h-6"></path>
+            <path d="M1 20v-6h6"></path>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span>{{ refreshing() ? 'Updating...' : 'Sync Data' }}</span>
+        </button>
+        <a routerLink="/policies/upload" class="btn-primary-action">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Draft New Policy</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Error Banner -->
+    <div *ngIf="errorMessage()" class="dash-error-banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span>{{ errorMessage() }}</span>
+      <button type="button" class="btn-retry" (click)="loadData()">Retry</button>
+    </div>
+  </header>
+
+  <!-- Quick Action Navigation Banner -->
+  <section class="quick-action-strip">
+    <div class="quick-action-card">
+      <div class="quick-icon-wrap icon-blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
+      </div>
+      <div class="quick-text">
+        <h4>Policy Repository</h4>
+        <p>Review draft publications and state gazettes</p>
+      </div>
+      <a routerLink="/policies" class="quick-link">Browse Policies &rarr;</a>
+    </div>
+
+    <div class="quick-action-card">
+      <div class="quick-icon-wrap icon-emerald">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="2" x2="12" y2="22"></line>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+        </svg>
+      </div>
+      <div class="quick-text">
+        <h4>Scheme Management</h4>
+        <p>Define citizen criteria, benefits & disbursement rules</p>
+      </div>
+      <a routerLink="/schemes/create" class="quick-link">New Scheme &rarr;</a>
+    </div>
+
+    <div class="quick-action-card">
+      <div class="quick-icon-wrap icon-amber">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 11l3 3L22 4"></path>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+        </svg>
+      </div>
+      <div class="quick-text">
+        <h4>Approvals Queue</h4>
+        <p>{{ data()?.policy_statistics?.pending_approval_count || 0 }} items awaiting administrative validation</p>
+      </div>
+      <a routerLink="/approvals" class="quick-link">Open Queue &rarr;</a>
+    </div>
+  </section>
+
+  <!-- Operational KPIs -->
+  <section class="kpi-grid">
+    <app-kpi-card
+      title="Total Policies"
+      [value]="data()?.policy_statistics?.total_policies"
+      [subtext]="data()?.policy_statistics?.published_count + ' Enacted & Live'"
+      icon="policies"
+      color="primary"
+      badge="Total"
+      badgeType="primary"
+      [loading]="loading()"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      title="Welfare Schemes"
+      [value]="data()?.scheme_usage?.total_schemes"
+      [subtext]="data()?.scheme_usage?.active_count + ' Currently Active'"
+      icon="schemes"
+      color="emerald"
+      badge="Programs"
+      badgeType="success"
+      [loading]="loading()"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      title="Awaiting Review"
+      [value]="data()?.policy_statistics?.pending_approval_count"
+      [subtext]="data()?.policy_statistics?.draft_count + ' in authoring draft'"
+      icon="applications"
+      color="amber"
+      badge="Pipeline"
+      badgeType="warning"
+      [loading]="loading()"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      title="Citizen Interactions"
+      [value]="data()?.user_activity?.total_activities"
+      [subtext]="(data()?.user_activity?.total_eligibility_checks || 0) + ' Eligibility Inquiries'"
+      icon="users"
+      color="cyan"
+      badge="Engagement"
+      badgeType="info"
+      [loading]="loading()"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      title="Citizen Searches"
+      [value]="data()?.user_activity?.total_searches"
+      subtext="Search queries across welfare catalog"
+      icon="search"
+      color="violet"
+      badge="Searches"
+      badgeType="neutral"
+      [loading]="loading()"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      title="Notification Reach"
+      [value]="data()?.notification_statistics?.total_notifications"
+      [subtext]="(data()?.notification_statistics?.read_count || 0) + ' Successfully Read'"
+      icon="notifications"
+      color="rose"
+      badge="Broadcast"
+      badgeType="primary"
+      [loading]="loading()"
+    ></app-kpi-card>
+  </section>
+
+  <!-- Distribution Charts -->
+  <section class="charts-grid">
+    <div class="chart-col">
+      <app-distribution-chart
+        title="Policy Review Pipeline"
+        subtitle="Current status breakdown of official policy documents"
+        [items]="policyPipelineDistribution"
+        chartType="donut"
+        totalLabel="Policies"
+        [loading]="loading()"
+      ></app-distribution-chart>
+    </div>
+
+    <div class="chart-col">
+      <app-distribution-chart
+        title="Policies by Category"
+        subtitle="Policy publications across domains"
+        [items]="data()?.policy_statistics?.by_category"
+        chartType="horizontal-bar"
+        totalLabel="Policies"
+        [loading]="loading()"
+      ></app-distribution-chart>
+    </div>
+
+    <div class="chart-col">
+      <app-distribution-chart
+        title="Welfare Schemes by Category"
+        subtitle="Operational programs categorized by beneficiary type"
+        [items]="data()?.scheme_usage?.by_category"
+        chartType="horizontal-bar"
+        totalLabel="Schemes"
+        [loading]="loading()"
+      ></app-distribution-chart>
+    </div>
+
+    <div class="chart-col">
+      <app-distribution-chart
+        title="User Engagement by Event Type"
+        subtitle="Citizen queries, eligibility runs & feedback distribution"
+        [items]="data()?.user_activity?.activities_by_event_type"
+        chartType="donut"
+        totalLabel="Events"
+        [loading]="loading()"
+      ></app-distribution-chart>
+    </div>
+  </section>
+
+  <!-- Departmental Scheme & Policy Reports -->
+  <section class="dash-section" *ngIf="data()?.department_reports?.length">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">Department Operational Overview</h2>
+        <p class="section-subtitle">Cross-department metrics on policy drafting and active scheme management</p>
+      </div>
+      <a routerLink="/reports" class="link-action">Detailed Reports &rarr;</a>
+    </div>
+
+    <div class="table-card-container">
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th>Department</th>
+            <th class="text-right">Policy Count</th>
+            <th class="text-right">Published</th>
+            <th class="text-right">Scheme Count</th>
+            <th class="text-right">Active Schemes</th>
+            <th class="text-right">Interactions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let rep of data()?.department_reports">
+            <td class="font-medium text-main">
+              <div class="dept-cell">
+                <span class="dept-icon">🏛️</span>
+                <span>{{ rep.department }}</span>
+              </div>
+            </td>
+            <td class="text-right font-mono">{{ rep.policy_count }}</td>
+            <td class="text-right font-mono">
+              <span class="badge-subtle badge-success">{{ rep.published_policies }}</span>
+            </td>
+            <td class="text-right font-mono">{{ rep.scheme_count }}</td>
+            <td class="text-right font-mono">
+              <span class="badge-subtle badge-primary">{{ rep.active_schemes }}</span>
+            </td>
+            <td class="text-right font-mono font-bold">{{ rep.activity_count }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

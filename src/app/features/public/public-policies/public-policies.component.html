@@ -1,0 +1,208 @@
+<div class="public-policies-root">
+  <!-- Public Navbar -->
+  <app-citizen-header></app-citizen-header>
+
+  <main class="policies-main">
+    <!-- Breadcrumbs -->
+    <div class="breadcrumbs-bar">
+      <div class="content-container">
+        <p class="breadcrumbs-text">
+          <a routerLink="/citizen" class="bc-link">Home</a>
+          <span class="bc-sep">/</span>
+          <span class="bc-current">Policies</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Hero Header & Search Section -->
+    <section class="hero-search-section">
+      <div class="content-container">
+        <div class="section-title-wrapper">
+          <h1 class="main-title">Government Policies</h1>
+          <p class="main-subtitle">Find policies and schemes that match your needs</p>
+        </div>
+
+        <form class="search-bar-form" (submit)="$event.preventDefault(); onSearchSubmit()">
+          <div class="search-input-box">
+            <span class="search-icon">🔍</span>
+            <input 
+              type="text" 
+              class="search-input" 
+              placeholder="Search policies, schemes or benefits..."
+              [(ngModel)]="searchInputModel"
+              name="publicPolicySearch"
+              (keyup.enter)="onSearchSubmit()"
+            />
+          </div>
+          <button type="button" class="btn-search-action" (click)="onSearchSubmit()">Search</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Main Content: Filters + Results Grid -->
+    <section class="policies-body-section">
+      <div class="content-container layout-grid">
+        <!-- Left Column: Filters Sidebar Card -->
+        <aside class="filters-sidebar">
+          <div class="filters-card">
+            <div class="filters-header">
+              <h2 class="filters-title">Filters</h2>
+              @if (hasActiveFilters()) {
+                <button type="button" class="btn-reset-text" (click)="resetAllFilters()">Reset</button>
+              }
+            </div>
+
+            <!-- Category Radio Group -->
+            <div class="filter-group">
+              <label class="group-label">Category</label>
+              <div class="radio-options-list">
+                @for (cat of categories; track cat) {
+                  <label class="radio-item" [class.selected]="selectedCategory() === cat">
+                    <input 
+                      type="radio" 
+                      name="policyCategory" 
+                      [value]="cat" 
+                      [checked]="selectedCategory() === cat"
+                      (change)="setCategory(cat)"
+                    />
+                    <span class="custom-radio"></span>
+                    <span class="radio-text">{{ cat }}</span>
+                  </label>
+                }
+              </div>
+            </div>
+
+            <!-- Eligibility Radio Group -->
+            <div class="filter-group">
+              <label class="group-label">Eligibility</label>
+              <div class="radio-options-list">
+                @for (el of eligibilityOptions; track el) {
+                  <label class="radio-item" [class.selected]="selectedEligibility() === el">
+                    <input 
+                      type="radio" 
+                      name="policyEligibility" 
+                      [value]="el" 
+                      [checked]="selectedEligibility() === el"
+                      (change)="setEligibility(el)"
+                    />
+                    <span class="custom-radio"></span>
+                    <span class="radio-text">{{ el }}</span>
+                  </label>
+                }
+              </div>
+            </div>
+
+            <!-- State Dropdown Filter -->
+            <div class="filter-group">
+              <label for="stateSelect" class="group-label">State</label>
+              <div class="select-wrapper">
+                <select 
+                  id="stateSelect" 
+                  class="filter-select"
+                  [ngModel]="selectedState()"
+                  (ngModelChange)="selectedState.set($event)"
+                >
+                  @for (st of states; track st) {
+                    <option [value]="st">{{ st === 'All' ? 'Select State' : st }}</option>
+                  }
+                </select>
+                <span class="select-chevron">▼</span>
+              </div>
+            </div>
+
+            <!-- Ministry Dropdown Filter -->
+            <div class="filter-group">
+              <label for="ministrySelect" class="group-label">Ministry</label>
+              <div class="select-wrapper">
+                <select 
+                  id="ministrySelect" 
+                  class="filter-select"
+                  [ngModel]="selectedMinistry()"
+                  (ngModelChange)="selectedMinistry.set($event)"
+                >
+                  @for (min of ministries; track min) {
+                    <option [value]="min">{{ min === 'All' ? 'Select Ministry' : min }}</option>
+                  }
+                </select>
+                <span class="select-chevron">▼</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Right Column: Results List -->
+        <div class="results-container">
+          <div class="results-header">
+            <h2 class="results-count-title">
+              Search Results <span class="results-badge">({{ filteredPolicies().length }} policies)</span>
+            </h2>
+          </div>
+
+          @if (isLoading()) {
+            <div class="loading-state">
+              <div class="spinner"></div>
+              <p>Loading policies...</p>
+            </div>
+          } @else if (filteredPolicies().length === 0) {
+            <div class="empty-state-card">
+              <span class="empty-icon">🔍</span>
+              <h3 class="empty-title">No policies found</h3>
+              <p class="empty-desc">We couldn't find any policies matching your current search and filter criteria.</p>
+              <button type="button" class="btn-clear-action" (click)="resetAllFilters()">Clear Filters</button>
+            </div>
+          } @else {
+            <div class="policies-card-list">
+              @for (policy of filteredPolicies(); track policy.id) {
+                <article class="policy-result-card" (click)="goToDetails(policy.id)">
+                  <div class="card-header-row">
+                    <h3 class="policy-card-title">{{ policy.title }}</h3>
+                    <button 
+                      type="button" 
+                      class="bookmark-action-btn"
+                      [class.active]="policy.bookmarked"
+                      (click)="toggleBookmark(policy, $event)"
+                      [title]="policy.bookmarked ? 'Remove bookmark' : 'Bookmark policy'"
+                      [attr.aria-label]="policy.bookmarked ? 'Remove bookmark' : 'Bookmark policy'"
+                    >
+                      <svg viewBox="0 0 24 24" [attr.fill]="policy.bookmarked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" class="bookmark-svg">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                      </svg>
+                    </button>
+                  </div>
+
+                  <span class="policy-category-label">{{ policy.category }}</span>
+
+                  <p class="policy-description">{{ policy.description }}</p>
+
+                  <div class="policy-meta-lines">
+                    <p class="meta-line">
+                      <strong class="meta-key">Eligibility:</strong> 
+                      <span class="meta-val">{{ policy.eligibility }}</span>
+                    </p>
+                    <p class="meta-line">
+                      <strong class="meta-key">Benefits:</strong> 
+                      <span class="meta-val">{{ policy.benefits }}</span>
+                    </p>
+                  </div>
+
+                  <div class="card-footer-actions">
+                    <button 
+                      type="button" 
+                      class="btn-view-details" 
+                      (click)="goToDetails(policy.id)"
+                    >
+                      View Details <span class="arrow-icon">→</span>
+                    </button>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Public Footer -->
+  <app-citizen-footer></app-citizen-footer>
+</div>

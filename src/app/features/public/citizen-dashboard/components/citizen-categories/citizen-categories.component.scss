@@ -1,0 +1,91 @@
+.categories-section {
+  padding: 48px 24px 56px;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-sizing: border-box;
+
+  @media (max-width: 640px) {
+    padding: 32px 16px 40px;
+  }
+
+  .section-header {
+    margin-bottom: 32px;
+    text-align: center;
+
+    .section-heading {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 1.5rem;
+      line-height: 1.3;
+      font-weight: 800;
+      color: var(--text-main, #0f172a);
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+  }
+
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 1080px;
+    margin: 0 auto;
+
+    @media (max-width: 900px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 540px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .category-card {
+    background-color: var(--bg-card, #ffffff);
+    border-radius: 12px;
+    padding: 28px 20px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+
+    &:hover {
+      border-color: var(--brand-blue, #cbd5e1);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    &.selected {
+      border-color: var(--brand-blue, #2563eb);
+      background-color: rgba(37, 99, 235, 0.12);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+
+      .category-title {
+        color: var(--brand-blue, #1d4ed8);
+      }
+    }
+
+    .category-icon-wrapper {
+      margin-bottom: 12px;
+      font-size: 28px;
+    }
+
+    .category-title {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main, #0f172a);
+      margin: 0 0 6px;
+    }
+
+    .category-description {
+      font-size: 0.8125rem;
+      line-height: 1.45;
+      color: var(--text-muted, #64748b);
+      margin: 0;
+    }
+  }
+}

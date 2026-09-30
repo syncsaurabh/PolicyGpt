@@ -1,0 +1,96 @@
+.works-section {
+  padding: 48px 24px 56px;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .works-section {
+    padding: 32px 16px 40px;
+  }
+}
+
+.works-section .section-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.works-section .section-header .section-heading {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  font-weight: 800;
+  color: var(--text-main, #0f172a);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.works-section .steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+@media (max-width: 800px) {
+  .works-section .steps-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.works-section .step-card {
+  background-color: var(--bg-card, #ffffff);
+  border-radius: 12px;
+  padding: 28px 20px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.works-section .step-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  border-color: var(--brand-blue, #cbd5e1);
+}
+
+.works-section .step-card .step-number {
+  font-size: 0.8125rem;
+  font-weight: 800;
+  color: var(--brand-blue, #1e3a8a);
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.works-section .step-card .step-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.works-section .step-card .step-title-row .step-icon {
+  font-size: 20px;
+  color: var(--brand-blue, #2563eb);
+}
+
+.works-section .step-card .step-title-row .step-title {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main, #0f172a);
+  margin: 0;
+}
+
+.works-section .step-card .step-description {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--text-muted, #64748b);
+  margin: 0;
+  max-width: 260px;
+}

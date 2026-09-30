@@ -1,0 +1,147 @@
+<div class="dashboard-root-container">
+  @switch (currentRole()) {
+    @case ('ADMINISTRATOR') {
+      <app-admin-dashboard></app-admin-dashboard>
+    }
+    @case ('GOVERNMENT_OFFICIAL') {
+      <app-government-dashboard></app-government-dashboard>
+    }
+    @case ('CITIZEN') {
+      <app-citizen-dashboard-feature></app-citizen-dashboard-feature>
+    }
+    @default {
+      <!-- Researcher / Organization / Platform Explorer View -->
+      <div class="research-dashboard-root">
+        <header class="research-header">
+          <div class="header-titles">
+            <div class="title-row">
+              <h1>Platform Research & Analytics</h1>
+              <span class="role-pill">{{ auth.currentUser()?.role || 'Researcher' }} Portal</span>
+            </div>
+            <p class="subtitle">Cross-sector policy analysis, scheme demographics, and government publications matrix.</p>
+          </div>
+          <div class="header-actions">
+            <button
+              type="button"
+              class="btn-refresh"
+              (click)="loadOverviewAnalytics()"
+              [disabled]="analyticsLoading()"
+            >
+              <svg class="refresh-icon" [class.spinning]="analyticsLoading()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 4v6h-6"></path>
+                <path d="M1 20v-6h6"></path>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+              <span>Refresh Analytics</span>
+            </button>
+            <a routerLink="/compare" class="btn-primary-action">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 3 21 3 21 8"></polyline>
+                <line x1="4" y1="20" x2="21" y2="3"></line>
+                <polyline points="21 16 21 21 16 21"></polyline>
+                <line x1="15" y1="15" x2="21" y2="21"></line>
+              </svg>
+              <span>Compare Policies</span>
+            </a>
+          </div>
+        </header>
+
+        <div *ngIf="analyticsError()" class="dash-error-banner">
+          <span>{{ analyticsError() }}</span>
+        </div>
+
+        <section class="kpi-grid">
+          <app-kpi-card
+            title="Total Policies"
+            [value]="overviewData()?.total_policies"
+            [subtext]="overviewData()?.published_policies + ' Published & Live'"
+            icon="policies"
+            color="primary"
+            badge="Directory"
+            badgeType="primary"
+            [loading]="analyticsLoading()"
+          ></app-kpi-card>
+
+          <app-kpi-card
+            title="Welfare Schemes"
+            [value]="overviewData()?.total_schemes"
+            [subtext]="overviewData()?.active_schemes + ' Active Programs'"
+            icon="schemes"
+            color="emerald"
+            badge="Programs"
+            badgeType="success"
+            [loading]="analyticsLoading()"
+          ></app-kpi-card>
+
+          <app-kpi-card
+            title="Public Searches"
+            [value]="overviewData()?.total_searches"
+            subtext="AI query inquiries logged"
+            icon="search"
+            color="cyan"
+            badge="Searches"
+            badgeType="info"
+            [loading]="analyticsLoading()"
+          ></app-kpi-card>
+
+          <app-kpi-card
+            title="Platform Notifications"
+            [value]="overviewData()?.total_notifications"
+            subtext="Total delivery dispatches"
+            icon="notifications"
+            color="amber"
+            badge="Alerts"
+            badgeType="warning"
+            [loading]="analyticsLoading()"
+          ></app-kpi-card>
+        </section>
+
+        <section class="charts-grid">
+          <div class="chart-col">
+            <app-distribution-chart
+              title="Policy Categories"
+              subtitle="Distribution of policy papers across sectors"
+              [items]="overviewData()?.policy_category_distribution"
+              chartType="donut"
+              totalLabel="Policies"
+              [loading]="analyticsLoading()"
+            ></app-distribution-chart>
+          </div>
+
+          <div class="chart-col">
+            <app-distribution-chart
+              title="Scheme Categories"
+              subtitle="Welfare programs by beneficiary focus"
+              [items]="overviewData()?.scheme_category_distribution"
+              chartType="horizontal-bar"
+              totalLabel="Schemes"
+              [loading]="analyticsLoading()"
+            ></app-distribution-chart>
+          </div>
+
+          <div class="chart-col">
+            <app-distribution-chart
+              title="Department Publications"
+              subtitle="Publications by publishing authority"
+              [items]="overviewData()?.department_distribution"
+              chartType="horizontal-bar"
+              totalLabel="Departments"
+              [loading]="analyticsLoading()"
+            ></app-distribution-chart>
+          </div>
+
+          <div class="chart-col">
+            <app-distribution-chart
+              title="User Distribution by Role"
+              subtitle="Registered users segmented by stakeholder type"
+              [items]="overviewData()?.user_role_distribution"
+              chartType="donut"
+              totalLabel="Users"
+              [loading]="analyticsLoading()"
+            ></app-distribution-chart>
+          </div>
+        </section>
+      </div>
+    }
+  }
+</div>

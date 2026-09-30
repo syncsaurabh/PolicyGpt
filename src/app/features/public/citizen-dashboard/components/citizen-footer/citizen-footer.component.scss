@@ -1,0 +1,102 @@
+.public-footer {
+  width: 100%;
+  background-color: var(--bg-card, #ffffff);
+  border-top: 1px solid var(--border-color, #e2e8f0);
+  padding: 48px 0 32px;
+  box-sizing: border-box;
+
+  .footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    box-sizing: border-box;
+
+    @media (max-width: 640px) {
+      padding: 0 16px;
+    }
+  }
+
+  .footer-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 40px;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+    }
+  }
+
+  .footer-brand {
+    display: flex;
+    flex-direction: column;
+
+    .logo-wrapper {
+      margin-bottom: 8px;
+
+      .brand-title {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--brand-blue, #1e3a8a);
+        letter-spacing: -0.02em;
+      }
+    }
+
+    .brand-subtitle {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      color: var(--text-muted, #64748b);
+      margin: 0;
+      max-width: 320px;
+    }
+  }
+
+  .footer-links-group {
+    display: flex;
+    gap: 64px;
+
+    @media (max-width: 480px) {
+      gap: 32px;
+    }
+
+    .links-column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      .column-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-main, #0f172a);
+        margin: 0 0 4px 0;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .footer-link {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.8125rem;
+        color: var(--text-muted, #475569);
+        text-decoration: none;
+        transition: color 0.2s ease;
+
+        &:hover {
+          color: var(--brand-blue, #1e3a8a);
+        }
+      }
+    }
+  }
+
+  .footer-bottom {
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color, #f1f5f9);
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    color: var(--text-disabled, #94a3b8);
+  }
+}

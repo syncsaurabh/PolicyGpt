@@ -1,0 +1,236 @@
+<div class="policy-management-container" (click)="closeActionMenu()">
+  <!-- Page Header & Action Button -->
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">Policy Management</h1>
+      <p class="page-subtitle">Manage, review and monitor government policies</p>
+    </div>
+    <div class="header-actions">
+      <button 
+        type="button" 
+        class="toggle-archive-btn"
+        [class.active]="showArchived()"
+        (click)="toggleArchivedView()">
+        {{ showArchived() ? 'View Active Policies' : 'View Archived (' + policyService.archivedPolicies().length + ')' }}
+      </button>
+
+      @if (canCreatePolicy()) {
+        <button type="button" class="btn-upload-policy" (click)="navigateToUpload()">
+          <span class="plus-icon">+</span> Upload Policy
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Search and Category Filters -->
+  <div class="search-filter-section">
+    <!-- Search Input -->
+    <div class="search-box-wrapper">
+      <div class="search-icon-container">
+        <svg class="search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <input 
+        type="text" 
+        class="search-input"
+        placeholder="Search policies by name, ID or keyword"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="onSearchChange()"
+      />
+    </div>
+
+    <!-- Filter Category Pills -->
+    <div class="filter-pills-row" role="group" aria-label="Filter policies by category">
+      @for (cat of categories; track cat) {
+        <button 
+          type="button"
+          class="pill-btn"
+          [class.pill-active]="selectedCategory() === cat"
+          (click)="selectCategory(cat)">
+          @if (selectedCategory() === cat) {
+            <svg class="pill-check-icon" fill="none" viewBox="0 0 24 24">
+              <polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2.5"></polyline>
+            </svg>
+          }
+          {{ cat }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Policy Repository Section -->
+  <section class="repository-section" aria-labelledby="policy-repository-heading">
+    <div class="repository-header">
+      <h2 id="policy-repository-heading" class="repository-title">
+        {{ showArchived() ? 'Archived Policies' : 'Policy Repository' }}
+      </h2>
+      <p class="repository-subtitle">
+        {{ showArchived() ? 'View and restore archived government policies' : 'View and manage all government policies' }}
+      </p>
+    </div>
+
+    <!-- Table Container -->
+    <div class="table-card">
+      @if (filteredPolicies().length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon-circle">
+            <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <h3 class="empty-title">No policies found</h3>
+          <p class="empty-desc">
+            @if (searchQuery()) {
+              No results matching "{{ searchQuery() }}" in {{ selectedCategory() }} category.
+            } @else {
+              No policies available in this category.
+            }
+          </p>
+          @if (searchQuery() || selectedCategory() !== 'All') {
+            <button type="button" class="btn-reset-filters" (click)="searchQuery.set(''); selectCategory('All')">
+              Reset Filters
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="policy-table">
+            <thead>
+              <tr>
+                <th scope="col">Policy Name</th>
+                <th scope="col">Policy ID</th>
+                <th scope="col">Category</th>
+                <th scope="col">Ministry</th>
+                <th scope="col">Status</th>
+                <th scope="col">Updated</th>
+                <th scope="col" class="text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (policy of paginatedPolicies(); track policy.id) {
+                <tr class="table-row" (click)="navigateToDetails(policy)">
+                  <td class="cell-name">
+                    <span class="policy-name-text">{{ policy.name }}</span>
+                  </td>
+                  <td class="cell-id">
+                    <span class="id-badge">{{ policy.id }}</span>
+                  </td>
+                  <td class="cell-category">{{ policy.category }}</td>
+                  <td class="cell-ministry">{{ policy.ministry }}</td>
+                  <td class="cell-status">
+                    <span class="status-badge" [ngClass]="getStatusClass(policy.status)">
+                      {{ policy.status }}
+                    </span>
+                  </td>
+                  <td class="cell-updated">{{ policy.updatedAt }}</td>
+                  <td class="cell-action text-right" (click)="$event.stopPropagation()">
+                    <div class="action-dropdown-wrapper">
+                      <button 
+                        type="button" 
+                        class="action-menu-btn"
+                        aria-label="Row options"
+                        (click)="toggleActionMenu(policy.id, $event)">
+                        <svg class="dots-icon" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+                        </svg>
+                      </button>
+
+                      @if (activeMenuPolicyId() === policy.id) {
+                        <div class="action-menu-popup" (click)="$event.stopPropagation()">
+                          <button type="button" class="menu-item" (click)="navigateToDetails(policy)">
+                            <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                            View Details
+                          </button>
+
+                          @if (canEditPolicy()) {
+                            <button type="button" class="menu-item" (click)="navigateToEdit(policy)">
+                              <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                              </svg>
+                              Edit Policy
+                            </button>
+                          }
+
+                          @if (canSubmitPolicy() && (policy.status === 'Draft' || policy.status === 'Rejected')) {
+                            <button type="button" class="menu-item" (click)="navigateToSubmit(policy)">
+                              <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                              </svg>
+                              Submit for Review
+                            </button>
+                          }
+
+                          <button type="button" class="menu-item" (click)="toggleBookmarkPolicy(policy, $event)">
+                            <svg class="menu-icon" [attr.fill]="isPolicyBookmarked(policy.id) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                            </svg>
+                            {{ isPolicyBookmarked(policy.id) ? 'Remove Bookmark' : 'Save / Bookmark Policy' }}
+                          </button>
+
+                          <button type="button" class="menu-item" (click)="navigateToStatus(policy)">
+                            <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Status & History
+                          </button>
+
+                          @if (canArchivePolicy() && policy.status !== 'Archived') {
+                            <button type="button" class="menu-item text-danger" (click)="navigateToArchive(policy)">
+                              <svg class="menu-icon text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+                              </svg>
+                              Archive Policy
+                            </button>
+                          }
+                        </div>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Footer -->
+        <div class="pagination-footer">
+          <div class="pagination-summary">
+            Showing {{ showingRange().start }}–{{ showingRange().end }} of {{ showingRange().total }} policies
+          </div>
+
+          <nav class="pagination-controls" aria-label="Table pagination">
+            <button 
+              type="button" 
+              class="page-arrow-btn"
+              [disabled]="currentPage() === 1"
+              (click)="goToPage(currentPage() - 1)">
+              ←
+            </button>
+
+            @for (pageNum of pagesArray(); track pageNum) {
+              <button 
+                type="button"
+                class="page-num-btn"
+                [class.page-active]="currentPage() === pageNum"
+                (click)="goToPage(pageNum)">
+                {{ pageNum }}
+              </button>
+            }
+
+            <button 
+              type="button" 
+              class="page-arrow-btn"
+              [disabled]="currentPage() === totalPages()"
+              (click)="goToPage(currentPage() + 1)">
+              →
+            </button>
+          </nav>
+        </div>
+      }
+    </div>
+  </section>
+</div>

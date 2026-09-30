@@ -1,0 +1,372 @@
+<div class="policy-management-container" (click)="closeActionMenu()">
+  <!-- Page Header & Action Button -->
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">Scheme Management</h1>
+      <p class="page-subtitle">Explore, manage and monitor government welfare schemes and citizen benefits</p>
+    </div>
+    <div class="header-actions">
+      <button 
+        type="button" 
+        class="toggle-archive-btn"
+        [class.active]="showArchived()"
+        (click)="toggleArchivedView()">
+        {{ showArchived() ? 'View Active Schemes' : 'View Archived (' + schemeService.archivedSchemes().length + ')' }}
+      </button>
+
+      @if (canCreateScheme()) {
+        <button type="button" class="btn-upload-policy" (click)="navigateToCreate()">
+          <span class="plus-icon">+</span> Add Scheme
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Search and Filters Section -->
+  <div class="search-filter-section">
+    <!-- Search Input -->
+    <div class="search-box-wrapper">
+      <div class="search-icon-container">
+        <svg class="search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <input 
+        type="text" 
+        class="search-input"
+        placeholder="Search schemes by name, ministry, department or keyword"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="onFilterChange()"
+      />
+    </div>
+
+    <!-- Filter Category Pills -->
+    <div class="filter-pills-row" role="group" aria-label="Filter schemes by category">
+      @for (cat of categories; track cat) {
+        <button 
+          type="button"
+          class="pill-btn"
+          [class.pill-active]="selectedCategory() === cat"
+          (click)="selectCategory(cat)">
+          @if (selectedCategory() === cat) {
+            <svg class="pill-check-icon" fill="none" viewBox="0 0 24 24">
+              <polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2.5"></polyline>
+            </svg>
+          }
+          {{ cat }}
+        </button>
+      }
+    </div>
+
+    <!-- Dropdown Filters Bar (State, Ministry, Department, Status) -->
+    <div class="filter-dropdowns-bar">
+      <!-- State Filter -->
+      <div class="filter-select-group">
+        <label for="stateFilter" class="filter-label">State:</label>
+        <div class="select-wrapper">
+          <select 
+            id="stateFilter" 
+            class="filter-select"
+            [(ngModel)]="selectedState" 
+            (ngModelChange)="onFilterChange()">
+            @for (st of states; track st) {
+              <option [value]="st">{{ st === 'All' ? 'All States' : st }}</option>
+            }
+          </select>
+          <div class="select-arrow">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ministry Filter -->
+      <div class="filter-select-group">
+        <label for="ministryFilter" class="filter-label">Ministry:</label>
+        <div class="select-wrapper">
+          <select 
+            id="ministryFilter" 
+            class="filter-select"
+            [(ngModel)]="selectedMinistry" 
+            (ngModelChange)="onFilterChange()">
+            @for (min of ministries(); track min) {
+              <option [value]="min">{{ min === 'All' ? 'All Ministries' : min }}</option>
+            }
+          </select>
+          <div class="select-arrow">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Department Filter -->
+      <div class="filter-select-group">
+        <label for="deptFilter" class="filter-label">Department:</label>
+        <div class="select-wrapper">
+          <select 
+            id="deptFilter" 
+            class="filter-select"
+            [(ngModel)]="selectedDepartment" 
+            (ngModelChange)="onFilterChange()">
+            @for (dept of departments(); track dept) {
+              <option [value]="dept">{{ dept === 'All' ? 'All Departments' : dept }}</option>
+            }
+          </select>
+          <div class="select-arrow">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Filter (Hidden if showing archived) -->
+      @if (!showArchived()) {
+        <div class="filter-select-group">
+          <label for="statusFilter" class="filter-label">Status:</label>
+          <div class="select-wrapper">
+            <select 
+              id="statusFilter" 
+              class="filter-select"
+              [(ngModel)]="selectedStatus" 
+              (ngModelChange)="onFilterChange()">
+              @for (st of statuses; track st) {
+                <option [value]="st">{{ st === 'All' ? 'All Statuses' : st }}</option>
+              }
+            </select>
+            <div class="select-arrow">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Reset Filters Button -->
+      @if (hasActiveFilters()) {
+        <div class="filter-reset-wrapper">
+          <button type="button" class="btn-clear-filters" (click)="resetFilters()">
+            Clear Filters
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Scheme Repository Section -->
+  <section class="repository-section" aria-labelledby="scheme-repository-heading">
+    <div class="repository-header">
+      <h2 id="scheme-repository-heading" class="repository-title">
+        {{ showArchived() ? 'Archived Schemes' : 'Welfare Schemes Repository' }}
+      </h2>
+      <p class="repository-subtitle">
+        {{ showArchived() ? 'View and restore archived government welfare schemes' : 'View, search and manage central and state welfare initiatives' }}
+      </p>
+    </div>
+
+    <!-- Table Container -->
+    <div class="table-card">
+      @if (filteredSchemes().length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon-circle">
+            <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+          </div>
+          <h3 class="empty-title">No schemes found</h3>
+          <p class="empty-desc">
+            @if (hasActiveFilters()) {
+              No schemes match the specified search and filter criteria.
+            } @else {
+              No schemes currently available in this repository.
+            }
+          </p>
+          @if (hasActiveFilters()) {
+            <button type="button" class="btn-reset-filters" (click)="resetFilters()">
+              Reset Filters
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="policy-table">
+            <thead>
+              <tr>
+                <th scope="col">Scheme Name</th>
+                <th scope="col">Category</th>
+                <th scope="col">Ministry</th>
+                <th scope="col">Department</th>
+                <th scope="col">State</th>
+                <th scope="col">Status</th>
+                <th scope="col">Updated</th>
+                <th scope="col" class="text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (scheme of paginatedSchemes(); track scheme.id) {
+                <tr class="table-row" (click)="navigateToDetails(scheme)">
+                  <td class="cell-name">
+                    <span class="policy-name-text">{{ scheme.name }}</span>
+                    <span class="id-badge-inline">{{ scheme.id }}</span>
+                  </td>
+                  <td class="cell-category">
+                    <span class="category-pill-sm">{{ scheme.category }}</span>
+                  </td>
+                  <td class="cell-ministry">{{ scheme.ministry }}</td>
+                  <td class="cell-dept">{{ scheme.department }}</td>
+                  <td class="cell-state">
+                    <span class="state-badge">{{ scheme.state }}</span>
+                  </td>
+                  <td class="cell-status">
+                    <span class="status-badge" [ngClass]="getStatusClass(scheme.status)">
+                      {{ scheme.status }}
+                    </span>
+                  </td>
+                  <td class="cell-updated">{{ scheme.updatedAt }}</td>
+                  <td class="cell-action text-right" (click)="$event.stopPropagation()">
+                    <div class="action-dropdown-wrapper">
+                      <button 
+                        type="button" 
+                        class="action-menu-btn"
+                        aria-label="Scheme options"
+                        (click)="toggleActionMenu(scheme.id, $event)">
+                        <svg class="dots-icon" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+                        </svg>
+                      </button>
+
+                      @if (activeMenuSchemeId() === scheme.id) {
+                        <div class="action-menu-popup" (click)="$event.stopPropagation()">
+                          <button type="button" class="menu-item" (click)="navigateToDetails(scheme)">
+                            <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                            View Details
+                          </button>
+
+                          <button type="button" class="menu-item" (click)="toggleBookmarkScheme(scheme, $event)">
+                            <svg class="menu-icon" [attr.fill]="isSchemeBookmarked(scheme.id) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                            </svg>
+                            {{ isSchemeBookmarked(scheme.id) ? 'Remove Bookmark' : 'Save / Bookmark Scheme' }}
+                          </button>
+
+                          @if (canEditScheme()) {
+                            <button type="button" class="menu-item" (click)="navigateToEdit(scheme)">
+                              <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                              </svg>
+                              Edit Scheme
+                            </button>
+                          }
+
+                          @if (canArchiveScheme()) {
+                            @if (scheme.status === 'Archived') {
+                              <button type="button" class="menu-item" (click)="restoreScheme(scheme, $event)">
+                                <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                </svg>
+                                Restore Scheme
+                              </button>
+
+                              <button type="button" class="menu-item text-danger" (click)="openConfirmModal(scheme, $event)">
+                                <svg class="menu-icon text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                                Delete Permanently
+                              </button>
+                            } @else {
+                              <button type="button" class="menu-item text-danger" (click)="openConfirmModal(scheme, $event)">
+                                <svg class="menu-icon text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+                                </svg>
+                                Archive Scheme
+                              </button>
+                            }
+                          }
+                        </div>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Footer -->
+        <div class="pagination-footer">
+          <div class="pagination-summary">
+            Showing {{ showingRange().start }}–{{ showingRange().end }} of {{ showingRange().total }} schemes
+          </div>
+
+          <nav class="pagination-controls" aria-label="Table pagination">
+            <button 
+              type="button" 
+              class="page-arrow-btn"
+              [disabled]="currentPage() === 1"
+              (click)="goToPage(currentPage() - 1)">
+              ←
+            </button>
+
+            @for (pageNum of pagesArray(); track pageNum) {
+              <button 
+                type="button"
+                class="page-num-btn"
+                [class.page-active]="currentPage() === pageNum"
+                (click)="goToPage(pageNum)">
+                {{ pageNum }}
+              </button>
+            }
+
+            <button 
+              type="button" 
+              class="page-arrow-btn"
+              [disabled]="currentPage() === totalPages()"
+              (click)="goToPage(currentPage() + 1)">
+              →
+            </button>
+          </nav>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Confirmation Modal Dialog -->
+  @if (confirmModalScheme()) {
+    <div class="modal-backdrop" (click)="closeConfirmModal()">
+      <div class="modal-card modal-card-sm" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3 class="modal-title">
+            {{ confirmModalScheme()!.status === 'Archived' ? 'Permanently Delete Scheme?' : 'Archive Scheme?' }}
+          </h3>
+          <button type="button" class="modal-close-btn" (click)="closeConfirmModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc">
+            @if (confirmModalScheme()!.status === 'Archived') {
+              Are you sure you want to permanently delete <strong>"{{ confirmModalScheme()!.name }}"</strong>? This action cannot be undone.
+            } @else {
+              Are you sure you want to archive <strong>"{{ confirmModalScheme()!.name }}"</strong>? The scheme will be moved to the archived repository.
+            }
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-modal-cancel" (click)="closeConfirmModal()">Cancel</button>
+          <button 
+            type="button" 
+            class="btn-modal-confirm-danger" 
+            [disabled]="isDeleting()"
+            (click)="confirmArchiveOrDelete()">
+            {{ confirmModalScheme()!.status === 'Archived' ? 'Delete Permanently' : 'Archive Scheme' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

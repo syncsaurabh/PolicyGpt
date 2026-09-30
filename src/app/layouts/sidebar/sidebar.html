@@ -1,0 +1,35 @@
+<aside 
+  class="sidebar-nav" 
+  [class.mobile-open]="layoutService.isSidebarOpen()"
+  [class.collapsed]="layoutService.isSidebarCollapsed()"
+>
+  <div class="sidebar-header-row">
+    <span class="nav-section-title">Navigation</span>
+    <button class="sidebar-close-btn" type="button" (click)="layoutService.closeSidebar()"
+      aria-label="Close navigation">
+      ✕
+    </button>
+  </div>
+
+  <nav class="nav-links" aria-label="Sidebar Navigation">
+    @for (item of filteredNavItems; track item.path) {
+    <a 
+      [routerLink]="item.path" 
+      routerLinkActive="active" 
+      class="nav-link" 
+      (click)="layoutService.closeSidebar()" 
+      [title]="item.label"
+    >
+      <span class="material-symbols-outlined nav-icon" aria-hidden="true">{{ item.icon }}</span>
+      <span class="nav-label">{{ item.label }}</span>
+    </a>
+    }
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="footer-label">Logged in as:</div>
+    <div class="footer-role" [title]="auth.currentUser()?.role || 'Guest'">
+      {{ auth.currentUser()?.role || 'Guest' }}
+    </div>
+  </div>
+</aside>

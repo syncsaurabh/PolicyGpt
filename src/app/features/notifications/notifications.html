@@ -1,0 +1,981 @@
+<!-- BEGIN: Toast Notifications -->
+@if (toast(); as currentToast) {
+  <div class="toast-notification" [ngClass]="'toast-' + currentToast.type">
+    <div class="toast-icon">
+      @if (currentToast.type === 'success') {
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M4.5 12.75l6 6 9-13.5" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      } @else if (currentToast.type === 'error') {
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      } @else {
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M12 8v4m0 4h.01"></path>
+        </svg>
+      }
+    </div>
+    <span class="toast-text">{{ currentToast.text }}</span>
+    <button class="toast-close" type="button" (click)="toast.set(null)">×</button>
+  </div>
+}
+<!-- END: Toast Notifications -->
+
+<div class="notifications-page">
+  <!-- BEGIN: Page Header -->
+  <header class="page-heading-section">
+    <div class="heading-left">
+      <div class="title-row">
+        <h1 class="page-title">Notifications</h1>
+        @if (notificationService.unreadCount() > 0) {
+          <span class="header-unread-badge">{{ notificationService.unreadCount() }} unread</span>
+        }
+      </div>
+      <p class="page-subtitle">Stay updated on policy approvals, scheme deadlines, application updates, and portal announcements</p>
+    </div>
+
+    <div class="heading-right">
+      <button 
+        class="btn-secondary-action" 
+        type="button" 
+        (click)="activeTab() === 'admin' ? loadAdminNotifications() : (activeTab() === 'preferences' ? loadPreferences() : loadNotifications())" 
+        title="Refresh data">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+        </svg>
+        <span>Refresh</span>
+      </button>
+    </div>
+  </header>
+  <!-- END: Page Header -->
+
+  <!-- BEGIN: Navigation Tabs -->
+  <div class="navigation-tabs-bar">
+    <button 
+      class="nav-tab-btn" 
+      [class.active]="activeTab() === 'notifications'"
+      (click)="setActiveTab('notifications')">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+      </svg>
+      <span>My Notifications</span>
+      @if (notificationService.unreadCount() > 0) {
+        <span class="tab-badge">{{ notificationService.unreadCount() }}</span>
+      }
+    </button>
+
+    <button 
+      class="nav-tab-btn" 
+      [class.active]="activeTab() === 'preferences'"
+      (click)="setActiveTab('preferences')">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      <span>Notification Preferences</span>
+    </button>
+
+    @if (isAdmin) {
+      <button 
+        class="nav-tab-btn" 
+        [class.active]="activeTab() === 'admin'"
+        (click)="setActiveTab('admin')">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+        <span>Admin Management &amp; Broadcast</span>
+      </button>
+    }
+  </div>
+  <!-- END: Navigation Tabs -->
+
+  <!-- ========================================================================= -->
+  <!-- TAB 1: MY NOTIFICATIONS FEED                                              -->
+  <!-- ========================================================================= -->
+  @if (activeTab() === 'notifications') {
+    <div class="tab-content-container">
+
+      <!-- Filter and Action Controls Bar -->
+      <div class="filter-controls-card">
+        <div class="category-filters-group">
+          <button 
+            type="button" 
+            class="pill-filter-btn" 
+            [class.active]="selectedCategory() === 'ALL' && !filterUnreadOnly()"
+            (click)="setCategoryFilter('ALL'); filterUnreadOnly.set(false)">
+            All
+          </button>
+          <button 
+            type="button" 
+            class="pill-filter-btn" 
+            [class.active]="filterUnreadOnly()"
+            (click)="toggleUnreadOnly()">
+            Unread Only
+          </button>
+          <button 
+            type="button" 
+            class="pill-filter-btn" 
+            [class.active]="selectedCategory() === 'POLICIES'"
+            (click)="setCategoryFilter('POLICIES')">
+            Policy Alerts
+          </button>
+          <button 
+            type="button" 
+            class="pill-filter-btn" 
+            [class.active]="selectedCategory() === 'SCHEMES'"
+            (click)="setCategoryFilter('SCHEMES')">
+            Scheme Updates
+          </button>
+          <button 
+            type="button" 
+            class="pill-filter-btn" 
+            [class.active]="selectedCategory() === 'APPLICATIONS'"
+            (click)="setCategoryFilter('APPLICATIONS')">
+            Reminders &amp; Applications
+          </button>
+          <button 
+            type="button" 
+            class="pill-filter-btn" 
+            [class.active]="selectedCategory() === 'SYSTEM'"
+            (click)="setCategoryFilter('SYSTEM')">
+            System Alerts
+          </button>
+        </div>
+
+        <div class="right-filters-group">
+          <div class="select-wrapper">
+            <select 
+              class="filter-select" 
+              [value]="selectedChannel()" 
+              (change)="onChannelFilterChange($event)"
+              aria-label="Filter by delivery channel">
+              @for (c of availableChannels; track c.value) {
+                <option [value]="c.value">{{ c.label }}</option>
+              }
+            </select>
+          </div>
+
+          @if (notificationService.unreadCount() > 0) {
+            <button 
+              type="button" 
+              class="btn-mark-all" 
+              (click)="markAllAsRead()"
+              title="Mark all notifications as read">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M4.5 12.75l6 6 9-13.5" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+              <span>Mark all as read</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Feed List Container -->
+      @if (isLoading()) {
+        <div class="state-card loading-state">
+          <div class="loading-spinner"></div>
+          <p>Loading your notifications...</p>
+        </div>
+      } @else if (errorMessage()) {
+        <div class="alert-error-card">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+          </svg>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      } @else if (notifications().length === 0) {
+        <div class="state-card empty-state">
+          <div class="empty-icon-circle">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+          </div>
+          <h3 class="empty-title">No notifications found</h3>
+          <p class="empty-desc">
+            @if (filterUnreadOnly()) {
+              You have read all your notifications! Turn off "Unread Only" to view older notifications.
+            } @else {
+              You're all caught up. Important updates regarding policies and schemes will appear here.
+            }
+          </p>
+        </div>
+      } @else {
+        <div class="notifications-list-card">
+          @for (item of notifications(); track item.id) {
+            <div 
+              class="notification-row" 
+              [class.unread]="!item.is_read"
+              (click)="openDetailsModal(item)">
+              
+              <div class="row-indicator-col">
+                <span class="status-indicator-dot" [class.unread-dot]="!item.is_read"></span>
+              </div>
+
+              <div class="row-main-col">
+                <div class="row-header">
+                  <div class="badges-row">
+                    <span class="badge" [ngClass]="getTypeBadgeClass(item.notification_type)">
+                      {{ item.notification_type }}
+                    </span>
+                    <span class="badge-channel" [ngClass]="getChannelBadgeClass(item.channel)">
+                      {{ item.channel }}
+                    </span>
+                    @if (!item.is_read) {
+                      <span class="unread-tag">New</span>
+                    }
+                  </div>
+                  <span class="notification-timestamp">{{ formatDate(item.created_at) }}</span>
+                </div>
+
+                <h3 class="notification-item-title">{{ item.title }}</h3>
+                <p class="notification-item-message">{{ item.message }}</p>
+
+                @if (item.entity_type && item.entity_id) {
+                  <div class="entity-context-chip" (click)="$event.stopPropagation(); navigateToEntity(item)">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>View {{ item.entity_type }}: #{{ item.entity_id }}</span>
+                  </div>
+                }
+              </div>
+
+              <div class="row-actions-col" (click)="$event.stopPropagation()">
+                @if (!item.is_read) {
+                  <button 
+                    type="button" 
+                    class="action-btn btn-mark-read" 
+                    (click)="markAsRead(item, $event)"
+                    title="Mark as read">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path d="M4.5 12.75l6 6 9-13.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                  </button>
+                }
+                <button 
+                  type="button" 
+                  class="action-btn btn-view-item" 
+                  (click)="openDetailsModal(item)"
+                  title="View details">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <button 
+                  type="button" 
+                  class="action-btn btn-delete-item" 
+                  (click)="deleteNotification(item, $event)"
+                  title="Delete notification">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Pagination Bar -->
+        @if (totalPages() > 1) {
+          <div class="pagination-container">
+            <span class="pagination-info">
+              Showing page <strong>{{ page() }}</strong> of <strong>{{ totalPages() }}</strong> ({{ totalCount() }} total notifications)
+            </span>
+            <div class="pagination-actions">
+              <button 
+                type="button" 
+                class="pagination-btn" 
+                [disabled]="page() <= 1"
+                (click)="goToPage(page() - 1)">
+                Previous
+              </button>
+              <button 
+                type="button" 
+                class="pagination-btn" 
+                [disabled]="page() >= totalPages()"
+                (click)="goToPage(page() + 1)">
+                Next
+              </button>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  }
+
+  <!-- ========================================================================= -->
+  <!-- TAB 2: NOTIFICATION PREFERENCES                                          -->
+  <!-- ========================================================================= -->
+  @if (activeTab() === 'preferences') {
+    <div class="tab-content-container">
+      <div class="preferences-card">
+        <div class="pref-header">
+          <div>
+            <h2 class="pref-title">Delivery Channels &amp; Topic Subscriptions</h2>
+            <p class="pref-subtitle">Configure which notification channels and alert types you wish to receive from PolicyGPT</p>
+          </div>
+        </div>
+
+        @if (isLoadingPrefs()) {
+          <div class="state-card loading-state">
+            <div class="loading-spinner"></div>
+            <p>Loading preferences...</p>
+          </div>
+        } @else {
+          <form class="pref-form" (ngSubmit)="savePreferences()">
+            <!-- Section 1: Delivery Channels -->
+            <div class="pref-section">
+              <h3 class="pref-section-title">Delivery Channels</h3>
+              <p class="pref-section-desc">Choose which platforms should deliver notifications to you.</p>
+
+              <div class="toggles-grid">
+                <!-- In-App Toggle -->
+                <div class="toggle-card">
+                  <div class="toggle-info">
+                    <span class="toggle-label">In-App Notifications</span>
+                    <span class="toggle-hint">Receive notifications in the topbar bell and notification center</span>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="prefInApp" name="prefInApp" />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+
+                <!-- Email Toggle -->
+                <div class="toggle-card">
+                  <div class="toggle-info">
+                    <span class="toggle-label">Email Alerts</span>
+                    <span class="toggle-hint">Receive real-time email dispatches for important updates</span>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="prefEmail" name="prefEmail" />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+
+                <!-- SMS Toggle -->
+                <div class="toggle-card">
+                  <div class="toggle-info">
+                    <span class="toggle-label">SMS Notifications</span>
+                    <span class="toggle-hint">Receive SMS text alerts for critical deadline reminders</span>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="prefSms" name="prefSms" />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 2: Topics Subscriptions -->
+            <div class="pref-section">
+              <h3 class="pref-section-title">Topic Subscriptions</h3>
+              <p class="pref-section-desc">Select specific categories of events that trigger notifications.</p>
+
+              <div class="toggles-grid">
+                <!-- Policy Alerts -->
+                <div class="toggle-card">
+                  <div class="toggle-info">
+                    <span class="toggle-label">Policy Alerts</span>
+                    <span class="toggle-hint">New policies published, updates, revisions, and approval outcomes</span>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="prefPolicyAlerts" name="prefPolicyAlerts" />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+
+                <!-- Scheme Updates -->
+                <div class="toggle-card">
+                  <div class="toggle-info">
+                    <span class="toggle-label">Scheme Updates</span>
+                    <span class="toggle-hint">New government schemes, benefit changes, and criteria modifications</span>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="prefSchemeUpdates" name="prefSchemeUpdates" />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+
+                <!-- Deadline Reminders -->
+                <div class="toggle-card">
+                  <div class="toggle-info">
+                    <span class="toggle-label">Deadline Reminders</span>
+                    <span class="toggle-hint">Approaching application deadlines and submission timelines</span>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="prefDeadlineReminders" name="prefDeadlineReminders" />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+
+                <!-- Application Updates -->
+                <div class="toggle-card">
+                  <div class="toggle-info">
+                    <span class="toggle-label">Application Status Updates</span>
+                    <span class="toggle-hint">Progress, approval status changes, and eligibility matches</span>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="prefApplicationUpdates" name="prefApplicationUpdates" />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+
+                <!-- System Alerts -->
+                <div class="toggle-card">
+                  <div class="toggle-info">
+                    <span class="toggle-label">System Announcements &amp; Security</span>
+                    <span class="toggle-hint">Platform maintenance alerts, security updates, and admin broadcasts</span>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="prefSystemAlerts" name="prefSystemAlerts" />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer Save Actions -->
+            <div class="pref-actions-footer">
+              <button 
+                type="submit" 
+                class="btn-primary-save" 
+                [disabled]="isSavingPrefs()">
+                @if (isSavingPrefs()) {
+                  <div class="spinner-small"></div>
+                  <span>Saving Preferences...</span>
+                } @else {
+                  <span>Save Preferences</span>
+                }
+              </button>
+            </div>
+          </form>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ========================================================================= -->
+  <!-- TAB 3: ADMIN MANAGEMENT & BROADCAST (Admin Only)                          -->
+  <!-- ========================================================================= -->
+  @if (activeTab() === 'admin' && isAdmin) {
+    <div class="tab-content-container">
+      
+      <!-- Admin Action Toolbar & Metrics -->
+      <div class="admin-actions-bar">
+        <div class="admin-buttons-row">
+          <button 
+            type="button" 
+            class="btn-admin-broadcast" 
+            (click)="openBroadcastModal()">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+            </svg>
+            <span>Broadcast Announcement</span>
+          </button>
+
+          <button 
+            type="button" 
+            class="btn-admin-targeted" 
+            (click)="openTargetedModal()">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <span>Send Targeted Notification</span>
+          </button>
+
+          <button 
+            type="button" 
+            class="btn-admin-deadline" 
+            [disabled]="isTriggeringDeadline()"
+            (click)="triggerDeadlineScan()">
+            @if (isTriggeringDeadline()) {
+              <div class="spinner-small"></div>
+              <span>Scanning Deadlines...</span>
+            } @else {
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Scan &amp; Dispatch Deadline Reminders</span>
+            }
+          </button>
+        </div>
+      </div>
+
+      <!-- Admin Filters Bar -->
+      <div class="filter-controls-card">
+        <div class="admin-filter-grid">
+          <div class="filter-field">
+            <label class="filter-label">Filter User ID</label>
+            <input 
+              type="number" 
+              class="form-control" 
+              placeholder="e.g. 1" 
+              [(ngModel)]="adminUserIdFilter" 
+              (keyup.enter)="adminPage.set(1); loadAdminNotifications()"
+            />
+          </div>
+
+          <div class="filter-field">
+            <label class="filter-label">Type</label>
+            <div class="select-wrapper">
+              <select class="form-control" [(ngModel)]="adminTypeFilter" (change)="adminPage.set(1); loadAdminNotifications()">
+                @for (t of availableTypes; track t.value) {
+                  <option [value]="t.value">{{ t.label }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="filter-field">
+            <label class="filter-label">Channel</label>
+            <div class="select-wrapper">
+              <select class="form-control" [(ngModel)]="adminChannelFilter" (change)="adminPage.set(1); loadAdminNotifications()">
+                @for (c of availableChannels; track c.value) {
+                  <option [value]="c.value">{{ c.label }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="filter-field">
+            <label class="filter-label">Delivery Status</label>
+            <div class="select-wrapper">
+              <select class="form-control" [(ngModel)]="adminStatusFilter" (change)="adminPage.set(1); loadAdminNotifications()">
+                <option value="ALL">All Statuses</option>
+                <option value="PENDING">PENDING</option>
+                <option value="SENT">SENT</option>
+                <option value="DELIVERED">DELIVERED</option>
+                <option value="READ">READ</option>
+                <option value="FAILED">FAILED</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="filter-btn-field">
+            <button 
+              type="button" 
+              class="btn-filter-apply" 
+              (click)="adminPage.set(1); loadAdminNotifications()">
+              Filter
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Notifications Logs Table -->
+      @if (isLoadingAdmin()) {
+        <div class="state-card loading-state">
+          <div class="loading-spinner"></div>
+          <p>Loading system notification logs...</p>
+        </div>
+      } @else if (adminNotifications().length === 0) {
+        <div class="state-card empty-state">
+          <p>No notifications matching the selected admin filters.</p>
+        </div>
+      } @else {
+        <div class="table-responsive-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Recipient</th>
+                <th>Title &amp; Message</th>
+                <th>Type</th>
+                <th>Channel</th>
+                <th>Status</th>
+                <th>Read</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of adminNotifications(); track item.id) {
+                <tr>
+                  <td class="font-mono">#{{ item.id }}</td>
+                  <td>
+                    <span class="user-id-badge">User #{{ item.user_id }}</span>
+                  </td>
+                  <td class="cell-title-message">
+                    <strong class="log-title">{{ item.title }}</strong>
+                    <p class="log-msg">{{ item.message }}</p>
+                  </td>
+                  <td>
+                    <span class="badge" [ngClass]="getTypeBadgeClass(item.notification_type)">
+                      {{ item.notification_type }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge-channel" [ngClass]="getChannelBadgeClass(item.channel)">
+                      {{ item.channel }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge" [class.badge-success]="item.status === 'SENT' || item.status === 'DELIVERED' || item.status === 'READ'" [class.badge-danger]="item.status === 'FAILED'">
+                      {{ item.status }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="read-status-badge" [class.is-read]="item.is_read">
+                      {{ item.is_read ? 'Read' : 'Unread' }}
+                    </span>
+                  </td>
+                  <td class="text-muted font-sm">{{ formatDate(item.created_at) }}</td>
+                  <td>
+                    <div class="table-actions">
+                      <button 
+                        type="button" 
+                        class="btn-tbl-action" 
+                        (click)="openDetailsModal(item)"
+                        title="View Full Metadata">
+                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <path d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
+                          <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                      </button>
+                      <button 
+                        type="button" 
+                        class="btn-tbl-action btn-danger-action" 
+                        (click)="deleteNotification(item)"
+                        title="Delete Log">
+                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <path d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Admin Pagination -->
+        @if (adminTotalPages() > 1) {
+          <div class="pagination-container">
+            <span class="pagination-info">
+              Page <strong>{{ adminPage() }}</strong> of <strong>{{ adminTotalPages() }}</strong> ({{ adminTotalCount() }} total system logs)
+            </span>
+            <div class="pagination-actions">
+              <button 
+                type="button" 
+                class="pagination-btn" 
+                [disabled]="adminPage() <= 1"
+                (click)="adminPage.set(adminPage() - 1); loadAdminNotifications()">
+                Previous
+              </button>
+              <button 
+                type="button" 
+                class="pagination-btn" 
+                [disabled]="adminPage() >= adminTotalPages()"
+                (click)="adminPage.set(adminPage() + 1); loadAdminNotifications()">
+                Next
+              </button>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  }
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL 1: NOTIFICATION DETAILS MODAL                                       -->
+<!-- ========================================================================= -->
+@if (selectedNotification(); as n) {
+  <div class="modal-backdrop" (click)="closeDetailsModal()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="badge" [ngClass]="getTypeBadgeClass(n.notification_type)">
+            {{ n.notification_type }}
+          </span>
+          <span class="badge-channel" [ngClass]="getChannelBadgeClass(n.channel)">
+            {{ n.channel }}
+          </span>
+          <span class="badge" [class.badge-success]="n.is_read" [class.badge-warning]="!n.is_read">
+            {{ n.is_read ? 'Read' : 'Unread' }}
+          </span>
+        </div>
+        <button type="button" class="modal-close-btn" (click)="closeDetailsModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <h2 class="details-title">{{ n.title }}</h2>
+        <p class="details-message">{{ n.message }}</p>
+
+        <div class="details-meta-grid">
+          <div class="meta-item">
+            <span class="meta-label">Notification ID</span>
+            <span class="meta-value font-mono">#{{ n.id }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Recipient User ID</span>
+            <span class="meta-value font-mono">#{{ n.user_id }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Created Timestamp</span>
+            <span class="meta-value">{{ formatDate(n.created_at) }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Read Timestamp</span>
+            <span class="meta-value">{{ n.read_at ? formatDate(n.read_at) : 'Not read yet' }}</span>
+          </div>
+          @if (n.entity_type && n.entity_id) {
+            <div class="meta-item full-width">
+              <span class="meta-label">Associated Entity</span>
+              <span class="meta-value font-mono">{{ n.entity_type }} (ID: {{ n.entity_id }})</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        @if (n.entity_type && n.entity_id) {
+          <button 
+            type="button" 
+            class="btn-primary-action" 
+            (click)="navigateToEntity(n)">
+            Open {{ n.entity_type }}
+          </button>
+        }
+        <button type="button" class="btn-modal-close" (click)="closeDetailsModal()">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ========================================================================= -->
+<!-- MODAL 2: ADMIN BROADCAST MODAL (Admin Only)                               -->
+<!-- ========================================================================= -->
+@if (isBroadcastModalOpen()) {
+  <div class="modal-backdrop" (click)="closeBroadcastModal()">
+    <div class="modal-dialog modal-dialog-lg" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <h2 class="modal-title">Broadcast Portal Notification</h2>
+        </div>
+        <button type="button" class="modal-close-btn" (click)="closeBroadcastModal()">×</button>
+      </div>
+
+      <form class="modal-form" (ngSubmit)="sendBroadcast()">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="field-label">Broadcast Title <span class="req-star">*</span></label>
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="e.g. Scheduled System Maintenance / New National Scheme Launch" 
+              [(ngModel)]="broadcastTitle" 
+              name="broadcastTitle" 
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="field-label">Message Content <span class="req-star">*</span></label>
+            <textarea 
+              class="form-control textarea-control" 
+              rows="4" 
+              placeholder="Enter the broadcast message dispatched to portal users..." 
+              [(ngModel)]="broadcastMessage" 
+              name="broadcastMessage" 
+              required>
+            </textarea>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="field-label">Notification Type</label>
+              <div class="select-wrapper">
+                <select class="form-control" [(ngModel)]="broadcastType" name="broadcastType">
+                  <option value="SYSTEM_ALERT">SYSTEM_ALERT</option>
+                  <option value="SYSTEM_ANNOUNCEMENT">SYSTEM_ANNOUNCEMENT</option>
+                  <option value="NEW_POLICY">NEW_POLICY</option>
+                  <option value="NEW_SCHEME">NEW_SCHEME</option>
+                  <option value="GENERAL">GENERAL</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="field-label">Delivery Channel</label>
+              <div class="select-wrapper">
+                <select class="form-control" [(ngModel)]="broadcastChannel" name="broadcastChannel">
+                  <option value="IN_APP">IN_APP</option>
+                  <option value="EMAIL">EMAIL</option>
+                  <option value="SMS">SMS</option>
+                  <option value="PUSH">PUSH</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="field-label">Target Audience (Leave empty to broadcast to all active users)</label>
+            <div class="roles-checkbox-grid">
+              @for (role of systemRoles; track role.id) {
+                <label class="checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    [checked]="broadcastTargetRoles().includes(role.id)"
+                    (change)="toggleTargetRole(role.id)"
+                  />
+                  <span>{{ role.label }}</span>
+                </label>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-modal-cancel" (click)="closeBroadcastModal()">
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="btn-primary-action" 
+            [disabled]="isSendingBroadcast() || !broadcastTitle().trim() || !broadcastMessage().trim()">
+            @if (isSendingBroadcast()) {
+              <div class="spinner-small"></div>
+              <span>Dispatching Broadcast...</span>
+            } @else {
+              <span>Send Broadcast</span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- ========================================================================= -->
+<!-- MODAL 3: TARGETED NOTIFICATION MODAL (Admin / Official)                    -->
+<!-- ========================================================================= -->
+@if (isTargetedModalOpen()) {
+  <div class="modal-backdrop" (click)="closeTargetedModal()">
+    <div class="modal-dialog modal-dialog-lg" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <h2 class="modal-title">Create Targeted User Notification</h2>
+        </div>
+        <button type="button" class="modal-close-btn" (click)="closeTargetedModal()">×</button>
+      </div>
+
+      <form class="modal-form" (ngSubmit)="sendTargeted()">
+        <div class="modal-body">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="field-label">Target User ID <span class="req-star">*</span></label>
+              <input 
+                type="number" 
+                class="form-control" 
+                placeholder="e.g. 1" 
+                [(ngModel)]="targetedUserId" 
+                name="targetedUserId" 
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="field-label">Notification Type</label>
+              <div class="select-wrapper">
+                <select class="form-control" [(ngModel)]="targetedType" name="targetedType">
+                  @for (t of availableTypes; track t.value) {
+                    @if (t.value !== 'ALL') {
+                      <option [value]="t.value">{{ t.label }}</option>
+                    }
+                  }
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="field-label">Title <span class="req-star">*</span></label>
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="e.g. Policy Review Required / Application Update" 
+              [(ngModel)]="targetedTitle" 
+              name="targetedTitle" 
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="field-label">Message <span class="req-star">*</span></label>
+            <textarea 
+              class="form-control textarea-control" 
+              rows="3" 
+              placeholder="Enter message details for this user..." 
+              [(ngModel)]="targetedMessage" 
+              name="targetedMessage" 
+              required>
+            </textarea>
+          </div>
+
+          <div class="form-grid-3">
+            <div class="form-group">
+              <label class="field-label">Channel</label>
+              <div class="select-wrapper">
+                <select class="form-control" [(ngModel)]="targetedChannel" name="targetedChannel">
+                  <option value="IN_APP">IN_APP</option>
+                  <option value="EMAIL">EMAIL</option>
+                  <option value="SMS">SMS</option>
+                  <option value="PUSH">PUSH</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="field-label">Associated Entity Type (Optional)</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                placeholder="e.g. POLICY or SCHEME" 
+                [(ngModel)]="targetedEntityType" 
+                name="targetedEntityType" 
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="field-label">Entity ID (Optional)</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                placeholder="e.g. 56" 
+                [(ngModel)]="targetedEntityId" 
+                name="targetedEntityId" 
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-modal-cancel" (click)="closeTargetedModal()">
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="btn-primary-action" 
+            [disabled]="isSendingTargeted() || !targetedUserId() || !targetedTitle().trim() || !targetedMessage().trim()">
+            @if (isSendingTargeted()) {
+              <div class="spinner-small"></div>
+              <span>Dispatching Notification...</span>
+            } @else {
+              <span>Send Notification</span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

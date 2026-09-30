@@ -1,0 +1,428 @@
+<!-- BEGIN: CompareRootContainer -->
+<div class="compare-root" [class.inside-dashboard]="isInsideDashboard()">
+
+  <!-- Toast Notification -->
+  @if (toastMessage()) {
+  <div class="toast-notification" role="status" aria-live="polite">
+    <span class="toast-icon">ℹ️</span>
+    <span class="toast-text">{{ toastMessage() }}</span>
+  </div>
+  }
+
+  <!-- BEGIN: Public Header (Rendered when accessed standalone by citizens) -->
+  @if (!isInsideDashboard()) {
+  <header class="public-navbar" data-purpose="navbar">
+    <div class="navbar-inner">
+      <div class="logo-wrapper">
+        <a routerLink="/citizen" class="logo-link">
+          <span class="logo-text">PolicyGPT</span>
+        </a>
+      </div>
+      <nav class="nav-links" aria-label="Citizen Navigation">
+        <a routerLink="/citizen" class="nav-link">Home</a>
+        <a routerLink="/citizen" fragment="popular-schemes" class="nav-link">Policies</a>
+        <a routerLink="/citizen" fragment="popular-schemes" class="nav-link">Schemes</a>
+        <a routerLink="/eligibility" class="nav-link">Eligibility Check</a>
+        <a routerLink="/compare" class="nav-link active">Comparison</a>
+        <a routerLink="/citizen" fragment="how-it-works" class="nav-link">About</a>
+        <a routerLink="/citizen" fragment="ai-assistant" class="nav-link">Help</a>
+        @if (auth.isAuthenticated()) {
+        <a routerLink="/dashboard" class="nav-link auth-dashboard-link">Role Dashboard</a>
+        } @else {
+        <a routerLink="/login" class="nav-link btn-login">Login</a>
+        <a routerLink="/register" class="btn-primary btn-register">Register</a>
+        }
+      </nav>
+    </div>
+  </header>
+  }
+  <!-- END: Public Header -->
+
+  <!-- BEGIN: Main Content Canvas -->
+  <main class="compare-canvas" [class.inside-dashboard]="isInsideDashboard()">
+
+    <!-- Screen Code Badge -->
+    <!-- <div class="screen-indicator">
+      @if (currentStep() === 'select') {
+        <span>CP-01 — Select for Comparison</span>
+      } @else if (currentStep() === 'review') {
+        <span>CP-02 — Comparison Selection</span>
+      } @else {
+        <span>CP-03 — Comparison Result</span>
+      }
+    </div> -->
+
+    <!-- Outer Frame Window Card -->
+    <div class="outer-frame-card">
+
+      <!-- ================================================================= -->
+      <!-- STAGE CP-01: SELECT FOR COMPARISON                               -->
+      <!-- ================================================================= -->
+      @if (currentStep() === 'select') {
+      <section class="stage-container" data-purpose="cp-01-select">
+
+        <!-- Page Header -->
+        <div class="stage-header">
+          <h1 class="stage-title">Compare Policies &amp; Schemes</h1>
+          <p class="stage-subtitle">Select policies or schemes to compare their key details and benefits</p>
+        </div>
+
+        <!-- Selection & Search Controls -->
+        <div class="search-selection-panel">
+          <h2 class="section-title">Select Items to Compare</h2>
+
+          <!-- Search Form Bar -->
+          <div class="search-bar-row">
+            <div class="search-input-wrapper">
+              <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"
+                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+              <input type="text" class="search-input" placeholder="Search policies or schemes by name, ID or keyword"
+                [ngModel]="searchKeyword()" (ngModelChange)="searchKeyword.set($event)" />
+              @if (searchKeyword()) {
+              <button type="button" class="clear-search-btn" (click)="searchKeyword.set('')"
+                title="Clear search">✕</button>
+              }
+            </div>
+
+            <!-- Type Filter Tabs -->
+            <div class="type-filter-tabs">
+              <button type="button" class="filter-tab" [class.active]="selectedTypeFilter() === 'ALL'"
+                (click)="selectedTypeFilter.set('ALL')">
+                All ({{ availableItems().length }})
+              </button>
+              <button type="button" class="filter-tab" [class.active]="selectedTypeFilter() === 'POLICIES'"
+                (click)="selectedTypeFilter.set('POLICIES')">
+                Policies
+              </button>
+              <button type="button" class="filter-tab" [class.active]="selectedTypeFilter() === 'SCHEMES'"
+                (click)="selectedTypeFilter.set('SCHEMES')">
+                Schemes
+              </button>
+            </div>
+          </div>
+
+          <!-- Selection Tracker & Category Quick Filters -->
+          <div class="selection-tracker-row">
+            <div class="category-pills">
+              @for (cat of categories(); track cat) {
+              <button type="button" class="category-pill" [class.active]="selectedCategory() === cat"
+                (click)="selectedCategory.set(cat)">
+                {{ cat }}
+              </button>
+              }
+            </div>
+
+            <div class="selection-counter-badge">
+              <span class="count-text">Selected: <strong>{{ selectedCount() }} / {{ maxSelection }}</strong></span>
+              @if (selectedCount() > 0) {
+              <button type="button" class="clear-all-link" (click)="clearAllSelection()">Clear Selection</button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        @if (isLoading()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Loading policies and schemes from repository...</p>
+        </div>
+        }
+
+        <!-- Items Grid -->
+        @if (!isLoading()) {
+        @if (filteredItems().length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon">🔍</div>
+          <h3>No matching policies or schemes found</h3>
+          <p>Try clearing your search keyword or switching category filters.</p>
+          <button type="button" class="btn-secondary" (click)="searchKeyword.set(''); selectedCategory.set('All')">Reset
+            Filters</button>
+        </div>
+        } @else {
+        <div class="items-grid" data-purpose="items-grid">
+          @for (item of filteredItems(); track item.code; let idx = $index) {
+          <article class="item-card" [class.selected]="isItemSelected(item)" (click)="toggleItemSelection(item)">
+            <div class="card-header">
+              <span class="item-index-label">Item {{ idx + 1 }}</span>
+              <span class="type-badge" [class.scheme-badge]="item.type === 'Scheme'"
+                [class.policy-badge]="item.type === 'Policy'">
+                {{ item.type }}
+              </span>
+            </div>
+
+            <div class="card-content">
+              <div class="checkbox-title-row">
+                <input type="checkbox" class="item-checkbox" [id]="'chk-' + item.code" [checked]="isItemSelected(item)"
+                  (click)="$event.stopPropagation()" (change)="toggleItemSelection(item)" />
+                <div class="title-details">
+                  <h3 class="item-title">{{ item.name }}</h3>
+                  <span class="item-code-meta">{{ item.type }} • {{ item.code }}</span>
+                </div>
+              </div>
+
+              <div class="meta-row">
+                <div class="meta-field">
+                  <span class="meta-label">Category:</span>
+                  <span class="meta-value">{{ item.category }}</span>
+                </div>
+                <div class="meta-field">
+                  <span class="meta-label">Ministry:</span>
+                  <span class="meta-value truncate">{{ item.ministry }}</span>
+                </div>
+              </div>
+
+              <p class="description-preview">{{ item.description }}</p>
+            </div>
+
+            <div class="card-footer">
+              @if (isItemSelected(item)) {
+              <span class="selected-indicator">✓ Selected</span>
+              <button type="button" class="remove-btn" (click)="$event.stopPropagation(); removeItem(item)">
+                Remove
+              </button>
+              } @else {
+              <span class="unselected-prompt">+ Click to select</span>
+              }
+            </div>
+          </article>
+          }
+        </div>
+        }
+        }
+
+        <!-- Bottom Action Panel -->
+        <div class="bottom-action-panel">
+          <div class="selection-status-summary">
+            <span class="status-indicator-dot" [class.ready]="canProceedToReview()"></span>
+            <span class="status-summary-text">
+              {{ selectedCount() }} of {{ maxSelection }} items selected
+              @if (selectedCount() < minSelection) { <span class="min-warning">(Select at least {{ minSelection }} to
+                compare)</span>
+            }
+            </span>
+          </div>
+
+          <button type="button" class="btn-primary btn-compare" [disabled]="!canProceedToReview()"
+            (click)="goToReview()">
+            Compare Selected ({{ selectedCount() }})
+          </button>
+        </div>
+
+      </section>
+      }
+
+      <!-- ================================================================= -->
+      <!-- STAGE CP-02: COMPARISON SELECTION REVIEW                         -->
+      <!-- ================================================================= -->
+      @if (currentStep() === 'review') {
+      <section class="stage-container" data-purpose="cp-02-review">
+
+        <!-- Page Header -->
+        <div class="stage-header">
+          <h1 class="stage-title">Compare Policies &amp; Schemes</h1>
+          <p class="stage-subtitle">Review the selected items before comparing their details.</p>
+        </div>
+
+        <!-- Section Bar -->
+        <div class="section-bar-header">
+          <h2 class="section-title">Selected Items</h2>
+          <span class="item-count-badge">{{ selectedCount() }} items selected</span>
+        </div>
+
+        <!-- Selected Items Side-by-Side Grid -->
+        <div class="selected-grid" [style.gridTemplateColumns]="'repeat(' + Math.max(selectedCount(), 2) + ', 1fr)'">
+          @for (item of selectedItemsList(); track item.code; let idx = $index) {
+          <div class="review-card" data-purpose="item-card">
+            <div class="review-card-top">
+              <span class="review-item-label">Item {{ idx + 1 }}</span>
+
+              <div class="checkbox-title-row">
+                <input type="checkbox" class="item-checkbox" checked (change)="removeItem(item)"
+                  [title]="'Deselect ' + item.name" />
+                <div>
+                  <h3 class="review-card-title">{{ item.name }}</h3>
+                  <p class="review-card-sub">{{ item.type }} • {{ item.code }}</p>
+                </div>
+              </div>
+
+              <div class="review-metadata-list">
+                <div class="metadata-item">
+                  <dt class="meta-label">Category</dt>
+                  <dd class="meta-value">{{ item.category }}</dd>
+                </div>
+                <div class="metadata-item">
+                  <dt class="meta-label">Ministry</dt>
+                  <dd class="meta-value">{{ item.ministry }}</dd>
+                </div>
+                <div class="metadata-item">
+                  <dt class="meta-label">Target Beneficiaries</dt>
+                  <dd class="meta-value">{{ item.target_audience }}</dd>
+                </div>
+              </div>
+            </div>
+
+            <div class="review-card-bottom">
+              <button type="button" class="remove-btn" (click)="removeItem(item)">
+                Remove
+              </button>
+            </div>
+          </div>
+          }
+        </div>
+
+        <!-- Comparison Summary Callout Box -->
+        <div class="summary-callout-box" aria-labelledby="summary-heading">
+          <h3 class="summary-box-title" id="summary-heading">Comparison Summary</h3>
+          <p class="summary-box-desc">
+            You have selected {{ selectedCount() }} items. Compare them side by side to understand their differences
+            across benefits, eligibility parameters, nodal ministries, and application procedures.
+          </p>
+        </div>
+
+        <!-- Footer Navigation Actions -->
+        <footer class="review-footer-actions">
+          <button type="button" class="btn-secondary" (click)="backToSelect()">
+            ← Back / Change Selection
+          </button>
+          <button type="button" class="btn-primary btn-compare-now"
+            [disabled]="selectedCount() < minSelection || isComparing()" (click)="runComparison()">
+            @if (isComparing()) {
+            <span class="btn-spinner"></span>
+            <span>Generating Comparison...</span>
+            } @else {
+            <span>Compare Now →</span>
+            }
+          </button>
+        </footer>
+
+      </section>
+      }
+
+      <!-- ================================================================= -->
+      <!-- STAGE CP-03: COMPARISON RESULT MATRIX TABLE                      -->
+      <!-- ================================================================= -->
+      @if (currentStep() === 'result') {
+      <section class="stage-container" data-purpose="cp-03-result">
+
+        <!-- Page Header -->
+        <div class="stage-header flex-header">
+          <div>
+            <h1 class="stage-title">Policy / Scheme Comparison</h1>
+            <p class="stage-subtitle">Compare key details, eligibility, benefits and application process.</p>
+          </div>
+          <div class="header-action-buttons">
+            <button type="button" class="btn-secondary btn-sm" (click)="printComparison()">
+              🖨️ Print / Export
+            </button>
+            <button type="button" class="btn-secondary btn-sm" (click)="restartComparison()">
+              + New Comparison
+            </button>
+          </div>
+        </div>
+
+        <!-- Compared Items Top Summary Cards -->
+        <section class="compared-summary-section" data-purpose="compared-summary">
+          <div class="section-bar-header">
+            <h2 class="section-title">Compared Items</h2>
+            <span class="item-count-badge">{{ selectedCount() }} items</span>
+          </div>
+
+          <div class="compared-cards-grid">
+            @for (item of selectedItemsList(); track item.code) {
+            <div class="compared-summary-card">
+              <div class="summary-card-header">
+                <span class="type-badge" [class.scheme-badge]="item.type === 'Scheme'"
+                  [class.policy-badge]="item.type === 'Policy'">
+                  {{ item.type }}
+                </span>
+                <span class="item-code-tag">{{ item.code }}</span>
+              </div>
+              <h3 class="summary-item-title">{{ item.name }}</h3>
+
+              <div class="summary-details-grid">
+                <div>
+                  <span class="meta-label">Category</span>
+                  <p class="meta-value">{{ item.category }}</p>
+                </div>
+                <div>
+                  <span class="meta-label">Ministry</span>
+                  <p class="meta-value truncate" [title]="item.ministry">{{ item.ministry }}</p>
+                </div>
+              </div>
+            </div>
+            }
+          </div>
+        </section>
+
+        <!-- Comparison Details Matrix Table -->
+        <section class="comparison-matrix-section" data-purpose="comparison-details">
+          <div class="section-bar-header">
+            <h2 class="section-title">Comparison Details</h2>
+          </div>
+
+          <div class="table-card-wrapper">
+            <div class="table-scroll-container">
+              <table class="comparison-matrix-table" role="table">
+                <thead>
+                  <tr>
+                    <th class="attribute-col-header" scope="col">Attribute</th>
+                    @for (item of selectedItemsList(); track item.code) {
+                    <th class="item-col-header" scope="col">
+                      <span class="col-title">{{ item.name }}</span>
+                      <span class="col-sub">{{ item.type }} • {{ item.code }}</span>
+                    </th>
+                    }
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (attr of comparisonAttributes; track attr.key) {
+                  <tr class="comparison-row">
+                    <td class="attribute-cell">
+                      <span class="attr-label-text">{{ attr.label }}</span>
+                    </td>
+                    @for (item of selectedItemsList(); track item.code) {
+                    <td class="value-cell">
+                      @if (attr.key === 'type') {
+                      <span class="type-badge" [class.scheme-badge]="item.type === 'Scheme'"
+                        [class.policy-badge]="item.type === 'Policy'">
+                        {{ item.type }}
+                      </span>
+                      } @else {
+                      <div class="cell-text-content">
+                        {{ getComparisonValue(item, attr.key) }}
+                      </div>
+                      }
+                    </td>
+                    }
+                  </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Action Buttons Bar -->
+        <footer class="result-actions-bar" data-purpose="actions-bar">
+          <button type="button" class="btn-secondary" (click)="backToSelect()">
+            ← Back to Selection
+          </button>
+          <div class="result-right-actions">
+            <a routerLink="/citizen" class="btn-primary">
+              Explore More Schemes
+            </a>
+          </div>
+        </footer>
+
+      </section>
+      }
+
+    </div>
+  </main>
+  <!-- END: Main Content Canvas -->
+
+</div>
+<!-- END: CompareRootContainer -->

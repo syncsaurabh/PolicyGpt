@@ -1,0 +1,12 @@
+<div class="dashboard-layout">
+  <app-navbar></app-navbar>
+  <div class="dashboard-container">
+    <app-sidebar></app-sidebar>
+    @if (layoutService.isSidebarOpen()) {
+      <div class="mobile-sidebar-backdrop" (click)="layoutService.closeSidebar()"></div>
+    }
+    <main class="dashboard-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

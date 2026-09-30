@@ -1,0 +1,683 @@
+<div class="reports-page-root">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-titles">
+        <h1 class="page-title">Reports & Data Exports</h1>
+        <p class="page-subtitle">
+          Generate comprehensive operational reports, audit user activities, and export dataset records as PDF or Excel.
+        </p>
+      </div>
+      <div class="header-meta-badge">
+        <span class="material-symbols-outlined">analytics</span>
+        <span>Executive Governance</span>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tabs-nav">
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'policies'"
+        (click)="setTab('policies')"
+      >
+        <span class="material-symbols-outlined">description</span>
+        Policy Dataset
+      </button>
+
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'schemes'"
+        (click)="setTab('schemes')"
+      >
+        <span class="material-symbols-outlined">account_balance</span>
+        Scheme Dataset
+      </button>
+
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'departments'"
+        (click)="setTab('departments')"
+      >
+        <span class="material-symbols-outlined">corporate_fare</span>
+        Department Metrics
+      </button>
+
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'user-activity'"
+        (click)="setTab('user-activity')"
+      >
+        <span class="material-symbols-outlined">manage_accounts</span>
+        User Activity Logs
+      </button>
+
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'history'"
+        (click)="setTab('history')"
+      >
+        <span class="material-symbols-outlined">history</span>
+        Report History
+      </button>
+    </div>
+  </div>
+
+  <!-- Global Feedback Alerts -->
+  @if (exportSuccessMsg()) {
+    <div class="alert alert-success">
+      <span class="material-symbols-outlined">download_done</span>
+      <span>{{ exportSuccessMsg() }}</span>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="error-banner">
+      <span class="material-symbols-outlined error-icon">error</span>
+      <div class="error-content">
+        <h4>Report Generation Failed</h4>
+        <p>{{ errorMessage() }}</p>
+      </div>
+      <button type="button" class="btn btn-secondary btn-sm" (click)="loadActiveTabReport()">
+        Retry
+      </button>
+    </div>
+  }
+
+  <!-- ======================================================== -->
+  <!-- TAB 1: POLICY DATASET REPORT                             -->
+  <!-- ======================================================== -->
+  @if (activeTab() === 'policies') {
+    <div class="tab-pane">
+      <!-- Filter Toolbar -->
+      <div class="filters-panel">
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label for="p-start">Start Date</label>
+            <input id="p-start" type="date" [ngModel]="policyStartDate()" (ngModelChange)="policyStartDate.set($event)" class="form-input" />
+          </div>
+
+          <div class="filter-group">
+            <label for="p-end">End Date</label>
+            <input id="p-end" type="date" [ngModel]="policyEndDate()" (ngModelChange)="policyEndDate.set($event)" class="form-input" />
+          </div>
+
+          <div class="filter-group">
+            <label for="p-dept">Department</label>
+            <input id="p-dept" type="text" [ngModel]="policyDepartment()" (ngModelChange)="policyDepartment.set($event)" placeholder="e.g. Ministry of Finance" class="form-input" />
+          </div>
+
+          <div class="filter-group">
+            <label for="p-cat">Category</label>
+            <input id="p-cat" type="text" [ngModel]="policyCategory()" (ngModelChange)="policyCategory.set($event)" placeholder="e.g. Education" class="form-input" />
+          </div>
+
+          <div class="filter-group">
+            <label for="p-state">State</label>
+            <input id="p-state" type="text" [ngModel]="policyState()" (ngModelChange)="policyState.set($event)" placeholder="e.g. All-India / Gujarat" class="form-input" />
+          </div>
+
+          <div class="filter-group">
+            <label for="p-status">Status</label>
+            <select id="p-status" [ngModel]="policyStatus()" (ngModelChange)="policyStatus.set($event)" class="form-select">
+              <option value="ALL">All Statuses</option>
+              <option value="PUBLISHED">Published</option>
+              <option value="APPROVED">Approved</option>
+              <option value="PENDING_APPROVAL">Pending Approval</option>
+              <option value="DRAFT">Draft</option>
+              <option value="REJECTED">Rejected</option>
+              <option value="ARCHIVED">Archived</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="toolbar-actions">
+          <div class="filter-btn-group">
+            <button type="button" class="btn btn-secondary" (click)="loadPolicyReport()">
+              <span class="material-symbols-outlined">filter_alt</span>
+              Apply Filters
+            </button>
+            <button type="button" class="btn btn-outline" (click)="resetPolicyFilters()">
+              <span class="material-symbols-outlined">restart_alt</span>
+              Reset
+            </button>
+          </div>
+
+          <div class="export-btn-group">
+            <button type="button" class="btn btn-export pdf" (click)="exportPolicy('pdf')" [disabled]="isExporting()">
+              <span class="material-symbols-outlined">picture_as_pdf</span>
+              Export PDF
+            </button>
+            <button type="button" class="btn btn-export excel" (click)="exportPolicy('excel')" [disabled]="isExporting()">
+              <span class="material-symbols-outlined">table_view</span>
+              Export Excel
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report Metrics Header -->
+      @if (policyReport()) {
+        <div class="report-meta-card">
+          <div class="meta-item">
+            <span class="meta-label">Report Title:</span>
+            <strong class="meta-value">{{ policyReport()!.report_title }}</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Total Records:</span>
+            <span class="badge badge-primary">{{ policyReport()!.record_count }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Generated At:</span>
+            <span class="meta-date">{{ formatDate(policyReport()!.generated_at) }}</span>
+          </div>
+        </div>
+      }
+
+      <!-- Data Table -->
+      @if (isLoading()) {
+        <div class="loading-container">
+          <div class="spinner"></div>
+          <p class="loading-text">Generating Policy Dataset Report...</p>
+        </div>
+      } @else if (policyReport() && policyReport()!.data.length > 0) {
+        <div class="table-container">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Department</th>
+                <th>Category</th>
+                <th>State</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of policyReport()!.data; track item['id'] || item['title']) {
+                <tr>
+                  <td class="id-col"><span class="id-badge">#{{ item['id'] || '-' }}</span></td>
+                  <td class="title-col"><strong>{{ item['title'] || item['name'] || '-' }}</strong></td>
+                  <td>{{ item['department'] || '-' }}</td>
+                  <td><span class="tag-pill">{{ item['category'] || '-' }}</span></td>
+                  <td>{{ item['state'] || item['target_state'] || 'All-India' }}</td>
+                  <td><span class="badge" [ngClass]="getStatusBadgeClass(item['status'])">{{ item['status'] || 'PUBLISHED' }}</span></td>
+                  <td class="date-cell">{{ formatDate(item['created_at'] || item['publication_date']) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else if (!isLoading() && policyReport() && policyReport()!.data.length === 0) {
+        <div class="empty-state">
+          <span class="material-symbols-outlined empty-icon">inbox</span>
+          <h3 class="empty-title">No policies found</h3>
+          <p class="empty-desc">No policy records match the current filter criteria.</p>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ======================================================== -->
+  <!-- TAB 2: SCHEME DATASET REPORT                             -->
+  <!-- ======================================================== -->
+  @if (activeTab() === 'schemes') {
+    <div class="tab-pane">
+      <!-- Filter Toolbar -->
+      <div class="filters-panel">
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label for="s-start">Start Date</label>
+            <input id="s-start" type="date" [ngModel]="schemeStartDate()" (ngModelChange)="schemeStartDate.set($event)" class="form-input" />
+          </div>
+
+          <div class="filter-group">
+            <label for="s-end">End Date</label>
+            <input id="s-end" type="date" [ngModel]="schemeEndDate()" (ngModelChange)="schemeEndDate.set($event)" class="form-input" />
+          </div>
+
+          <div class="filter-group">
+            <label for="s-dept">Department</label>
+            <input id="s-dept" type="text" [ngModel]="schemeDepartment()" (ngModelChange)="schemeDepartment.set($event)" placeholder="e.g. Agriculture" class="form-input" />
+          </div>
+
+          <div class="filter-group">
+            <label for="s-cat">Category</label>
+            <input id="s-cat" type="text" [ngModel]="schemeCategory()" (ngModelChange)="schemeCategory.set($event)" placeholder="e.g. Financial" class="form-input" />
+          </div>
+
+          <div class="filter-group">
+            <label for="s-state">State</label>
+            <input id="s-state" type="text" [ngModel]="schemeState()" (ngModelChange)="schemeState.set($event)" placeholder="e.g. Central" class="form-input" />
+          </div>
+
+          <div class="filter-group">
+            <label for="s-status">Status</label>
+            <select id="s-status" [ngModel]="schemeStatus()" (ngModelChange)="schemeStatus.set($event)" class="form-select">
+              <option value="ALL">All Statuses</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+              <option value="DRAFT">Draft</option>
+              <option value="ARCHIVED">Archived</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="toolbar-actions">
+          <div class="filter-btn-group">
+            <button type="button" class="btn btn-secondary" (click)="loadSchemeReport()">
+              <span class="material-symbols-outlined">filter_alt</span>
+              Apply Filters
+            </button>
+            <button type="button" class="btn btn-outline" (click)="resetSchemeFilters()">
+              <span class="material-symbols-outlined">restart_alt</span>
+              Reset
+            </button>
+          </div>
+
+          <div class="export-btn-group">
+            <button type="button" class="btn btn-export pdf" (click)="exportScheme('pdf')" [disabled]="isExporting()">
+              <span class="material-symbols-outlined">picture_as_pdf</span>
+              Export PDF
+            </button>
+            <button type="button" class="btn btn-export excel" (click)="exportScheme('excel')" [disabled]="isExporting()">
+              <span class="material-symbols-outlined">table_view</span>
+              Export Excel
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report Metrics Header -->
+      @if (schemeReport()) {
+        <div class="report-meta-card">
+          <div class="meta-item">
+            <span class="meta-label">Report Title:</span>
+            <strong class="meta-value">{{ schemeReport()!.report_title }}</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Total Records:</span>
+            <span class="badge badge-primary">{{ schemeReport()!.record_count }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Generated At:</span>
+            <span class="meta-date">{{ formatDate(schemeReport()!.generated_at) }}</span>
+          </div>
+        </div>
+      }
+
+      <!-- Data Table -->
+      @if (isLoading()) {
+        <div class="loading-container">
+          <div class="spinner"></div>
+          <p class="loading-text">Generating Scheme Dataset Report...</p>
+        </div>
+      } @else if (schemeReport() && schemeReport()!.data.length > 0) {
+        <div class="table-container">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Scheme Name</th>
+                <th>Department</th>
+                <th>Category</th>
+                <th>Target State</th>
+                <th>Status</th>
+                <th>Created Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of schemeReport()!.data; track item['id'] || item['name'] || item['scheme_name']) {
+                <tr>
+                  <td class="id-col"><span class="id-badge">#{{ item['id'] || '-' }}</span></td>
+                  <td class="title-col"><strong>{{ item['name'] || item['scheme_name'] || item['title'] || '-' }}</strong></td>
+                  <td>{{ item['department'] || '-' }}</td>
+                  <td><span class="tag-pill">{{ item['category'] || '-' }}</span></td>
+                  <td>{{ item['state'] || item['target_state'] || 'All-India' }}</td>
+                  <td><span class="badge" [ngClass]="getStatusBadgeClass(item['status'])">{{ item['status'] || 'ACTIVE' }}</span></td>
+                  <td class="date-cell">{{ formatDate(item['created_at']) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else if (!isLoading() && schemeReport() && schemeReport()!.data.length === 0) {
+        <div class="empty-state">
+          <span class="material-symbols-outlined empty-icon">inbox</span>
+          <h3 class="empty-title">No schemes found</h3>
+          <p class="empty-desc">No government scheme records match the specified filters.</p>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ======================================================== -->
+  <!-- TAB 3: DEPARTMENT METRICS REPORT                         -->
+  <!-- ======================================================== -->
+  @if (activeTab() === 'departments') {
+    <div class="tab-pane">
+      <!-- Filter Toolbar -->
+      <div class="filters-panel">
+        <div class="filters-grid">
+          <div class="filter-group" style="max-width: 380px;">
+            <label for="d-name">Department Name (Optional)</label>
+            <input id="d-name" type="text" [ngModel]="deptFilterName()" (ngModelChange)="deptFilterName.set($event)" (keyup.enter)="loadDepartmentReport()" placeholder="Filter specific department..." class="form-input" />
+          </div>
+        </div>
+
+        <div class="toolbar-actions">
+          <div class="filter-btn-group">
+            <button type="button" class="btn btn-secondary" (click)="loadDepartmentReport()">
+              <span class="material-symbols-outlined">filter_alt</span>
+              Apply Filter
+            </button>
+            <button type="button" class="btn btn-outline" (click)="resetDepartmentFilters()">
+              <span class="material-symbols-outlined">restart_alt</span>
+              Reset
+            </button>
+          </div>
+
+          <div class="export-btn-group">
+            <button type="button" class="btn btn-export pdf" (click)="exportDepartment('pdf')" [disabled]="isExporting()">
+              <span class="material-symbols-outlined">picture_as_pdf</span>
+              Export PDF
+            </button>
+            <button type="button" class="btn btn-export excel" (click)="exportDepartment('excel')" [disabled]="isExporting()">
+              <span class="material-symbols-outlined">table_view</span>
+              Export Excel
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report Metrics Header -->
+      @if (departmentReport()) {
+        <div class="report-meta-card">
+          <div class="meta-item">
+            <span class="meta-label">Report:</span>
+            <strong class="meta-value">{{ departmentReport()!.report_title }}</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Total Departments:</span>
+            <span class="badge badge-primary">{{ departmentReport()!.record_count }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Generated At:</span>
+            <span class="meta-date">{{ formatDate(departmentReport()!.generated_at) }}</span>
+          </div>
+        </div>
+      }
+
+      <!-- Data Table -->
+      @if (isLoading()) {
+        <div class="loading-container">
+          <div class="spinner"></div>
+          <p class="loading-text">Generating Department Metrics Report...</p>
+        </div>
+      } @else if (departmentReport() && departmentReport()!.data.length > 0) {
+        <div class="table-container">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Department Name</th>
+                <th>Total Policies</th>
+                <th>Total Schemes</th>
+                <th>Published Records</th>
+                <th>Operational Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (dept of departmentReport()!.data; track dept['department'] || dept['name']) {
+                <tr>
+                  <td class="title-col"><strong>{{ dept['department'] || dept['name'] || '-' }}</strong></td>
+                  <td><span class="count-pill">{{ dept['policy_count'] ?? dept['total_policies'] ?? 0 }}</span></td>
+                  <td><span class="count-pill">{{ dept['scheme_count'] ?? dept['total_schemes'] ?? 0 }}</span></td>
+                  <td><span class="count-pill success">{{ dept['published_count'] ?? dept['total_published'] ?? (dept['policy_count'] || 0) }}</span></td>
+                  <td><span class="badge badge-success">Active</span></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else if (!isLoading() && departmentReport() && departmentReport()!.data.length === 0) {
+        <div class="empty-state">
+          <span class="material-symbols-outlined empty-icon">inbox</span>
+          <h3 class="empty-title">No department metrics available</h3>
+          <p class="empty-desc">No data found matching the department criteria.</p>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ======================================================== -->
+  <!-- TAB 4: USER ACTIVITY REPORT                              -->
+  <!-- ======================================================== -->
+  @if (activeTab() === 'user-activity') {
+    <div class="tab-pane">
+      <!-- Filter Toolbar -->
+      <div class="filters-panel">
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label for="a-start">Start Date</label>
+            <input id="a-start" type="date" [ngModel]="activityStartDate()" (ngModelChange)="activityStartDate.set($event)" class="form-input" />
+          </div>
+
+          <div class="filter-group">
+            <label for="a-end">End Date</label>
+            <input id="a-end" type="date" [ngModel]="activityEndDate()" (ngModelChange)="activityEndDate.set($event)" class="form-input" />
+          </div>
+
+          <div class="filter-group">
+            <label for="a-type">Event Type</label>
+            <select id="a-type" [ngModel]="activityEventType()" (ngModelChange)="activityEventType.set($event)" class="form-select">
+              <option value="ALL">All Event Types</option>
+              <option value="LOGIN">User Login</option>
+              <option value="POLICY_CREATE">Policy Creation</option>
+              <option value="SCHEME_CREATE">Scheme Creation</option>
+              <option value="APPROVAL">Approval Action</option>
+              <option value="EXPORT">Data Export</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="toolbar-actions">
+          <div class="filter-btn-group">
+            <button type="button" class="btn btn-secondary" (click)="loadUserActivityReport()">
+              <span class="material-symbols-outlined">filter_alt</span>
+              Apply Filters
+            </button>
+            <button type="button" class="btn btn-outline" (click)="resetActivityFilters()">
+              <span class="material-symbols-outlined">restart_alt</span>
+              Reset
+            </button>
+          </div>
+
+          <div class="export-btn-group">
+            <button type="button" class="btn btn-export pdf" (click)="exportUserActivity('pdf')" [disabled]="isExporting()">
+              <span class="material-symbols-outlined">picture_as_pdf</span>
+              Export PDF
+            </button>
+            <button type="button" class="btn btn-export excel" (click)="exportUserActivity('excel')" [disabled]="isExporting()">
+              <span class="material-symbols-outlined">table_view</span>
+              Export Excel
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report Metrics Header -->
+      @if (activityReport()) {
+        <div class="report-meta-card">
+          <div class="meta-item">
+            <span class="meta-label">Report Title:</span>
+            <strong class="meta-value">{{ activityReport()!.report_title }}</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Total Events:</span>
+            <span class="badge badge-primary">{{ activityReport()!.record_count }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Generated At:</span>
+            <span class="meta-date">{{ formatDate(activityReport()!.generated_at) }}</span>
+          </div>
+        </div>
+      }
+
+      <!-- Data Table -->
+      @if (isLoading()) {
+        <div class="loading-container">
+          <div class="spinner"></div>
+          <p class="loading-text">Generating User Activity Log Report...</p>
+        </div>
+      } @else if (activityReport() && activityReport()!.data.length > 0) {
+        <div class="table-container">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Event Time</th>
+                <th>Event Type</th>
+                <th>User / Actor</th>
+                <th>Action Details</th>
+                <th>Status / IP</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (log of activityReport()!.data; track log['id'] || log['timestamp'] || log['created_at']) {
+                <tr>
+                  <td class="date-cell">{{ formatDate(log['timestamp'] || log['created_at']) }}</td>
+                  <td><span class="type-pill">{{ log['event_type'] || log['action'] || 'ACTIVITY' }}</span></td>
+                  <td>
+                    <strong>{{ log['user_name'] || log['user_email'] || log['username'] || ('User #' + (log['user_id'] || '-')) }}</strong>
+                  </td>
+                  <td>{{ log['details'] || log['description'] || log['endpoint'] || '-' }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="getStatusBadgeClass(log['status'] || 'SUCCESS')">
+                      {{ log['status'] || log['ip_address'] || 'SUCCESS' }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else if (!isLoading() && activityReport() && activityReport()!.data.length === 0) {
+        <div class="empty-state">
+          <span class="material-symbols-outlined empty-icon">inbox</span>
+          <h3 class="empty-title">No activity logs found</h3>
+          <p class="empty-desc">No events recorded within the specified parameters.</p>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ======================================================== -->
+  <!-- TAB 5: GENERATED REPORT HISTORY                          -->
+  <!-- ======================================================== -->
+  @if (activeTab() === 'history') {
+    <div class="tab-pane">
+      <!-- Filter Toolbar -->
+      <div class="filters-panel">
+        <div class="filters-grid">
+          <div class="filter-group" style="max-width: 320px;">
+            <label for="h-type">Report Type</label>
+            <select id="h-type" [ngModel]="historyTypeFilter()" (ngModelChange)="historyTypeFilter.set($event); onHistoryFilterChange()" class="form-select">
+              <option value="ALL">All Report Types</option>
+              <option value="policies">Policies</option>
+              <option value="schemes">Schemes</option>
+              <option value="departments">Departments</option>
+              <option value="user_activity">User Activity</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="toolbar-actions">
+          <button type="button" class="btn btn-secondary" (click)="loadHistoryReport()">
+            <span class="material-symbols-outlined">refresh</span>
+            Refresh History
+          </button>
+        </div>
+      </div>
+
+      <!-- Data Table -->
+      @if (isLoading()) {
+        <div class="loading-container">
+          <div class="spinner"></div>
+          <p class="loading-text">Loading Report History...</p>
+        </div>
+      } @else if (historyList().length > 0) {
+        <div class="table-container">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Report ID</th>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Format</th>
+                <th>Status</th>
+                <th>Records</th>
+                <th>Generated Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (hist of historyList(); track hist.id) {
+                <tr>
+                  <td class="id-col"><span class="id-badge">#{{ hist.id }}</span></td>
+                  <td class="title-col"><strong>{{ hist.title }}</strong></td>
+                  <td><span class="type-pill">{{ hist.report_type }}</span></td>
+                  <td>
+                    <span class="format-badge" [class.pdf]="hist.file_format === 'pdf'" [class.excel]="hist.file_format === 'excel' || hist.file_format === 'xlsx'">
+                      {{ hist.file_format ? hist.file_format.toUpperCase() : 'JSON' }}
+                    </span>
+                  </td>
+                  <td><span class="badge" [ngClass]="getStatusBadgeClass(hist.status)">{{ hist.status }}</span></td>
+                  <td><span class="count-pill">{{ hist.record_count }}</span></td>
+                  <td class="date-cell">{{ formatDate(hist.created_at) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Bar -->
+        <div class="pagination-bar">
+          <span class="pagination-info">
+            Showing Page <strong>{{ historyPage() }}</strong> of <strong>{{ historyTotalPages() }}</strong> ({{ historyTotalCount() }} Total)
+          </span>
+          <div class="pagination-controls">
+            <button
+              type="button"
+              class="btn-page"
+              [disabled]="historyPage() <= 1"
+              (click)="goToHistoryPage(historyPage() - 1)"
+            >
+              <span class="material-symbols-outlined">chevron_left</span>
+              Previous
+            </button>
+            <span class="page-number-indicator">{{ historyPage() }}</span>
+            <button
+              type="button"
+              class="btn-page"
+              [disabled]="historyPage() >= historyTotalPages()"
+              (click)="goToHistoryPage(historyPage() + 1)"
+            >
+              Next
+              <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+          </div>
+        </div>
+      } @else if (!isLoading() && historyList().length === 0) {
+        <div class="empty-state">
+          <span class="material-symbols-outlined empty-icon">history_toggle_off</span>
+          <h3 class="empty-title">No report history logged yet</h3>
+          <p class="empty-desc">Generated PDF and Excel exports will appear here in chronological order.</p>
+        </div>
+      }
+    </div>
+  }
+</div>

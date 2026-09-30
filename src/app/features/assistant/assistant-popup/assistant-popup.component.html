@@ -1,0 +1,302 @@
+<!-- Floating AI Assistant Launcher Button -->
+<div class="assistant-floating-launcher">
+  <button
+    type="button"
+    class="floating-ai-btn"
+    [class.active]="assistantService.isPopupOpen()"
+    (click)="togglePopup()"
+    [attr.aria-expanded]="assistantService.isPopupOpen()"
+    aria-label="Toggle PolicyGPT AI Assistant"
+    title="PolicyGPT AI Assistant"
+  >
+    <div class="btn-content">
+      @if (assistantService.isPopupOpen()) {
+        <span class="material-symbols-outlined close-icon">close</span>
+      } @else {
+        <span class="material-symbols-outlined sparkle-icon">smart_toy</span>
+        <span class="ai-badge-text">AI Assistant</span>
+      }
+    </div>
+  </button>
+</div>
+
+<!-- Floating AI Assistant Popup Dialog -->
+@if (assistantService.isPopupOpen()) {
+  <div class="assistant-popup-container" role="dialog" aria-labelledby="assistant-title" aria-modal="false">
+    
+    <!-- Popup Header -->
+    <header class="assistant-header">
+      <div class="header-branding">
+        <div class="assistant-avatar-badge">
+          <span class="material-symbols-outlined">psychology</span>
+        </div>
+        <div class="header-titles">
+          <h2 id="assistant-title" class="header-title">PolicyGPT Assistant</h2>
+          <span class="header-subtitle">
+            @if (activeConversationTitle()) {
+              {{ activeConversationTitle() }}
+            } @else {
+              <span class="status-dot"></span> Powered by Government Data
+            }
+          </span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- History Drawer Button (Available for Authenticated Users) -->
+        @if (authService.authenticated()) {
+          <button
+            type="button"
+            class="header-icon-btn"
+            [class.active]="isHistoryOpen()"
+            (click)="toggleHistory()"
+            title="Chat History"
+            aria-label="Toggle chat history"
+          >
+            <span class="material-symbols-outlined">history</span>
+          </button>
+        }
+
+        <!-- New Chat Button -->
+        <button
+          type="button"
+          class="header-icon-btn"
+          (click)="startNewChat()"
+          title="New Conversation"
+          aria-label="Start new conversation"
+        >
+          <span class="material-symbols-outlined">add_comment</span>
+        </button>
+
+        <!-- Minimize / Close Button -->
+        <button
+          type="button"
+          class="header-icon-btn close-btn"
+          (click)="closePopup()"
+          title="Minimize"
+          aria-label="Close assistant"
+        >
+          <span class="material-symbols-outlined">expand_more</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- History Drawer Panel -->
+    @if (isHistoryOpen()) {
+      <div class="assistant-history-panel">
+        <div class="history-panel-header">
+          <span class="history-title">Saved Conversations</span>
+          <button type="button" class="history-close-btn" (click)="toggleHistory()" aria-label="Close history">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <div class="history-list">
+          @if (isLoadingConversations()) {
+            <div class="history-loading">
+              <span class="material-symbols-outlined spin">sync</span>
+              <span>Loading sessions...</span>
+            </div>
+          } @else if (conversations().length === 0) {
+            <div class="history-empty">
+              <span class="material-symbols-outlined">chat_bubble_outline</span>
+              <p>No past conversations found.</p>
+            </div>
+          } @else {
+            @for (conv of conversations(); track conv.id) {
+              <div 
+                class="history-item"
+                [class.selected]="activeConversationId() === conv.id"
+                (click)="selectConversation(conv)"
+              >
+                <div class="history-item-info">
+                  <div class="history-item-title">{{ conv.title || 'Conversation' }}</div>
+                  @if (conv.last_message) {
+                    <div class="history-item-preview">{{ conv.last_message }}</div>
+                  }
+                  <div class="history-item-date">{{ conv.updated_at | date:'shortDate' }}</div>
+                </div>
+
+                <button
+                  type="button"
+                  class="history-delete-btn"
+                  (click)="deleteConversation($event, conv.id)"
+                  [disabled]="deletingConversationId() === conv.id"
+                  title="Delete conversation"
+                  aria-label="Delete conversation"
+                >
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Chat Messages Scroll Container -->
+    <div class="assistant-messages-body" #messagesContainer>
+      
+      <!-- Welcome Empty State -->
+      @if (messages().length === 0) {
+        <div class="assistant-welcome-card">
+          <div class="welcome-icon-box">
+            <span class="material-symbols-outlined">forum</span>
+          </div>
+          <h3 class="welcome-heading">Hello! I'm the PolicyGPT Assistant.</h3>
+          <p class="welcome-description">
+            How can I help you with government policies, welfare schemes, eligibility rules or applications today?
+          </p>
+
+          <div class="suggested-prompts-section">
+            <span class="suggested-title">Suggested questions:</span>
+            <div class="suggested-chips">
+              @for (suggestion of defaultSuggestions; track suggestion) {
+                <button
+                  type="button"
+                  class="suggestion-chip"
+                  (click)="sendMessage(suggestion)"
+                >
+                  <span class="material-symbols-outlined chip-icon">search</span>
+                  <span>{{ suggestion }}</span>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Message History List -->
+      @for (msg of messages(); track $index) {
+        <div class="message-row" [class.user-row]="msg.role === 'user'" [class.assistant-row]="msg.role === 'assistant'">
+          
+          @if (msg.role === 'assistant') {
+            <div class="message-avatar">
+              <span class="material-symbols-outlined">smart_toy</span>
+            </div>
+          }
+
+          <div class="message-bubble" [class.user-bubble]="msg.role === 'user'" [class.assistant-bubble]="msg.role === 'assistant'">
+            <div class="message-text">{{ msg.content }}</div>
+
+            <!-- Sources & Citations Section -->
+            @if (msg.sources && msg.sources.length > 0) {
+              <div class="sources-card">
+                <div class="sources-header">
+                  <span class="material-symbols-outlined sources-icon">verified</span>
+                  <span>Verified Sources ({{ msg.sources.length }})</span>
+                </div>
+                <div class="sources-list">
+                  @for (source of msg.sources; track $index) {
+                    <div class="source-item" (click)="navigateToSource(source)" role="button" tabindex="0">
+                      <div class="source-meta">
+                        <span class="source-tag" [attr.data-type]="source.type">{{ source.type | uppercase }}</span>
+                        @if (source.category) {
+                          <span class="source-category">{{ source.category }}</span>
+                        }
+                      </div>
+                      <div class="source-name">
+                        <span>{{ source.name }}</span>
+                        <span class="material-symbols-outlined source-arrow">arrow_outward</span>
+                      </div>
+                      @if (source.snippet) {
+                        <p class="source-snippet">{{ source.snippet }}</p>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Follow-up Suggested Questions -->
+            @if (msg.suggested_questions && msg.suggested_questions.length > 0) {
+              <div class="followup-suggestions">
+                <div class="followup-title">Related questions:</div>
+                <div class="suggested-chips">
+                  @for (q of msg.suggested_questions; track q) {
+                    <button type="button" class="suggestion-chip small" (click)="sendMessage(q)">
+                      <span>{{ q }}</span>
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+
+            @if (msg.created_at) {
+              <div class="message-timestamp">
+                {{ msg.created_at | date:'shortTime' }}
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Loading / Thinking Indicator -->
+      @if (isLoading()) {
+        <div class="message-row assistant-row">
+          <div class="message-avatar">
+            <span class="material-symbols-outlined spin">psychology</span>
+          </div>
+          <div class="message-bubble assistant-bubble loading-bubble">
+            <div class="typing-indicator">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+            <span class="loading-label">PolicyGPT is formulating response...</span>
+          </div>
+        </div>
+      }
+
+      <!-- Error State Card -->
+      @if (errorMessage()) {
+        <div class="assistant-error-banner" role="alert">
+          <div class="error-icon-box">
+            <span class="material-symbols-outlined">error_outline</span>
+          </div>
+          <div class="error-body">
+            <p class="error-text">{{ errorMessage() }}</p>
+            <button type="button" class="error-retry-btn" (click)="retryLast()">
+              <span class="material-symbols-outlined">refresh</span>
+              <span>Retry</span>
+            </button>
+          </div>
+        </div>
+      }
+
+    </div>
+
+    <!-- Input Box Footer -->
+    <footer class="assistant-footer">
+      <div class="input-container">
+        <textarea
+          #chatInput
+          class="chat-textarea"
+          rows="1"
+          placeholder="Ask something about policies, schemes, eligibility..."
+          [ngModel]="inputText()"
+          (ngModelChange)="inputText.set($event)"
+          (keydown)="onKeyDown($event)"
+          [disabled]="isLoading()"
+          aria-label="Message input"
+        ></textarea>
+
+        <button
+          type="button"
+          class="send-btn"
+          [disabled]="!inputText().trim() || isLoading()"
+          (click)="sendMessage()"
+          aria-label="Send message"
+          title="Send message (Enter)"
+        >
+          <span class="material-symbols-outlined">send</span>
+        </button>
+      </div>
+
+      <div class="footer-note">
+        <span>Enter to send &bull; Shift+Enter for new line</span>
+      </div>
+    </footer>
+
+  </div>
+}

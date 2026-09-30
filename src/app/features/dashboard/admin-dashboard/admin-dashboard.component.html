@@ -1,0 +1,271 @@
+<div class="admin-dashboard-root">
+  <!-- Top Action Header -->
+  <header class="dash-header">
+    <div class="header-main">
+      <div class="header-titles">
+        <div class="title-row">
+          <h1>Platform Administration</h1>
+          <span class="role-pill">Administrator Console</span>
+        </div>
+        <p class="dash-subtitle">Real-time governance telemetry, policy pipelines, and user infrastructure metrics.</p>
+      </div>
+      <div class="header-actions">
+        <button
+          type="button"
+          class="btn-refresh"
+          (click)="loadData(true)"
+          [disabled]="loading() || refreshing()"
+          title="Refresh dashboard data"
+        >
+          <svg class="refresh-icon" [class.spinning]="refreshing()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 4v6h-6"></path>
+            <path d="M1 20v-6h6"></path>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span>{{ refreshing() ? 'Updating...' : 'Sync Telemetry' }}</span>
+        </button>
+        <a routerLink="/policies/upload" class="btn-primary-action">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Upload Policy</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Error Banner -->
+    <div *ngIf="errorMessage()" class="dash-error-banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span>{{ errorMessage() }}</span>
+      <button type="button" class="btn-retry" (click)="loadData()">Retry</button>
+    </div>
+  </header>
+
+  <!-- KPI Grid -->
+  <section class="kpi-grid">
+    <app-kpi-card
+      title="Total Policies"
+      [value]="data()?.analytics?.total_policies"
+      [subtext]="data()?.analytics?.published_policies + ' Published Policies'"
+      icon="policies"
+      color="primary"
+      badge="Catalog"
+      badgeType="primary"
+      [loading]="loading()"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      title="Active Schemes"
+      [value]="data()?.analytics?.active_schemes"
+      [subtext]="data()?.analytics?.total_schemes + ' Total Welfare Programs'"
+      icon="schemes"
+      color="emerald"
+      badge="Active"
+      badgeType="success"
+      [loading]="loading()"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      title="User Accounts"
+      [value]="data()?.user_management?.total_users"
+      [subtext]="'+' + (data()?.user_management?.recent_registrations_30d || 0) + ' new in 30 days'"
+      icon="users"
+      color="violet"
+      [badge]="(data()?.user_management?.active_users || 0) + ' Active'"
+      badgeType="info"
+      [loading]="loading()"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      title="Pending Approvals"
+      [value]="data()?.policy_management?.pending_approval_count"
+      subtext="Policies awaiting governance sign-off"
+      icon="applications"
+      color="amber"
+      badge="Action Req."
+      badgeType="warning"
+      [loading]="loading()"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      title="Platform Searches"
+      [value]="data()?.analytics?.total_searches"
+      [subtext]="(searchAnalytics()?.unique_users_count || 1) + ' Unique Searching Users'"
+      icon="search"
+      color="cyan"
+      badge="Queries"
+      badgeType="neutral"
+      [loading]="loading()"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      title="Dispatched Alerts"
+      [value]="data()?.analytics?.total_notifications"
+      [subtext]="(data()?.analytics?.unread_notifications || 0) + ' Unread by Users'"
+      icon="notifications"
+      color="rose"
+      badge="Broadcast"
+      badgeType="primary"
+      [loading]="loading()"
+    ></app-kpi-card>
+  </section>
+
+  <!-- Charts & Analytics Section -->
+  <section class="charts-grid">
+    <!-- Policy Lifecycle Donut -->
+    <div class="chart-col">
+      <app-distribution-chart
+        title="Policy Lifecycle Status"
+        subtitle="Distribution of documents across review stages"
+        [items]="policyStatusDistribution"
+        chartType="donut"
+        totalLabel="Policies"
+        [loading]="loading()"
+      ></app-distribution-chart>
+    </div>
+
+    <!-- User Roles Breakdown -->
+    <div class="chart-col">
+      <app-distribution-chart
+        title="User Demographics by Role"
+        subtitle="Role segmentation across active accounts"
+        [items]="data()?.user_management?.by_role"
+        chartType="horizontal-bar"
+        totalLabel="Users"
+        [loading]="loading()"
+      ></app-distribution-chart>
+    </div>
+
+    <!-- Scheme Categories Breakdown -->
+    <div class="chart-col">
+      <app-distribution-chart
+        title="Welfare Schemes by Category"
+        subtitle="Assistance programs segmented by domain"
+        [items]="data()?.analytics?.scheme_category_distribution"
+        chartType="horizontal-bar"
+        totalLabel="Schemes"
+        [loading]="loading()"
+      ></app-distribution-chart>
+    </div>
+
+    <!-- Popular Search Queries -->
+    <div class="chart-col">
+      <app-distribution-chart
+        title="Popular Search Terms"
+        subtitle="Most queried citizen & research topics"
+        [items]="searchAnalytics()?.popular_queries"
+        chartType="badge-list"
+        totalLabel="Searches"
+        emptyMessage="No search telemetry logged yet"
+        [loading]="loading()"
+      ></app-distribution-chart>
+    </div>
+  </section>
+
+  <!-- Department Analytics Matrix -->
+  <section class="dash-section" *ngIf="departmentAnalytics()?.departments?.length">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">Department Publication Matrix</h2>
+        <p class="section-subtitle">Department-level policy contributions and scheme implementations</p>
+      </div>
+      <a routerLink="/reports" class="link-action">View Full Analytics &rarr;</a>
+    </div>
+
+    <div class="table-card-container">
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th>Department Name</th>
+            <th class="text-right">Policies</th>
+            <th class="text-right">Published</th>
+            <th class="text-right">Schemes</th>
+            <th class="text-right">Active Schemes</th>
+            <th class="text-right">Activity Volume</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let dept of departmentAnalytics()?.departments">
+            <td class="font-medium text-main">
+              <div class="dept-cell">
+                <span class="dept-icon">🏛️</span>
+                <span>{{ dept.department }}</span>
+              </div>
+            </td>
+            <td class="text-right font-mono">{{ dept.policy_count }}</td>
+            <td class="text-right font-mono">
+              <span class="badge-subtle badge-success">{{ dept.published_policies }}</span>
+            </td>
+            <td class="text-right font-mono">{{ dept.scheme_count }}</td>
+            <td class="text-right font-mono">
+              <span class="badge-subtle badge-primary">{{ dept.active_schemes }}</span>
+            </td>
+            <td class="text-right font-mono font-bold">{{ dept.activity_count }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Recent Audit Logs Table -->
+  <section class="dash-section">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">Security & Governance Audit Trail</h2>
+        <p class="section-subtitle">Immutable access and system activity logs recorded across the platform</p>
+      </div>
+      <a routerLink="/admin/audit-logs" class="link-action">Open Audit Log Explorer &rarr;</a>
+    </div>
+
+    <div class="table-card-container">
+      <div *ngIf="loading()" class="table-loading-shimmer">
+        <div class="shimmer-row" *ngFor="let i of [1, 2, 3, 4]"></div>
+      </div>
+
+      <div *ngIf="!loading() && (!data()?.audit_logs || data()?.audit_logs?.length === 0)" class="dash-empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <p>No recent audit trail entries logged</p>
+      </div>
+
+      <table *ngIf="!loading() && data()?.audit_logs && data()?.audit_logs!.length > 0" class="dash-table">
+        <thead>
+          <tr>
+            <th>User / Actor</th>
+            <th>Action Performed</th>
+            <th>Entity Type</th>
+            <th>IP Address</th>
+            <th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let log of data()?.audit_logs">
+            <td>
+              <div class="user-cell">
+                <span class="avatar-tiny">{{ (log.user_email || 'S')[0].toUpperCase() }}</span>
+                <span class="user-email-text">{{ log.user_email || 'System / Automated' }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="action-tag">{{ log.action }}</span>
+            </td>
+            <td>
+              <span class="entity-text">{{ log.entity_type || 'Platform' }}</span>
+              <small *ngIf="log.entity_id" class="entity-id">#{{ log.entity_id }}</small>
+            </td>
+            <td class="font-mono text-muted text-sm">{{ log.ip_address || 'Internal' }}</td>
+            <td class="font-mono text-muted text-sm">{{ formatDate(log.created_at) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,47 @@
+<!-- Public Citizen Dashboard -->
+<div class="citizen-dashboard-root">
+  <!-- Public Header -->
+  <app-citizen-header></app-citizen-header>
+
+  <main class="main-content">
+    <!-- Breadcrumbs -->
+    <div class="breadcrumbs-bar">
+      <div class="breadcrumbs-container">
+        <p class="breadcrumbs-text">Home / Citizen Dashboard</p>
+      </div>
+    </div>
+
+    <!-- Hero Section -->
+    <app-citizen-hero 
+      [searchQuery]="searchQuery()"
+      [selectedCategory]="selectedCategory()"
+      (searchChange)="onSearchChange($event)"
+      (categorySelect)="onCategorySelect($event)"
+    ></app-citizen-hero>
+
+    <!-- Explore by Category Section -->
+    <app-citizen-categories 
+      [selectedCategory]="selectedCategory()"
+      (categorySelect)="onCategorySelect($event)"
+    ></app-citizen-categories>
+
+    <!-- Popular Government Schemes Section -->
+    <app-citizen-schemes 
+      [searchQuery]="searchQuery()"
+      [selectedCategory]="selectedCategory()"
+      (resetFilters)="onResetFilters()"
+    ></app-citizen-schemes>
+
+    <!-- How PolicyGPT Works -->
+    <app-citizen-how-it-works></app-citizen-how-it-works>
+
+    <!-- AI Assistant CTA Section -->
+    <app-citizen-assistant></app-citizen-assistant>
+
+    <!-- Bottom Banner -->
+    <app-citizen-banner (exploreClick)="scrollToSchemes()"></app-citizen-banner>
+  </main>
+
+  <!-- Public Footer -->
+  <app-citizen-footer></app-citizen-footer>
+</div>

@@ -1,0 +1,452 @@
+<div class="citizen-dash-root">
+  <!-- Top Header -->
+  <header class="dash-header">
+    <div class="header-main">
+      <div class="header-titles">
+        <div class="title-row">
+          <h1>Citizen Welfare Dashboard</h1>
+          <span class="role-pill">Citizen Services</span>
+        </div>
+        <p class="dash-subtitle">Track your eligible aid programs, bookmarked policies, submitted applications, and in-app alerts.</p>
+      </div>
+      <div class="header-actions">
+        <button
+          type="button"
+          class="btn-refresh"
+          (click)="loadData(true)"
+          [disabled]="loading() || refreshing()"
+          title="Refresh dashboard data"
+        >
+          <svg class="refresh-icon" [class.spinning]="refreshing()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 4v6h-6"></path>
+            <path d="M1 20v-6h6"></path>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span>{{ refreshing() ? 'Updating...' : 'Refresh' }}</span>
+        </button>
+        <button type="button" class="btn-primary-action" (click)="openApplicationModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 11 12 14 22 4"></polyline>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+          <span>Apply for Scheme</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div *ngIf="successToast()" class="dash-toast-banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+      <span>{{ successToast() }}</span>
+    </div>
+
+    <!-- Error Banner -->
+    <div *ngIf="errorMessage()" class="dash-error-banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span>{{ errorMessage() }}</span>
+      <button type="button" class="btn-retry" (click)="loadData()">Retry</button>
+    </div>
+  </header>
+
+  <!-- Citizen KPI Strip -->
+  <section class="kpi-grid">
+    <app-kpi-card
+      title="Eligible Schemes"
+      [value]="data()?.eligible_schemes?.length || 0"
+      subtext="Matching your eligibility criteria"
+      icon="schemes"
+      color="emerald"
+      badge="Matched"
+      badgeType="success"
+      [loading]="loading()"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      title="Bookmarked Policies"
+      [value]="data()?.saved_policies?.length || 0"
+      subtext="Saved for quick reference"
+      icon="saved"
+      color="primary"
+      badge="Saved"
+      badgeType="primary"
+      [loading]="loading()"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      title="My Applications"
+      [value]="data()?.application_status?.length || 0"
+      subtext="Submissions in review pipeline"
+      icon="applications"
+      color="violet"
+      badge="Tracked"
+      badgeType="info"
+      [loading]="loading()"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      title="Recent Alerts"
+      [value]="data()?.recent_notifications?.length || 0"
+      [subtext]="unreadNotificationsCount + ' unread updates'"
+      icon="notifications"
+      color="amber"
+      [badge]="unreadNotificationsCount ? 'New' : 'Up to date'"
+      [badgeType]="unreadNotificationsCount ? 'warning' : 'neutral'"
+      [loading]="loading()"
+    ></app-kpi-card>
+  </section>
+
+  <!-- Navigation Tab Bar -->
+  <nav class="nav-tabs-bar">
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="activeTab() === 'eligible'"
+      (click)="setTab('eligible')"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 14 14"></polyline>
+      </svg>
+      <span>Eligible Schemes</span>
+      <span class="tab-badge" *ngIf="data()?.eligible_schemes?.length">
+        {{ data()?.eligible_schemes?.length }}
+      </span>
+    </button>
+
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="activeTab() === 'saved'"
+      (click)="setTab('saved')"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+      </svg>
+      <span>Saved Policies</span>
+      <span class="tab-badge" *ngIf="data()?.saved_policies?.length">
+        {{ data()?.saved_policies?.length }}
+      </span>
+    </button>
+
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="activeTab() === 'applications'"
+      (click)="setTab('applications')"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 11 12 14 22 4"></polyline>
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+      </svg>
+      <span>Application Status</span>
+      <span class="tab-badge" *ngIf="data()?.application_status?.length">
+        {{ data()?.application_status?.length }}
+      </span>
+    </button>
+
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="activeTab() === 'notifications'"
+      (click)="setTab('notifications')"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+      </svg>
+      <span>Notifications</span>
+      <span class="tab-badge" *ngIf="data()?.recent_notifications?.length">
+        {{ data()?.recent_notifications?.length }}
+      </span>
+    </button>
+
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="activeTab() === 'history'"
+      (click)="setTab('history')"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <span>Search History</span>
+      <span class="tab-badge" *ngIf="data()?.search_history?.length">
+        {{ data()?.search_history?.length }}
+      </span>
+    </button>
+  </nav>
+
+  <!-- TAB CONTENT -->
+
+  <!-- 1. Eligible Schemes Tab -->
+  <section *ngIf="activeTab() === 'eligible'" class="tab-section">
+    <div *ngIf="loading()" class="cards-loading-grid">
+      <div class="skeleton-card" *ngFor="let i of [1, 2, 3, 4]"></div>
+    </div>
+
+    <div *ngIf="!loading() && (!data()?.eligible_schemes || data()?.eligible_schemes?.length === 0)" class="empty-panel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <h3>No Eligible Schemes Found</h3>
+      <p>Run an eligibility assessment with updated household parameters to discover matching government programs.</p>
+      <a routerLink="/eligibility" class="btn-empty-action">Run Eligibility Check</a>
+    </div>
+
+    <div *ngIf="!loading() && data()?.eligible_schemes && data()?.eligible_schemes!.length > 0" class="schemes-grid">
+      <div class="scheme-item-card" *ngFor="let scheme of data()?.eligible_schemes">
+        <div class="scheme-card-header">
+          <span class="scheme-cat-pill">{{ scheme.category || 'General Welfare' }}</span>
+          <div class="scheme-header-right">
+            <span class="match-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Eligible
+            </span>
+            <button
+              type="button"
+              class="btn-card-bookmark"
+              [class.bookmarked]="isSchemeBookmarked(scheme.scheme_id)"
+              (click)="toggleSchemeBookmark(scheme, $event)"
+              [title]="isSchemeBookmarked(scheme.scheme_id) ? 'Remove bookmark' : 'Bookmark scheme'"
+              [attr.aria-label]="isSchemeBookmarked(scheme.scheme_id) ? 'Remove bookmark' : 'Bookmark scheme'"
+            >
+              <svg viewBox="0 0 24 24" [attr.fill]="isSchemeBookmarked(scheme.scheme_id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="scheme-card-body">
+          <h3 class="scheme-title">{{ scheme.scheme_name }}</h3>
+          <p class="scheme-dept" *ngIf="scheme.department">
+            <span>🏛️</span> {{ scheme.department }}
+          </p>
+          <div class="scheme-benefit-box" *ngIf="scheme.benefits">
+            <span class="benefit-label">Key Benefits:</span>
+            <p class="benefit-desc">{{ scheme.benefits }}</p>
+          </div>
+
+          <div class="rules-list" *ngIf="scheme.matched_rules && scheme.matched_rules.length">
+            <span class="rule-label">Qualification Criteria:</span>
+            <ul class="rule-items">
+              <li *ngFor="let rule of scheme.matched_rules.slice(0, 2)">
+                <span class="rule-check">✓</span> {{ rule }}
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="scheme-card-footer">
+          <a [routerLink]="['/schemes', scheme.scheme_id]" class="btn-view-scheme">Details</a>
+          <button type="button" class="btn-apply-scheme" (click)="openApplicationModal(scheme)">
+            Apply Now
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Saved Policies / Bookmarks Tab -->
+  <section *ngIf="activeTab() === 'saved'" class="tab-section">
+    <div *ngIf="loading()" class="cards-loading-grid">
+      <div class="skeleton-card" *ngFor="let i of [1, 2, 3]"></div>
+    </div>
+
+    <div *ngIf="!loading() && (!data()?.saved_policies || data()?.saved_policies?.length === 0)" class="empty-panel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+      </svg>
+      <h3>No Bookmarked Policies or Schemes Yet</h3>
+      <p>Save important government policy papers, welfare schemes, and notifications for quick reference.</p>
+      <a routerLink="/policies" class="btn-empty-action">Browse Policies &amp; Schemes</a>
+    </div>
+
+    <div *ngIf="!loading() && data()?.saved_policies && data()?.saved_policies!.length > 0" class="saved-policies-grid">
+      <div class="saved-policy-card" *ngFor="let item of data()?.saved_policies">
+        <div class="saved-card-head">
+          <div class="saved-tags-row">
+            <span class="saved-type-pill" [class.type-scheme]="item.item_type === 'scheme' || item.scheme_id">
+              {{ item.item_type === 'scheme' || item.scheme_id ? 'Scheme' : 'Policy' }}
+            </span>
+            <span class="saved-cat-tag">{{ item.category || 'General' }}</span>
+          </div>
+          <button
+            type="button"
+            class="btn-remove-bookmark"
+            (click)="removeBookmark(item.scheme_id || item.policy_id || item.id, $event)"
+            [disabled]="deletingPolicyId() === (item.scheme_id || item.policy_id || item.id)"
+            title="Remove from saved bookmarks"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div class="saved-card-body">
+          <h3 class="saved-policy-title">{{ item.title }}</h3>
+          <div class="saved-meta-row" *ngIf="item.department">
+            <span class="meta-icon">🏛️</span>
+            <span class="meta-val">{{ item.department }}</span>
+          </div>
+          <div class="saved-meta-row" *ngIf="item.state">
+            <span class="meta-icon">📍</span>
+            <span class="meta-val">{{ item.state }}</span>
+          </div>
+          <p class="saved-notes" *ngIf="item.notes">
+            <em>Notes:</em> "{{ item.notes }}"
+          </p>
+        </div>
+
+        <div class="saved-card-footer">
+          <span class="saved-date">Saved on {{ formatDate(item.saved_at) }}</span>
+          <a
+            [routerLink]="item.item_type === 'scheme' || item.scheme_id ? ['/schemes', item.scheme_id || item.id] : ['/policies', item.policy_id || item.id]"
+            class="btn-read-policy"
+          >
+            {{ item.item_type === 'scheme' || item.scheme_id ? 'View Scheme →' : 'Read Policy →' }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Application Status Tab -->
+  <section *ngIf="activeTab() === 'applications'" class="tab-section">
+    <div *ngIf="loading()" class="cards-loading-grid">
+      <div class="skeleton-card" *ngFor="let i of [1, 2]"></div>
+    </div>
+
+    <div *ngIf="!loading() && (!data()?.application_status || data()?.application_status?.length === 0)" class="empty-panel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <polyline points="9 11 12 14 22 4"></polyline>
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+      </svg>
+      <h3>No Applications Submitted</h3>
+      <p>You haven't submitted any scheme applications yet. Apply for benefits matching your household profile.</p>
+      <button type="button" class="btn-empty-action" (click)="openApplicationModal()">
+        Submit Scheme Application
+      </button>
+    </div>
+
+    <div *ngIf="!loading() && data()?.application_status && data()?.application_status!.length > 0" class="table-card-container">
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th>Application #</th>
+            <th>Scheme Name</th>
+            <th>Status</th>
+            <th>Submitted On</th>
+            <th>Remarks / Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let app of data()?.application_status">
+            <td class="font-mono font-bold text-main">{{ app.application_number }}</td>
+            <td class="font-medium text-main">{{ app.scheme_name }}</td>
+            <td>
+              <span class="status-chip" [ngClass]="'status-' + (app.status || 'pending').toLowerCase()">
+                {{ app.status }}
+              </span>
+            </td>
+            <td class="font-mono text-muted">{{ formatDate(app.created_at) }}</td>
+            <td class="text-sm text-secondary">{{ app.remarks || 'Under routine verification' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 4. Notifications Tab -->
+  <section *ngIf="activeTab() === 'notifications'" class="tab-section">
+    <div *ngIf="loading()" class="cards-loading-grid">
+      <div class="skeleton-card" *ngFor="let i of [1, 2, 3]"></div>
+    </div>
+
+    <div *ngIf="!loading() && (!data()?.recent_notifications || data()?.recent_notifications?.length === 0)" class="empty-panel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+      </svg>
+      <h3>All Caught Up</h3>
+      <p>No new in-app alerts or policy updates at this moment.</p>
+    </div>
+
+    <div *ngIf="!loading() && data()?.recent_notifications && data()?.recent_notifications!.length > 0" class="notifications-list">
+      <div
+        class="noti-card-item"
+        *ngFor="let noti of data()?.recent_notifications"
+        [class.unread]="!noti.is_read"
+      >
+        <div class="noti-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+        </div>
+        <div class="noti-content">
+          <div class="noti-top">
+            <h4 class="noti-title">{{ noti.title }}</h4>
+            <span class="noti-time">{{ formatDate(noti.created_at) }}</span>
+          </div>
+          <p class="noti-msg">{{ noti.message }}</p>
+          <div class="noti-footer-chips">
+            <span class="noti-type-tag">{{ noti.notification_type }}</span>
+            <span class="noti-channel-tag">{{ noti.channel }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Search History Tab -->
+  <section *ngIf="activeTab() === 'history'" class="tab-section">
+    <div *ngIf="!loading() && (!data()?.search_history || data()?.search_history?.length === 0)" class="empty-panel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <h3>No Prior Search History</h3>
+      <p>Search terms across policies and schemes will appear here for fast re-execution.</p>
+      <a routerLink="/policies" class="btn-empty-action">Explore Policies</a>
+    </div>
+
+    <div *ngIf="!loading() && data()?.search_history && data()?.search_history!.length > 0" class="search-history-list">
+      <div class="search-history-item" *ngFor="let item of data()?.search_history">
+        <div class="search-info">
+          <span class="search-query-text">"{{ item.query }}"</span>
+          <span class="search-results-badge">{{ item.result_count }} results found</span>
+        </div>
+        <div class="search-meta">
+          <span class="search-date">{{ formatDate(item.created_at) }}</span>
+          <button type="button" class="btn-repeat-search" (click)="repeatSearch(item.query)">
+            Re-run Search &rarr;
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Application Submission Modal -->
+  <app-application-modal
+    [isOpen]="isAppModalOpen()"
+    [selectedScheme]="selectedSchemeForApp()"
+    [availableSchemes]="data()?.eligible_schemes || []"
+    (close)="closeApplicationModal()"
+    (applicationSubmitted)="onApplicationSubmitted()"
+  ></app-application-modal>
+</div>

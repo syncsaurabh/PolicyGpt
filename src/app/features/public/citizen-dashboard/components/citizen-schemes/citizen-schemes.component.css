@@ -1,0 +1,332 @@
+.schemes-section {
+  padding: 48px 24px 56px;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .schemes-section {
+    padding: 32px 16px 40px;
+  }
+}
+
+.schemes-section .section-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.schemes-section .section-header .section-heading {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  font-weight: 800;
+  color: var(--text-main, #0f172a);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.schemes-section .section-header .filter-indicator {
+  font-size: 0.8125rem;
+  color: var(--text-muted, #64748b);
+  margin-top: 8px;
+}
+
+.schemes-section .section-header .filter-indicator .reset-filter-btn {
+  background: none;
+  border: none;
+  color: var(--brand-blue, #2563eb);
+  cursor: pointer;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+.schemes-section .section-header .filter-indicator .reset-filter-btn:hover {
+  text-decoration: underline;
+}
+
+.schemes-section .schemes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+@media (max-width: 900px) {
+  .schemes-section .schemes-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 580px) {
+  .schemes-section .schemes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.schemes-section .scheme-card {
+  background-color: var(--bg-card, #ffffff);
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.schemes-section .scheme-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  border-color: var(--brand-blue, #cbd5e1);
+}
+
+.schemes-section .scheme-card .scheme-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.schemes-section .scheme-card .scheme-badge {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--brand-blue, #2563eb);
+}
+
+.schemes-section .scheme-card .bookmark-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-disabled, #94a3b8);
+  display: flex;
+  padding: 2px;
+  transition: all 0.2s;
+}
+
+.schemes-section .scheme-card .bookmark-btn:hover,
+.schemes-section .scheme-card .bookmark-btn.bookmarked {
+  color: var(--brand-blue, #1e3a8a);
+  transform: scale(1.1);
+}
+
+.schemes-section .scheme-card .bookmark-btn .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.schemes-section .scheme-card .scheme-title {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main, #0f172a);
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+}
+
+.schemes-section .scheme-card .scheme-tagline {
+  font-size: 0.8125rem;
+  color: var(--text-muted, #475569);
+  font-weight: 500;
+  margin: 0 0 10px;
+}
+
+.schemes-section .scheme-card .scheme-description {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--text-muted, #64748b);
+  margin: 0 0 20px;
+  flex-grow: 1;
+}
+
+.schemes-section .scheme-card .scheme-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+}
+
+.schemes-section .scheme-card .btn-view-details {
+  padding: 8px 18px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  color: var(--text-main, #1e293b);
+  background: var(--bg-card, #ffffff);
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.schemes-section .scheme-card .btn-view-details:hover {
+  background: var(--bg-page, #f8fafc);
+  border-color: var(--brand-blue, #94a3b8);
+  color: var(--brand-blue, #1e3a8a);
+}
+
+.schemes-section .scheme-card .btn-view-details .arrow-icon {
+  font-size: 14px;
+  transition: transform 0.2s;
+}
+
+.schemes-section .scheme-card .btn-view-details:hover .arrow-icon {
+  transform: translateX(3px);
+}
+
+.schemes-section .no-schemes-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  background: var(--bg-card, #fff);
+  border: 1px dashed var(--border-color, #e2e8f0);
+  border-radius: 12px;
+}
+
+.schemes-section .no-schemes-message .btn-reset {
+  background: var(--brand-blue, #1e3a8a);
+  color: #fff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  margin-top: 8px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+}
+
+.modal-card {
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 12px;
+  max-width: 500px;
+  width: 100%;
+  padding: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+}
+
+.modal-card .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.modal-card .modal-header .scheme-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--brand-blue, #1d4ed8);
+  background: rgba(37, 99, 235, 0.12);
+  padding: 3px 10px;
+  border-radius: 9999px;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+}
+
+.modal-card .modal-header .modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--text-disabled, #94a3b8);
+}
+
+.modal-card .modal-header .modal-close-btn:hover {
+  color: var(--text-main, #0f172a);
+}
+
+.modal-card .modal-title {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: var(--text-main, #0f172a);
+}
+
+.modal-card .modal-tagline {
+  font-size: 0.875rem;
+  color: var(--text-muted, #475569);
+  margin: 0 0 16px;
+}
+
+.modal-card .modal-body {
+  font-size: 0.875rem;
+  color: var(--text-muted, #334155);
+  line-height: 1.55;
+}
+
+.modal-card .modal-body .modal-info-block {
+  background-color: var(--bg-page, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: 14px;
+}
+
+.modal-card .modal-body .modal-info-block h4 {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: var(--text-main, #0f172a);
+}
+
+.modal-card .modal-body .modal-info-block ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.78rem;
+  color: var(--text-muted, #475569);
+  line-height: 1.45;
+}
+
+.modal-card .modal-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color, #f1f5f9);
+}
+
+.modal-card .modal-footer .btn-apply-modal {
+  padding: 8px 18px;
+  background-color: var(--brand-blue, #1e3a8a);
+  color: #fff;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.modal-card .modal-footer .btn-apply-modal:hover {
+  background-color: var(--brand-blue-dark, #172554);
+}
+
+.modal-card .modal-footer .btn-close-modal {
+  padding: 8px 14px;
+  background: var(--bg-page, #f1f5f9);
+  color: var(--text-muted, #475569);
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modal-card .modal-footer .btn-close-modal:hover {
+  background: var(--table-hover-bg, #e2e8f0);
+}

@@ -1,0 +1,131 @@
+<main class="login-page">
+  <!-- LEFT BRANDING PANEL -->
+  <section class="branding-panel">
+    <div class="brand-header">
+      <div class="brand-logo" aria-hidden="true">
+        P
+      </div>
+      <div>
+        <h1 class="brand-title">PolicyGPT</h1>
+        <p class="brand-desc">
+          Government Policy &amp; Public Scheme<br>
+          Intelligence Platform
+        </p>
+      </div>
+    </div>
+
+    <div class="hero-content">
+      <h2>
+        Connecting Citizens<br>
+        to Government Opportunities
+      </h2>
+
+      <p class="hero-description">
+        Explore policies, schemes, and government services
+        with the power of AI. Easy access. Better awareness.
+        Stronger and more informed citizens.
+      </p>
+
+      <div class="features">
+        <div class="feature">
+          <div class="feature-icon blue">
+            <svg class="feat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </div>
+          <div>
+            <h3>Search Policies</h3>
+            <p>Find relevant government policies and notifications.</p>
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="feature-icon green">
+            <svg class="feat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+              </path>
+            </svg>
+          </div>
+          <div>
+            <h3>Explore Schemes</h3>
+            <p>Discover and compare public welfare schemes.</p>
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="feature-icon orange">
+            <svg class="feat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <polyline points="16 11 18 13 22 9"></polyline>
+            </svg>
+          </div>
+          <div>
+            <h3>Check Eligibility</h3>
+            <p>Find schemes you may be eligible for.</p>
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="feature-icon purple">
+            <svg class="feat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+          </div>
+          <div>
+            <h3>Stay Updated</h3>
+            <p>Get important policy and scheme notifications.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quote">
+      <span class="quote-mark">“</span>
+      <span>Transparent Governance<br>for a Brighter Tomorrow</span>
+    </div>
+  </section>
+
+  <!-- RIGHT AUTH FORM PANEL -->
+  <section class="login-panel">
+    <div class="top-controls">
+      <button type="button" class="theme-btn" (click)="themeService.toggleTheme()"
+        [title]="themeService.isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'"
+        [attr.aria-label]="themeService.isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'">
+        @if (themeService.isDarkMode()) {
+        <svg class="theme-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        } @else {
+        <svg class="theme-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+        }
+      </button>
+    </div>
+
+    <div class="auth-panel-inner">
+      <router-outlet></router-outlet>
+    </div>
+  </section>
+</main>

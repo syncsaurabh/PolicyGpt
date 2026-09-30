@@ -1,0 +1,159 @@
+<div class="policy-submitted-page">
+  @if (notFound() || !policy()) {
+    <div class="not-found-card">
+      <h2>Policy Not Found</h2>
+      <p>The submitted policy could not be found.</p>
+      <button type="button" class="btn-back-policies" (click)="backToPolicies()">
+        Back to Policies
+      </button>
+    </div>
+  } @else {
+    @let p = policy()!;
+
+    <!-- Page Title & Subtitle -->
+    <section class="page-title-section">
+      <h1 class="page-title">Policy Submitted Successfully</h1>
+      <p class="page-subtitle">Your policy has been submitted for review and is now waiting for approval</p>
+    </section>
+
+    <!-- Policy Details Summary Card -->
+    <article class="submitted-card">
+      <!-- Header Row: Title & Status Badge -->
+      <div class="card-header-row">
+        <h2 class="card-title">Policy Information</h2>
+        <div class="status-indicator-block">
+          <span class="status-label">Status</span>
+          <span class="status-badge badge-under-review">
+            {{ p.status }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Policy Attributes Grid -->
+      <div class="attributes-grid">
+        <div class="grid-col">
+          <label class="field-label">
+            Policy Name <span class="req-star">*</span>
+          </label>
+          <div class="field-value">{{ p.name }}</div>
+        </div>
+
+        <div class="grid-col">
+          <label class="field-label">
+            Policy ID <span class="req-star">*</span>
+          </label>
+          <div class="field-value id-text">{{ p.id }}</div>
+        </div>
+
+        <div class="grid-col">
+          <label class="field-label">
+            Ministry <span class="req-star">*</span>
+          </label>
+          <div class="field-value">{{ p.ministry }}</div>
+        </div>
+
+        <div class="grid-col">
+          <label class="field-label">
+            Department <span class="req-star">*</span>
+          </label>
+          <div class="field-value">{{ p.department }}</div>
+        </div>
+
+        <div class="grid-col">
+          <label class="field-label">
+            Category <span class="req-star">*</span>
+          </label>
+          <div class="field-value">{{ p.category }}</div>
+        </div>
+
+        <div class="grid-col">
+          <label class="field-label">
+            Sector <span class="req-star">*</span>
+          </label>
+          <div class="field-value">{{ p.sector }}</div>
+        </div>
+
+        <div class="grid-col">
+          <label class="field-label">
+            Publication Date <span class="req-star">*</span>
+          </label>
+          <div class="field-value">{{ p.publicationDate }}</div>
+        </div>
+
+        <div class="grid-col">
+          <label class="field-label">
+            Effective Date <span class="req-star">*</span>
+          </label>
+          <div class="field-value">{{ p.effectiveDate }}</div>
+        </div>
+
+        <div class="grid-col">
+          <label class="field-label">Expiry Date</label>
+          <div class="field-value">{{ p.expiryDate || '—' }}</div>
+        </div>
+
+        <div class="grid-col">
+          <label class="field-label">Tags</label>
+          <div class="field-value">
+            @if (p.tags && p.tags.length > 0) {
+              {{ p.tags.join(', ') }}
+            } @else {
+              —
+            }
+          </div>
+        </div>
+
+        <div class="grid-col full-width">
+          <label class="field-label">
+            Description <span class="req-star">*</span>
+          </label>
+          <div class="field-value description-text">{{ p.description }}</div>
+        </div>
+      </div>
+
+      <!-- Policy Document Section -->
+      <div class="doc-section">
+        <label class="field-label mb-2">
+          Policy Document <span class="req-star">*</span>
+        </label>
+        <div class="doc-box">
+          <div class="doc-meta-left">
+            <span class="doc-emoji-icon">📄</span>
+            <div>
+              <div class="doc-name">{{ p.document.name }}</div>
+              <div class="doc-meta">{{ p.document.type }} • {{ p.document.size }}</div>
+            </div>
+          </div>
+
+          <a [routerLink]="['/policies', p.id]" class="btn-view-doc">
+            View Document
+          </a>
+        </div>
+      </div>
+
+      <!-- Success Notification Box -->
+      <div class="success-alert-box" role="status">
+        <div class="check-icon-wrapper">
+          <svg class="check-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
+        <div class="success-text-group">
+          <h4 class="success-heading">Policy submitted successfully</h4>
+          <p class="success-body">Your policy has been submitted for review and is now waiting for approval</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons Footer -->
+      <div class="actions-footer-row">
+        <button type="button" class="btn-back-policies" (click)="backToPolicies()">
+          <span class="back-arrow">←</span> Back to Policies
+        </button>
+
+        <button type="button" class="btn-view-history" (click)="viewPolicyHistory()">
+          View Policy History
+        </button>
+      </div>
+    </article>
+  }
+</div>

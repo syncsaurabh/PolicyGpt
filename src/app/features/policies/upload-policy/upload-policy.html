@@ -1,0 +1,334 @@
+<div class="upload-policy-page">
+  <!-- Title & Subtitle Section -->
+  <section class="page-title-section">
+    <h1 class="page-title">Upload Policy</h1>
+    <p class="page-subtitle">Create and submit a government policy for review</p>
+  </section>
+
+  <!-- Error Message Alert -->
+  @if (errorMessage()) {
+    <div class="alert-error" role="alert">
+      <svg class="alert-icon" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+      </svg>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  <!-- Policy Form Card -->
+  <div class="form-card">
+    <h2 class="card-heading">Policy Information</h2>
+
+    <form class="policy-form" (ngSubmit)="$event.preventDefault()">
+      <!-- Row 1: Policy Name & Policy ID -->
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label for="policy-name" class="field-label">
+            Policy Name <span class="req-star">*</span>
+          </label>
+          <input 
+            type="text"
+            id="policy-name"
+            class="form-control"
+            placeholder="Enter policy name"
+            [(ngModel)]="policyName"
+            name="policyName"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="policy-id" class="field-label">
+            Policy ID <span class="req-star">*</span>
+          </label>
+          <input 
+            type="text"
+            id="policy-id"
+            class="form-control"
+            placeholder="e.g. POL-006"
+            [(ngModel)]="policyId"
+            name="policyId"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- Row 2: Description -->
+      <div class="form-group">
+        <label for="description" class="field-label">
+          Description <span class="req-star">*</span>
+        </label>
+        <textarea 
+          id="description"
+          class="form-control textarea-control"
+          rows="4"
+          placeholder="Enter a brief summary and objectives of the policy..."
+          [(ngModel)]="description"
+          name="description"
+          required>
+        </textarea>
+      </div>
+
+      <!-- Row 3: Ministry & Department -->
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label for="ministry" class="field-label">
+            Ministry <span class="req-star">*</span>
+          </label>
+          <div class="select-wrapper">
+            <select 
+              id="ministry"
+              class="form-control select-control"
+              [(ngModel)]="ministry"
+              name="ministry"
+              required>
+              <option value="" disabled selected>Select ministry</option>
+              @for (m of ministries; track m) {
+                <option [value]="m">{{ m }}</option>
+              }
+            </select>
+            <div class="select-arrow">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="department" class="field-label">
+            Department <span class="req-star">*</span>
+          </label>
+          <div class="select-wrapper">
+            <select 
+              id="department"
+              class="form-control select-control"
+              [(ngModel)]="department"
+              name="department"
+              required>
+              <option value="" disabled selected>Select department</option>
+              @for (d of departments; track d) {
+                <option [value]="d">{{ d }}</option>
+              }
+            </select>
+            <div class="select-arrow">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 4: Category & Sector -->
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label for="category" class="field-label">
+            Category <span class="req-star">*</span>
+          </label>
+          <div class="select-wrapper">
+            <select 
+              id="category"
+              class="form-control select-control"
+              [(ngModel)]="category"
+              name="category"
+              required>
+              <option value="" disabled selected>Select category</option>
+              @for (c of categories; track c) {
+                <option [value]="c">{{ c }}</option>
+              }
+            </select>
+            <div class="select-arrow">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="sector" class="field-label">
+            Sector <span class="req-star">*</span>
+          </label>
+          <div class="select-wrapper">
+            <select 
+              id="sector"
+              class="form-control select-control"
+              [(ngModel)]="sector"
+              name="sector"
+              required>
+              <option value="" disabled selected>Select sector</option>
+              @for (s of sectors; track s) {
+                <option [value]="s">{{ s }}</option>
+              }
+            </select>
+            <div class="select-arrow">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 5: Publication Date & Effective Date -->
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label for="pub-date" class="field-label">
+            Publication Date <span class="req-star">*</span>
+          </label>
+          <div class="date-input-wrapper">
+            <input 
+              type="date"
+              id="pub-date"
+              class="form-control date-control"
+              [(ngModel)]="publicationDate"
+              name="publicationDate"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="eff-date" class="field-label">
+            Effective Date <span class="req-star">*</span>
+          </label>
+          <div class="date-input-wrapper">
+            <input 
+              type="date"
+              id="eff-date"
+              class="form-control date-control"
+              [(ngModel)]="effectiveDate"
+              name="effectiveDate"
+              required
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 6: Expiry Date & Tags -->
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label for="exp-date" class="field-label">Expiry Date</label>
+          <div class="date-input-wrapper">
+            <input 
+              type="date"
+              id="exp-date"
+              class="form-control date-control"
+              [(ngModel)]="expiryDate"
+              name="expiryDate"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="tags" class="field-label">Tags</label>
+          <div class="tags-input-wrapper">
+            <input 
+              type="text"
+              id="tags"
+              class="form-control"
+              placeholder="e.g. Education, Students, Schools (comma-separated)"
+              [(ngModel)]="tags"
+              name="tags"
+            />
+            <div class="tag-icon-container">
+              <svg class="tag-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="M7 7h.01M7 3h5a1.99 1.99 0 011.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V5a2 2 0 012-2z" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Document Upload Dropzone -->
+      <div class="form-group doc-upload-section">
+        <label class="field-label">
+          Policy Document <span class="req-star">*</span>
+        </label>
+
+        @if (!selectedFileName()) {
+          <div 
+            class="dropzone-box"
+            [class.dropzone-dragging]="isDragging()"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+            (click)="fileInput.click()">
+            <input 
+              #fileInput
+              type="file"
+              class="hidden-file-input"
+              accept=".pdf,.docx"
+              (change)="onFileSelected($event)"
+            />
+
+            <div class="cloud-icon-circle">
+              <svg class="cloud-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </div>
+
+            <p class="dropzone-title">Upload policy document</p>
+            <p class="dropzone-hint">PDF or DOCX • Maximum file size 10 MB</p>
+
+            <button type="button" class="btn-browse-files">
+              Browse files
+            </button>
+          </div>
+        } @else {
+          <div class="file-preview-card">
+            <div class="file-info-group">
+              <div class="file-type-badge">
+                {{ selectedFileType() }}
+              </div>
+              <div class="file-details">
+                <span class="file-name">{{ selectedFileName() }}</span>
+                <span class="file-size">{{ selectedFileSize() }}</span>
+              </div>
+            </div>
+
+            <div class="file-actions">
+              <button type="button" class="btn-change-file" (click)="fileInput.click()">
+                Change
+              </button>
+              <button type="button" class="btn-remove-file" (click)="removeFile()">
+                Remove
+              </button>
+              <input 
+                #fileInput
+                type="file"
+                class="hidden-file-input"
+                accept=".pdf,.docx"
+                (change)="onFileSelected($event)"
+              />
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Action Buttons Footer -->
+      <div class="form-actions-footer">
+        <button type="button" class="btn-form-cancel" (click)="cancel()">
+          Cancel
+        </button>
+
+        <button 
+          type="button" 
+          class="btn-form-save-draft" 
+          [disabled]="isSubmitting()"
+          (click)="saveAsDraft()">
+          Save Draft
+        </button>
+
+        <button 
+          type="button" 
+          class="btn-form-submit" 
+          [disabled]="isSubmitting()"
+          (click)="submitForReview()">
+          Submit for Review
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
