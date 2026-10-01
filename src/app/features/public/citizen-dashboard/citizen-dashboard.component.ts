@@ -6,6 +6,7 @@ import { CitizenCategoriesComponent } from './components/citizen-categories/citi
 import { CitizenSchemesComponent } from './components/citizen-schemes/citizen-schemes.component';
 import { CitizenHowItWorksComponent } from './components/citizen-how-it-works/citizen-how-it-works.component';
 import { CitizenAssistantComponent } from './components/citizen-assistant/citizen-assistant.component';
+import { CitizenFaqComponent } from './components/citizen-faq/citizen-faq.component';
 import { CitizenBannerComponent } from './components/citizen-banner/citizen-banner.component';
 
 @Component({
@@ -19,6 +20,7 @@ import { CitizenBannerComponent } from './components/citizen-banner/citizen-bann
     CitizenSchemesComponent,
     CitizenHowItWorksComponent,
     CitizenAssistantComponent,
+    CitizenFaqComponent,
     CitizenBannerComponent
   ],
   templateUrl: './citizen-dashboard.component.html',

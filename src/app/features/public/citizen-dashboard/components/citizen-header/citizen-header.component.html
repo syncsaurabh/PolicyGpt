@@ -11,6 +11,7 @@
         data-path="home">Home</a>
       <a routerLink="/public/policies" routerLinkActive="active" class="nav-link" data-path="policies">Policies</a>
       <a routerLink="/public/schemes" routerLinkActive="active" class="nav-link" data-path="schemes">Schemes</a>
+      <a routerLink="/public/faqs" routerLinkActive="active" class="nav-link" data-path="faqs">FAQs</a>
       <a routerLink="/citizen" fragment="how-it-works" class="nav-link" data-path="about">About</a>
       <a href="javascript:void(0)" (click)="openAssistant()" class="nav-link" data-path="help">Help</a>
       @if (auth.isAuthenticated()) {
@@ -64,6 +65,7 @@
     <a routerLink="/public/policies" (click)="closeMobileMenu()" class="mobile-nav-link"
       data-path="policies">Policies</a>
     <a routerLink="/public/schemes" (click)="closeMobileMenu()" class="mobile-nav-link" data-path="schemes">Schemes</a>
+    <a routerLink="/public/faqs" (click)="closeMobileMenu()" class="mobile-nav-link" data-path="faqs">FAQs</a>
     <a routerLink="/citizen" fragment="how-it-works" (click)="closeMobileMenu()" class="mobile-nav-link"
       data-path="about">About</a>
     <a href="javascript:void(0)" (click)="openAssistant()" class="mobile-nav-link"

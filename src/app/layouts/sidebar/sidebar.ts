@@ -20,6 +20,7 @@ export const ROLE_SIDEBAR_CONFIG: Record<string, NavItem[]> = {
     { label: 'Schemes', path: '/schemes', icon: 'account_balance' },
     { label: 'Approvals Panel', path: '/approvals', icon: 'fact_check' },
     { label: 'Reports', path: '/reports', icon: 'analytics' },
+    { label: 'FAQ Management', path: '/admin/faqs', icon: 'quiz' },
     { label: 'Audit Logs', path: '/admin/audit-logs', icon: 'history' },
     { label: 'Admin Users', path: '/admin/users', icon: 'manage_accounts' },
     { label: 'Notifications', path: '/notifications', icon: 'notifications' },
@@ -31,6 +32,7 @@ export const ROLE_SIDEBAR_CONFIG: Record<string, NavItem[]> = {
     { label: 'Schemes', path: '/schemes', icon: 'account_balance' },
     { label: 'Approvals', path: '/approvals', icon: 'fact_check' },
     { label: 'Reports', path: '/reports', icon: 'analytics' },
+    { label: 'FAQ Management', path: '/admin/faqs', icon: 'quiz' },
     { label: 'Notifications', path: '/notifications', icon: 'notifications' },
   ],
   CITIZEN: [

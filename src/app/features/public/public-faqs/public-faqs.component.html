@@ -1,0 +1,477 @@
+<div class="public-faqs-root">
+  <!-- Public Navigation Header -->
+  <app-citizen-header></app-citizen-header>
+
+  <main class="faqs-main">
+    <!-- Breadcrumbs Bar -->
+    <div class="breadcrumbs-bar">
+      <div class="content-container">
+        <p class="breadcrumbs-text">
+          <a routerLink="/citizen" class="bc-link">Home</a>
+          <span class="bc-sep">/</span>
+          <span class="bc-current">Citizen Help Desk &amp; FAQs</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Hero Search Section -->
+    <section class="faqs-hero-section">
+      <div class="content-container hero-inner">
+        <div class="hero-badge">
+          <span class="sparkle-icon">✨</span>
+          <span>AI-Powered Citizen Knowledge Desk</span>
+        </div>
+
+        <h1 class="main-title">Frequently Asked Questions</h1>
+        <p class="main-subtitle">
+          Instant answers to scheme eligibility, document verification, application procedures, and policy guidelines powered by PolicyGPT Intelligence.
+        </p>
+
+        <!-- Search Bar with AI Action -->
+        <form class="search-bar-form" (submit)="$event.preventDefault(); onSearchSubmit()">
+          <div class="search-input-box">
+            <span class="material-symbols-outlined search-icon">search</span>
+            <input 
+              type="text" 
+              class="search-input" 
+              placeholder="Search FAQs or ask PolicyGPT AI (e.g. 'How do I check PM-KISAN eligibility?')..."
+              [(ngModel)]="searchInputModel"
+              name="faqSearchInput"
+              (keyup.enter)="onSearchSubmit()"
+              aria-label="Search FAQs and help topics"
+            />
+            @if (searchInputModel) {
+              <button 
+                type="button" 
+                class="btn-clear-input" 
+                (click)="searchInputModel = ''; searchQuery.set('')"
+                title="Clear search"
+              >
+                ✕
+              </button>
+            }
+          </div>
+          <button type="submit" class="btn-search-action">
+            <span class="material-symbols-outlined btn-icon">manage_search</span>
+            <span>Search FAQs</span>
+          </button>
+          <button 
+            type="button" 
+            class="btn-ai-action" 
+            (click)="askAiAssistant()"
+            [disabled]="!searchInputModel.trim() || isAiThinking()"
+          >
+            <span class="material-symbols-outlined btn-icon">smart_toy</span>
+            <span>Ask AI Assistant</span>
+          </button>
+        </form>
+
+        <!-- Suggested Prompt Chips -->
+        <div class="prompt-chips-wrapper">
+          <span class="chips-label">Popular Queries:</span>
+          <div class="prompt-chips">
+            <button 
+              type="button" 
+              class="prompt-chip" 
+              (click)="searchInputModel = 'How do I apply for schemes?'; onSearchSubmit()"
+            >
+              How to apply for schemes?
+            </button>
+            <button 
+              type="button" 
+              class="prompt-chip" 
+              (click)="searchInputModel = 'Required documents for scholarships'; onSearchSubmit()"
+            >
+              Required documents
+            </button>
+            <button 
+              type="button" 
+              class="prompt-chip" 
+              (click)="searchInputModel = 'How is scheme eligibility checked?'; onSearchSubmit()"
+            >
+              Eligibility verification
+            </button>
+            <button 
+              type="button" 
+              class="prompt-chip" 
+              (click)="searchInputModel = 'Track application status'; onSearchSubmit()"
+            >
+              Track application status
+            </button>
+            <button 
+              type="button" 
+              class="prompt-chip" 
+              (click)="searchInputModel = 'Compare multiple schemes'; onSearchSubmit()"
+            >
+              Compare schemes
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI Live Answer Banner (when querying AI) -->
+    @if (isAiThinking() || aiResponse() || aiError()) {
+      <section class="ai-live-section">
+        <div class="content-container">
+          <div class="ai-response-card" [class.thinking]="isAiThinking()">
+            <div class="ai-card-header">
+              <div class="ai-title-wrap">
+                <div class="ai-avatar-badge">
+                  <span class="material-symbols-outlined">smart_toy</span>
+                </div>
+                <div>
+                  <h2 class="ai-header-title">PolicyGPT Instant Answer</h2>
+                  <p class="ai-header-subtitle">
+                    Grounded in official government databases &amp; verified scheme guidelines
+                  </p>
+                </div>
+              </div>
+              <div class="ai-header-actions">
+                <button 
+                  type="button" 
+                  class="btn-continue-chat" 
+                  (click)="openFullAssistant()"
+                  title="Open in full chat window"
+                >
+                  <span class="material-symbols-outlined">open_in_new</span>
+                  <span>Continue in Chat</span>
+                </button>
+                <button 
+                  type="button" 
+                  class="btn-dismiss-ai" 
+                  (click)="dismissAiAnswer()"
+                  title="Close AI answer"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div class="ai-card-body">
+              @if (isAiThinking()) {
+                <div class="ai-thinking-state">
+                  <div class="pulsing-dots">
+                    <span></span><span></span><span></span>
+                  </div>
+                  <p class="thinking-text">PolicyGPT is analyzing policies, scheme criteria, and FAQ knowledge base...</p>
+                </div>
+              } @else if (aiError()) {
+                <div class="ai-error-box">
+                  <span class="material-symbols-outlined error-icon">error</span>
+                  <p>{{ aiError() }}</p>
+                  <button type="button" class="btn-retry-ai" (click)="askAiAssistant()">Retry</button>
+                </div>
+              } @else if (aiResponse()) {
+                <div class="ai-answer-content">
+                  <p class="answer-text">{{ aiResponse()?.answer }}</p>
+
+                  <!-- Citations & Sources -->
+                  @if (aiResponse()?.sources && aiResponse()!.sources!.length > 0) {
+                    <div class="ai-sources-box">
+                      <span class="sources-title">Verified Sources &amp; Policies:</span>
+                      <div class="sources-list">
+                        @for (source of aiResponse()!.sources; track source.name) {
+                          <span class="source-tag">
+                            <span class="source-type">{{ source.type | uppercase }}</span>
+                            <span class="source-name">{{ source.name }}</span>
+                          </span>
+                        }
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Suggested Follow-up Questions -->
+                  @if (aiResponse()?.suggested_questions && aiResponse()!.suggested_questions!.length > 0) {
+                    <div class="ai-suggested-box">
+                      <span class="suggested-title">Suggested follow-up questions:</span>
+                      <div class="suggested-chips">
+                        @for (sug of aiResponse()!.suggested_questions; track sug) {
+                          <button type="button" class="sug-chip" (click)="askAiAssistant(sug)">
+                            <span>{{ sug }}</span>
+                            <span class="material-symbols-outlined arrow">arrow_forward</span>
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- Main Body: FAQ Explorer Layout -->
+    <section class="faqs-body-section">
+      <div class="content-container body-grid">
+        <!-- Main FAQs List Column -->
+        <div class="faqs-content-column">
+          <!-- Category Filter Bar -->
+          <div class="category-tabs-row">
+            <div class="tabs-scroll">
+              @for (cat of categories(); track cat) {
+                <button 
+                  type="button" 
+                  class="category-tab-btn" 
+                  [class.active]="selectedCategory() === cat"
+                  (click)="onCategorySelect(cat)"
+                >
+                  <span class="tab-label">{{ cat }}</span>
+                  <span class="tab-badge">{{ getCategoryCount(cat) }}</span>
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Controls Header -->
+          <div class="faq-list-controls">
+            <div class="results-info">
+              <h2 class="results-heading">
+                @if (selectedCategory() === 'All') {
+                  All FAQs
+                } @else {
+                  {{ selectedCategory() }}
+                }
+              </h2>
+              <span class="results-tag">Showing {{ filteredFaqs().length }} questions</span>
+            </div>
+
+            <div class="controls-actions">
+              <button type="button" class="btn-ctrl" (click)="expandAll()">
+                <span class="material-symbols-outlined icon">unfold_more</span>
+                <span>Expand All</span>
+              </button>
+              <button type="button" class="btn-ctrl" (click)="collapseAll()">
+                <span class="material-symbols-outlined icon">unfold_less</span>
+                <span>Collapse All</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Loading State -->
+          @if (isLoading()) {
+            <div class="loading-state-card">
+              <div class="spinner"></div>
+              <p>Fetching official FAQs &amp; guidelines from PolicyGPT...</p>
+            </div>
+          }
+
+          <!-- Error State -->
+          @else if (errorMessage()) {
+            <div class="error-state-card">
+              <span class="material-symbols-outlined error-icon">cloud_off</span>
+              <h3 class="state-title">Unable to load FAQs</h3>
+              <p class="state-desc">{{ errorMessage() }}</p>
+              <button type="button" class="btn-retry" (click)="loadFaqs()">Try Again</button>
+            </div>
+          }
+
+          <!-- Empty Filtered Results State -->
+          @else if (filteredFaqs().length === 0) {
+            <div class="empty-state-card">
+              <div class="empty-icon-box">
+                <span class="material-symbols-outlined">search_off</span>
+              </div>
+              <h3 class="state-title">No matching questions found</h3>
+              <p class="state-desc">
+                We couldn't find any FAQs matching "{{ searchQuery() }}" in category "{{ selectedCategory() }}".
+              </p>
+              <div class="empty-actions">
+                <button type="button" class="btn-clear-filters" (click)="resetFilters()">
+                  Clear Filters
+                </button>
+                <button type="button" class="btn-ask-custom-ai" (click)="askAiAssistant(searchQuery())">
+                  <span class="material-symbols-outlined">smart_toy</span>
+                  Ask PolicyGPT AI Instead
+                </button>
+              </div>
+            </div>
+          }
+
+          <!-- Accordion FAQ Items List -->
+          @else {
+            <div class="faq-accordion-list" role="region" aria-label="Frequently Asked Questions list">
+              @for (faq of filteredFaqs(); track faq.id) {
+                <article 
+                  class="faq-card" 
+                  [class.expanded]="isExpanded(faq.id)"
+                  [id]="'faq-' + faq.id"
+                >
+                  <!-- Accordion Header Button -->
+                  <button 
+                    type="button" 
+                    class="faq-header-btn" 
+                    (click)="toggleFaq(faq.id)"
+                    [attr.aria-expanded]="isExpanded(faq.id)"
+                    [attr.aria-controls]="'faq-answer-' + faq.id"
+                  >
+                    <div class="faq-question-wrap">
+                      <span class="faq-category-badge">{{ faq.category }}</span>
+                      <h3 class="faq-question-text">{{ faq.question }}</h3>
+                    </div>
+                    <span class="material-symbols-outlined faq-toggle-chevron">
+                      {{ isExpanded(faq.id) ? 'expand_less' : 'expand_more' }}
+                    </span>
+                  </button>
+
+                  <!-- Accordion Body -->
+                  @if (isExpanded(faq.id)) {
+                    <div 
+                      class="faq-body" 
+                      [id]="'faq-answer-' + faq.id" 
+                      role="region"
+                    >
+                      <div class="faq-answer-content">
+                        <p class="faq-answer-text">{{ faq.answer }}</p>
+                      </div>
+
+                      <!-- Footer Action Toolbar -->
+                      <div class="faq-card-footer">
+                        <div class="helpful-poll">
+                          <span class="poll-prompt">Was this helpful?</span>
+                          <button 
+                            type="button" 
+                            class="btn-vote" 
+                            [class.selected]="getVote(faq.id) === true"
+                            (click)="voteHelpful(faq.id, true, $event)"
+                            title="Helpful"
+                          >
+                            <span class="material-symbols-outlined">thumb_up</span>
+                            <span>Yes</span>
+                          </button>
+                          <button 
+                            type="button" 
+                            class="btn-vote" 
+                            [class.selected]="getVote(faq.id) === false"
+                            (click)="voteHelpful(faq.id, false, $event)"
+                            title="Not helpful"
+                          >
+                            <span class="material-symbols-outlined">thumb_down</span>
+                            <span>No</span>
+                          </button>
+
+                          @if (getVote(faq.id) !== undefined) {
+                            <span class="vote-thank-you">Thank you for your feedback!</span>
+                          }
+                        </div>
+
+                        <div class="card-extra-actions">
+                          <button 
+                            type="button" 
+                            class="btn-copy-answer" 
+                            (click)="copyAnswer(faq, $event)"
+                            title="Copy question and answer"
+                          >
+                            <span class="material-symbols-outlined">
+                              {{ copiedFaqId() === faq.id ? 'check' : 'content_copy' }}
+                            </span>
+                            <span>{{ copiedFaqId() === faq.id ? 'Copied!' : 'Copy Answer' }}</span>
+                          </button>
+                          
+                          <button 
+                            type="button" 
+                            class="btn-ask-ai-item" 
+                            (click)="askAssistantAbout(faq, $event)"
+                            title="Ask AI Assistant for more details"
+                          >
+                            <span class="material-symbols-outlined">smart_toy</span>
+                            <span>Ask AI More</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </article>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Sidebar Quick Help & Direct Tools Column -->
+        <aside class="faqs-sidebar">
+          <!-- PolicyGPT AI Assistant Card -->
+          <div class="sidebar-card ai-assistant-highlight">
+            <div class="card-icon-badge">
+              <span class="material-symbols-outlined">support_agent</span>
+            </div>
+            <h3 class="card-heading">PolicyGPT AI Assistant</h3>
+            <p class="card-text">
+              Have a complex or personalized question? Our verified AI assistant answers eligibility, required papers, and comparison queries 24/7.
+            </p>
+            <button 
+              type="button" 
+              class="btn-sidebar-ai" 
+              (click)="openFullAssistant()"
+            >
+              <span class="material-symbols-outlined">chat</span>
+              <span>Chat with AI</span>
+            </button>
+          </div>
+
+          <!-- Quick Navigation / Utility Hub Cards -->
+          <div class="sidebar-card">
+            <h3 class="sidebar-sec-title">Quick Citizen Portals</h3>
+            <ul class="quick-links-list">
+              <li>
+                <a routerLink="/public/schemes" class="quick-link-item">
+                  <span class="material-symbols-outlined link-icon">policy</span>
+                  <div class="link-meta">
+                    <span class="link-title">Explore Welfare Schemes</span>
+                    <span class="link-sub">Browse 100+ active government schemes</span>
+                  </div>
+                  <span class="material-symbols-outlined link-arrow">chevron_right</span>
+                </a>
+              </li>
+              <li>
+                <a routerLink="/public/policies" class="quick-link-item">
+                  <span class="material-symbols-outlined link-icon">menu_book</span>
+                  <div class="link-meta">
+                    <span class="link-title">Government Policies</span>
+                    <span class="link-sub">Reforms, acts, and official gazettes</span>
+                  </div>
+                  <span class="material-symbols-outlined link-arrow">chevron_right</span>
+                </a>
+              </li>
+              <li>
+                <a routerLink="/citizen" fragment="how-it-works" class="quick-link-item">
+                  <span class="material-symbols-outlined link-icon">help</span>
+                  <div class="link-meta">
+                    <span class="link-title">How PolicyGPT Works</span>
+                    <span class="link-sub">Step-by-step citizen guide</span>
+                  </div>
+                  <span class="material-symbols-outlined link-arrow">chevron_right</span>
+                </a>
+              </li>
+              <li>
+                <a routerLink="/feedback" class="quick-link-item">
+                  <span class="material-symbols-outlined link-icon">contact_support</span>
+                  <div class="link-meta">
+                    <span class="link-title">Citizen Feedback &amp; Grievance</span>
+                    <span class="link-sub">Report issues or request support</span>
+                  </div>
+                  <span class="material-symbols-outlined link-arrow">chevron_right</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Official Help Info Box -->
+          <div class="sidebar-card contact-help-card">
+            <div class="help-info-header">
+              <span class="material-symbols-outlined info-icon">verified_user</span>
+              <span class="info-tag">Official Support</span>
+            </div>
+            <p class="help-info-desc">
+              All FAQs and eligibility guidelines on PolicyGPT are synchronized with verified departmental portals.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <!-- Public Navigation Footer -->
+  <app-citizen-footer></app-citizen-footer>
+</div>

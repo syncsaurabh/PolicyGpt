@@ -33,6 +33,15 @@ export const routes: Routes = [
         path: 'public/schemes/:id',
         loadComponent: () => import('./features/public/public-details/public-details.component').then((m) => m.PublicDetailsComponent)
     },
+    {
+        path: 'public/faqs',
+        loadComponent: () => import('./features/public/public-faqs/public-faqs.component').then((m) => m.PublicFaqsComponent)
+    },
+    {
+        path: 'faqs',
+        redirectTo: 'public/faqs',
+        pathMatch: 'full'
+    },
 
     // 2. Public Auth routes (inside AuthLayoutComponent)
     {
@@ -215,14 +224,24 @@ export const routes: Routes = [
             {
                 path: 'admin',
                 canActivate: [roleGuard],
-                data: { roles: [Role.ADMINISTRATOR] },
+                data: { roles: [Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL] },
                 children: [
                     {
                         path: 'users',
+                        canActivate: [roleGuard],
+                        data: { roles: [Role.ADMINISTRATOR] },
                         loadComponent: () => import('./features/admin/users/users').then((m) => m.Users)
                     },
                     {
+                        path: 'faqs',
+                        canActivate: [roleGuard],
+                        data: { roles: [Role.ADMINISTRATOR, Role.GOVERNMENT_OFFICIAL] },
+                        loadComponent: () => import('./features/admin/faqs/admin-faqs.component').then((m) => m.AdminFaqsComponent)
+                    },
+                    {
                         path: 'audit-logs',
+                        canActivate: [roleGuard],
+                        data: { roles: [Role.ADMINISTRATOR] },
                         loadComponent: () => import('./features/admin/audit-logs/audit-logs').then((m) => m.AuditLogs)
                     }
                 ]
