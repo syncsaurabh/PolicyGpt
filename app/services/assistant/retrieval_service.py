@@ -571,6 +571,10 @@ class RetrievalService:
             "email": current_user.email,
             "role": current_user.role.value if current_user.role else "CITIZEN",
             "phone_number": current_user.phone_number or "Not Provided",
+            "age": current_user.age if getattr(current_user, "age", None) is not None else "Not Provided",
+            "state": current_user.state or "Not Provided",
+            "address": current_user.address or "Not Provided",
+            "pincode": current_user.pincode or "Not Provided",
             "is_active": current_user.is_active,
         }
         return {"profile": profile}, []

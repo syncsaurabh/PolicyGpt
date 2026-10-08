@@ -7,7 +7,11 @@ from app.schemas.user import UserRead, UserUpdate
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.get("/me", response_model=UserRead)
+@router.get(
+    "/me",
+    response_model=UserRead,
+    summary="Get Current User Profile",
+)
 def get_current_user_profile(current_user: User = Depends(get_current_user)):
     """
     Retrieve current authenticated user profile.
@@ -15,7 +19,11 @@ def get_current_user_profile(current_user: User = Depends(get_current_user)):
     return current_user
 
 
-@router.put("/me", response_model=UserRead)
+@router.put(
+    "/me",
+    response_model=UserRead,
+    summary="Update Current User Profile",
+)
 def update_current_user_profile(
     user_update: UserUpdate,
     current_user: User = Depends(get_current_user),
@@ -23,10 +31,36 @@ def update_current_user_profile(
 ):
     """
     Update safe profile information for the current authenticated user.
-    Protected fields (id, email, password_hash, role, is_active) cannot be modified here.
+    
+    Editable fields:
+    - **name**: User's full name (2–100 characters)
+    - **phone_number**: Contact phone number for communications and SMS notifications (max 50 characters)
+    - **age**: Age of the user in years (1–120)
+    - **state**: State or Union Territory of residence (max 100 characters)
+    - **address**: Residential or postal address (max 500 characters)
+    - **pincode**: Postal PIN / ZIP code (max 20 characters)
+    
+    Protected fields (id, email, password_hash, role, is_active, created_at, updated_at) cannot be modified through this endpoint.
     """
-    if user_update.name is not None:
-        current_user.name = user_update.name.strip()
+    update_data = user_update.model_dump(exclude_unset=True)
+
+    if "name" in update_data and update_data["name"] is not None:
+        current_user.name = update_data["name"].strip()
+
+    if "phone_number" in update_data:
+        current_user.phone_number = update_data["phone_number"].strip() if update_data["phone_number"] is not None else None
+
+    if "age" in update_data:
+        current_user.age = update_data["age"]
+
+    if "state" in update_data:
+        current_user.state = update_data["state"].strip() if update_data["state"] is not None else None
+
+    if "address" in update_data:
+        current_user.address = update_data["address"].strip() if update_data["address"] is not None else None
+
+    if "pincode" in update_data:
+        current_user.pincode = update_data["pincode"].strip() if update_data["pincode"] is not None else None
 
     db.add(current_user)
     db.commit()

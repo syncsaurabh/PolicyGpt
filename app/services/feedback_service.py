@@ -58,7 +58,8 @@ class FeedbackService:
             **data,
         )
         db.add(feedback)
-        db.flush()
+        db.commit()
+        db.refresh(feedback)
 
         AuditService.log(
             db=db,
@@ -89,8 +90,6 @@ class FeedbackService:
             user_name=current_user.name if current_user else None,
         )
 
-        db.commit()
-        db.refresh(feedback)
         return feedback
 
     @staticmethod
@@ -254,6 +253,8 @@ class FeedbackService:
         feedback.status = new_status
         feedback.resolved_by_id = current_user.id
         feedback.resolved_at = datetime.now(timezone.utc)
+        db.commit()
+        db.refresh(feedback)
 
         AuditService.log(
             db=db,
@@ -274,8 +275,6 @@ class FeedbackService:
                 resolution=resolve_in.admin_response,
             )
 
-        db.commit()
-        db.refresh(feedback)
         return feedback
 
     @staticmethod

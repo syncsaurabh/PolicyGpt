@@ -1,4 +1,4 @@
-from typing import Optional
+﻿from typing import Optional
 from pydantic import BaseModel, EmailStr, Field
 from app.schemas.user import UserRead
 
@@ -17,6 +17,40 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     sub: Optional[str] = None
     role: Optional[str] = None
+
+
+class VerifyOTPRequest(BaseModel):
+    email: EmailStr = Field(
+        ...,
+        description="User's registered email address",
+        examples=["user@example.com"]
+    )
+    otp: str = Field(
+        ...,
+        min_length=6,
+        max_length=6,
+        description="6-digit OTP verification code",
+        examples=["123456"]
+    )
+
+
+class ResendOTPRequest(BaseModel):
+    email: EmailStr = Field(
+        ...,
+        description="User's registered email address to resend OTP",
+        examples=["user@example.com"]
+    )
+
+
+class RegisterResponse(BaseModel):
+    message: str = Field(
+        ...,
+        description="Response status message",
+        examples=["Registration successful. Please verify your email with the 6-digit code sent to your inbox."]
+    )
+    email: str = Field(..., description="Registered email address")
+    requires_verification: bool = Field(default=True, description="Whether email verification is required")
+    user: Optional[UserRead] = None
 
 
 class ForgotPasswordRequest(BaseModel):

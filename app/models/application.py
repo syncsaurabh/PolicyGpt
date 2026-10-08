@@ -31,12 +31,15 @@ class SchemeApplication(Base):
     status: Mapped[str] = mapped_column(String(50), default=ApplicationStatus.SUBMITTED.value, nullable=False, index=True)
     details_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     remarks: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    reviewed_by_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    reviewed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     user: Mapped[Optional["User"]] = relationship("User", foreign_keys=[user_id])
     scheme: Mapped[Optional["Scheme"]] = relationship("Scheme", foreign_keys=[scheme_id])
+    reviewed_by: Mapped[Optional["User"]] = relationship("User", foreign_keys=[reviewed_by_id])
 
     def __repr__(self) -> str:
         return f"<SchemeApplication id={self.id} app_num='{self.application_number}' status={self.status}>"

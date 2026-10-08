@@ -1,4 +1,4 @@
-from typing import Optional
+﻿from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 from app.core.config import settings
@@ -11,7 +11,9 @@ from app.schemas.auth import (
     LoginRequest,
     MessageResponse,
     ResetPasswordRequest,
+    ResendOTPRequest,
     Token,
+    VerifyOTPRequest,
 )
 from app.schemas.user import UserCreate, UserRead
 from app.services.auth_service import AuthService
@@ -23,10 +25,38 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 def register(user_in: UserCreate, db: Session = Depends(get_db)):
     """
     Register a new user in the PolicyGPT system.
-    Validates email uniqueness and returns safe user information without password hash.
+    Creates account with email unverified and dispatches a 6-digit OTP code to the registered email.
     """
     new_user = AuthService.register_user(db=db, user_in=user_in)
     return new_user
+
+
+@router.post("/verify-otp", response_model=Token)
+def verify_otp(req: VerifyOTPRequest, db: Session = Depends(get_db)):
+    """
+    Verify 6-digit email OTP.
+    Upon successful validation, marks user as verified and returns authenticated JWT access token.
+    """
+    user = AuthService.verify_otp(db=db, email=req.email, otp=req.otp)
+    access_token = create_access_token(
+        subject=user.id,
+        role=user.role.value
+    )
+    return Token(
+        access_token=access_token,
+        token_type="bearer",
+        user=UserRead.model_validate(user)
+    )
+
+
+@router.post("/resend-otp", response_model=MessageResponse)
+def resend_otp(req: ResendOTPRequest, db: Session = Depends(get_db)):
+    """
+    Resend a 6-digit OTP code with 60-second cooldown rate-limiting.
+    Invalidates any previous active OTP codes.
+    """
+    AuthService.resend_otp(db=db, email=req.email)
+    return MessageResponse(message="A new verification code has been sent to your email.")
 
 
 @router.post(
@@ -63,10 +93,9 @@ async def login(
     request: Request,
     db: Session = Depends(get_db),
 ):
-
     """
     Authenticate user with email and password, returning a signed JWT access token.
-    Supports both application/json payloads and form-data.
+    Blocks login access if the user email has not been verified.
     """
     email = None
     password = None
@@ -103,6 +132,13 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    # Login protection: Require email verification
+    if not user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Please verify your email before signing in."
+        )
+
     access_token = create_access_token(
         subject=user.id,
         role=user.role.value
@@ -115,7 +151,6 @@ async def login(
     )
 
 
-
 @router.post("/forgot-password", response_model=ForgotPasswordResponse)
 def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
     """
@@ -125,7 +160,6 @@ def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
     """
     reset_token = AuthService.request_password_reset(db=db, email=req.email)
     
-    # In development, the reset token can be logged or inspected for testing
     response_msg = "If this email is registered, password reset instructions have been sent."
     if settings.ENVIRONMENT == "development" and reset_token:
         response_msg += f" (Dev token: {reset_token})"
@@ -140,10 +174,8 @@ def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
 def reset_password(req: ResetPasswordRequest, db: Session = Depends(get_db)):
     """
     Complete password reset workflow (Step 2 of password recovery).
-    Requires the password-reset token obtained from /forgot-password (NOT the access token from /login)
-    and the new password.
+    Requires the password-reset token obtained from /forgot-password.
     """
-    # Check if caller mistakenly supplied a login access token instead of a password-reset token
     try:
         unverified_payload = jwt.decode(
             req.token,
