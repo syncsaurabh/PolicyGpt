@@ -301,14 +301,15 @@ class DashboardService:
             remarks=remarks,
         )
         db.add(app_item)
+        db.commit()
+        db.refresh(app_item)
+
         NotificationService.trigger_application_submitted(
             db=db,
             user_id=user_id,
             application_number=app_num,
             scheme_name=scheme.name,
         )
-        db.commit()
-        db.refresh(app_item)
         return app_item
 
     # ==========================================

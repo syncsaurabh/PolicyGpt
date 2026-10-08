@@ -1,4 +1,4 @@
-from app.models.user import User, UserRole
+﻿from app.models.user import User, UserRole
 from app.models.policy import Policy, PolicyStatus, PolicyCategory
 from app.models.scheme import Scheme, SchemeStatus, SchemeCategory
 from app.models.eligibility import EligibilityRule
@@ -23,6 +23,7 @@ from app.models.search_history import SearchHistory
 from app.models.saved_policy import SavedPolicy
 from app.models.application import SchemeApplication, ApplicationStatus
 from app.models.assistant import AssistantConversation, AssistantMessage
+from app.models.otp import EmailOTP
 
 __all__ = [
     "User",
@@ -55,4 +56,5 @@ __all__ = [
     "ApplicationStatus",
     "AssistantConversation",
     "AssistantMessage",
+    "EmailOTP",
 ]

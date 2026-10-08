@@ -14,6 +14,7 @@ from app.api.routes.reports import router as reports_router
 from app.api.routes.feedback import router as feedback_router
 from app.api.routes.faqs import router as faqs_router
 from app.api.routes.dashboard import router as dashboard_router
+from app.api.routes.applications import router as applications_router
 from app.api.routes.assistant import router as assistant_router
 
 app = FastAPI(
@@ -51,6 +52,7 @@ app.include_router(eligibility_router, prefix=settings.API_V1_STR)
 app.include_router(comparison_router, prefix=settings.API_V1_STR)
 app.include_router(analytics_router, prefix=settings.API_V1_STR)
 app.include_router(dashboard_router, prefix=settings.API_V1_STR)
+app.include_router(applications_router, prefix=settings.API_V1_STR)
 app.include_router(notifications_router, prefix=settings.API_V1_STR)
 app.include_router(reports_router, prefix=settings.API_V1_STR)
 app.include_router(feedback_router, prefix=settings.API_V1_STR)

@@ -52,6 +52,9 @@ class SchemeService:
                 )
                 db.add(rule)
 
+        db.commit()
+        db.refresh(scheme)
+
         AuditService.log(
             db=db,
             action="SCHEME_CREATED",
@@ -74,8 +77,6 @@ class SchemeService:
             scheme_name=scheme.name,
             department=scheme.department,
         )
-        db.commit()
-        db.refresh(scheme)
         return scheme
 
     @staticmethod
@@ -197,6 +198,9 @@ class SchemeService:
         for key, value in update_data.items():
             setattr(scheme, key, value)
 
+        db.commit()
+        db.refresh(scheme)
+
         AuditService.log(
             db=db,
             action="SCHEME_UPDATED",
@@ -219,8 +223,6 @@ class SchemeService:
             scheme_name=scheme.name,
             department=scheme.department,
         )
-        db.commit()
-        db.refresh(scheme)
         return scheme
 
     @staticmethod

@@ -1,3 +1,4 @@
+import concurrent.futures
 import logging
 import smtplib
 import ssl
@@ -8,6 +9,12 @@ from typing import Optional
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
+
+# Bounded thread pool executor for background email dispatching
+_email_executor = concurrent.futures.ThreadPoolExecutor(
+    max_workers=5,
+    thread_name_prefix="policygpt-email-worker"
+)
 
 
 class EmailService:
@@ -95,3 +102,28 @@ class EmailService:
         except Exception as e:
             logger.error(f"[SMTP Dispatcher] Unexpected failure sending email to {to_email}: {str(e)}")
             return False
+
+    @staticmethod
+    def send_email_background(
+        to_email: str,
+        subject: str,
+        html_content: str,
+        text_content: Optional[str] = None,
+    ) -> None:
+        """
+        Dispatch an email asynchronously in a dedicated worker thread,
+        ensuring the caller HTTP request is never blocked.
+        """
+        def _task():
+            try:
+                EmailService.send_email(
+                    to_email=to_email,
+                    subject=subject,
+                    html_content=html_content,
+                    text_content=text_content,
+                )
+            except Exception as ex:
+                logger.error(f"[SMTP Dispatcher Background] Unexpected failure sending email to {to_email}: {str(ex)}")
+
+        _email_executor.submit(_task)
+

@@ -108,6 +108,31 @@ class NotificationService:
         )
 
     @staticmethod
+    def send_email_background(
+        to_email: str,
+        subject: str,
+        body: str,
+        entity_type: Optional[str] = None,
+        entity_id: Optional[Union[str, int]] = None,
+    ) -> None:
+        """
+        Dispatch an email asynchronously in a dedicated worker thread,
+        ensuring the caller HTTP request is never blocked.
+        """
+        html_content = NotificationService._build_email_html(
+            subject=subject,
+            body=body,
+            entity_type=entity_type,
+            entity_id=entity_id,
+        )
+        EmailService.send_email_background(
+            to_email=to_email,
+            subject=subject,
+            html_content=html_content,
+            text_content=body,
+        )
+
+    @staticmethod
     def send_sms(phone_number: str, message: str) -> bool:
         """
         Send an SMS notification via Twilio if configured.
@@ -146,6 +171,22 @@ class NotificationService:
         except Exception as e:
             logger.error(f"[Twilio SMS Dispatcher] Failed to send SMS to {phone_number}: {str(e)}")
             return False
+
+    @staticmethod
+    def send_sms_background(phone_number: str, message: str) -> None:
+        """
+        Dispatch an SMS asynchronously in a dedicated worker thread,
+        ensuring the caller HTTP request is never blocked.
+        """
+        from app.services.email_service import _email_executor
+
+        def _task():
+            try:
+                NotificationService.send_sms(phone_number=phone_number, message=message)
+            except Exception as ex:
+                logger.error(f"[Twilio SMS Dispatcher Background] Unexpected failure sending SMS to {phone_number}: {str(ex)}")
+
+        _email_executor.submit(_task)
 
     # =========================================================================
     # 2. User Preferences & Filter Evaluation
@@ -248,7 +289,7 @@ class NotificationService:
     ) -> Notification:
         """
         Create and persist an in-app notification record and attempt multi-channel dispatch
-        according to user preferences and channel configuration.
+        according to user preferences and channel configuration in the background.
         """
         pref = NotificationService.get_or_create_preferences(db, user_id)
         topic_allowed = NotificationService.is_topic_enabled(pref, notification_type)
@@ -273,12 +314,12 @@ class NotificationService:
         db.commit()
         db.refresh(notification)
 
-        # Trigger external dispatch if allowed and configured
+        # Trigger external dispatch asynchronously in the background if allowed and configured
         user = db.query(User).filter(User.id == user_id).first()
         if user and topic_allowed:
-            # Email channel dispatch
+            # Email channel dispatch in background
             if pref.email_enabled and channel in (NotificationChannel.EMAIL.value, NotificationChannel.IN_APP.value):
-                NotificationService.send_email(
+                NotificationService.send_email_background(
                     to_email=user.email,
                     subject=title,
                     body=message,
@@ -286,9 +327,9 @@ class NotificationService:
                     entity_id=entity_id,
                 )
 
-            # SMS channel dispatch
+            # SMS channel dispatch in background
             if pref.sms_enabled and getattr(user, "phone_number", None) and channel in (NotificationChannel.SMS.value,):
-                NotificationService.send_sms(
+                NotificationService.send_sms_background(
                     phone_number=user.phone_number,
                     message=f"{title}: {message}",
                 )
@@ -304,7 +345,7 @@ class NotificationService:
         channel: str = NotificationChannel.IN_APP.value,
         target_roles: Optional[List[str]] = None,
     ) -> int:
-        """Broadcast a notification to active users matching target roles."""
+        """Broadcast a notification to active users matching target roles without blocking."""
         query = db.query(User).filter(User.is_active == True)
         if target_roles:
             normalized_roles = [UserRole.from_string(r) for r in target_roles]
@@ -313,6 +354,8 @@ class NotificationService:
         users = query.all()
         count = 0
         now = datetime.now(timezone.utc)
+        emails_to_dispatch = []
+
         for user in users:
             pref = NotificationService.get_or_create_preferences(db, user.id)
             if not NotificationService.is_topic_enabled(pref, notification_type):
@@ -332,9 +375,14 @@ class NotificationService:
             count += 1
 
             if pref.email_enabled and channel in (NotificationChannel.EMAIL.value, NotificationChannel.IN_APP.value):
-                NotificationService.send_email(to_email=user.email, subject=title, body=message)
+                emails_to_dispatch.append(user.email)
 
         db.commit()
+
+        # Asynchronously dispatch emails in background worker threads
+        for to_email in emails_to_dispatch:
+            NotificationService.send_email_background(to_email=to_email, subject=title, body=message)
+
         return count
 
     @staticmethod
@@ -636,21 +684,44 @@ class NotificationService:
             )
 
     @staticmethod
-    def trigger_application_submitted(db: Session, user_id: int, application_number: str, scheme_name: str):
-        """Notify applicant upon successful scheme application submission."""
-        title = f"Application Submitted: {application_number}"
-        message = f"Your application ({application_number}) for '{scheme_name}' has been successfully submitted and is under verification."
+    def trigger_application_submitted(db: Session, user_id: int, application_number: str, scheme_name: str, department: Optional[str] = None):
+        """Notify applicant and responsible reviewers upon scheme application submission."""
+        # 1. Notify Applicant
+        applicant_title = f"Application Submitted: {application_number}"
+        applicant_msg = f"Your application ({application_number}) for '{scheme_name}' has been successfully submitted and is under verification."
 
         NotificationService.create_notification(
             db=db,
             user_id=user_id,
-            title=title,
-            message=message,
+            title=applicant_title,
+            message=applicant_msg,
             notification_type=NotificationType.APPLICATION_SUBMITTED.value,
             channel=NotificationChannel.IN_APP.value,
             entity_type="SchemeApplication",
             entity_id=application_number,
         )
+
+        # 2. Notify Relevant Reviewers (Admins & Government Officials)
+        reviewers = db.query(User).filter(
+            User.is_active == True,
+            User.role.in_([UserRole.ADMINISTRATOR, UserRole.GOVERNMENT_OFFICIAL]),
+        ).all()
+
+        dept_str = f" ({department})" if department else ""
+        reviewer_title = f"New Scheme Application: {application_number}"
+        reviewer_msg = f"A new application ({application_number}) for '{scheme_name}'{dept_str} has been submitted by a citizen and is awaiting review."
+
+        for reviewer in reviewers:
+            NotificationService.create_notification(
+                db=db,
+                user_id=reviewer.id,
+                title=reviewer_title,
+                message=reviewer_msg,
+                notification_type=NotificationType.APPLICATION_SUBMITTED.value,
+                channel=NotificationChannel.IN_APP.value,
+                entity_type="SchemeApplication",
+                entity_id=application_number,
+            )
 
     @staticmethod
     def trigger_application_status_changed(

@@ -27,7 +27,8 @@ class PolicyService:
             created_by_id=current_user.id,
         )
         db.add(policy)
-        db.flush()
+        db.commit()
+        db.refresh(policy)
 
         AuditService.log(
             db=db,
@@ -59,8 +60,6 @@ class PolicyService:
                 policy_title=policy.title,
                 author_id=current_user.id,
             )
-        db.commit()
-        db.refresh(policy)
         return policy
 
     @staticmethod
@@ -168,6 +167,9 @@ class PolicyService:
         for key, value in update_data.items():
             setattr(policy, key, value)
 
+        db.commit()
+        db.refresh(policy)
+
         AuditService.log(
             db=db,
             action="POLICY_UPDATED",
@@ -193,8 +195,6 @@ class PolicyService:
                     department=policy.department,
                 )
 
-        db.commit()
-        db.refresh(policy)
         return policy
 
     @staticmethod
@@ -209,6 +209,8 @@ class PolicyService:
 
         policy.is_active = False
         policy.status = PolicyStatus.ARCHIVED.value
+        db.commit()
+        db.refresh(policy)
 
         AuditService.log(
             db=db,
@@ -218,8 +220,6 @@ class PolicyService:
             user_id=current_user.id,
             details=f"Archived policy '{policy.title}'",
         )
-        db.commit()
-        db.refresh(policy)
         return policy
 
     # --- Approval Workflow ---
@@ -242,6 +242,8 @@ class PolicyService:
 
         policy.status = PolicyStatus.PENDING_APPROVAL.value
         policy.rejection_reason = None  # Clear previous rejection remarks
+        db.commit()
+        db.refresh(policy)
 
         AuditService.log(
             db=db,
@@ -257,8 +259,6 @@ class PolicyService:
             policy_title=policy.title,
             author_id=current_user.id,
         )
-        db.commit()
-        db.refresh(policy)
         return policy
 
     @staticmethod
@@ -292,6 +292,8 @@ class PolicyService:
 
         policy.approved_by_id = current_user.id
         policy.rejection_reason = None
+        db.commit()
+        db.refresh(policy)
 
         AuditService.log(
             db=db,
@@ -323,8 +325,6 @@ class PolicyService:
                 policy_title=policy.title,
                 department=policy.department,
             )
-        db.commit()
-        db.refresh(policy)
         return policy
 
     @staticmethod
@@ -351,6 +351,8 @@ class PolicyService:
         policy.status = PolicyStatus.REJECTED.value
         policy.rejection_reason = reason
         policy.approved_by_id = current_user.id
+        db.commit()
+        db.refresh(policy)
 
         AuditService.log(
             db=db,
@@ -367,6 +369,4 @@ class PolicyService:
             author_id=policy.created_by_id,
             reason=reason,
         )
-        db.commit()
-        db.refresh(policy)
         return policy

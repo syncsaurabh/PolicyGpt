@@ -1,3 +1,4 @@
+from app.api.routes.applications import router as applications_router
 """API routes package."""
 from app.api.routes.auth import router as auth_router
 from app.api.routes.users import router as users_router
@@ -15,6 +16,7 @@ from app.api.routes.dashboard import router as dashboard_router
 from app.api.routes.assistant import router as assistant_router
 
 __all__ = [
+    "applications_router",
     "auth_router",
     "users_router",
     "policies_router",
