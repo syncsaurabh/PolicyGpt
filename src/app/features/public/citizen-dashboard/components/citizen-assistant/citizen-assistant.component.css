@@ -1,13 +1,20 @@
 .assistant-cta-section {
-  padding: 48px 24px 56px;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 48px 0 56px;
+  width: min(100% - 48px, 1200px);
+  margin-inline: auto;
   box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .assistant-cta-section {
+    width: calc(100% - 40px);
+  }
 }
 
 @media (max-width: 640px) {
   .assistant-cta-section {
-    padding: 32px 16px 40px;
+    padding: 32px 0 40px;
+    width: calc(100% - 32px);
   }
 }
 

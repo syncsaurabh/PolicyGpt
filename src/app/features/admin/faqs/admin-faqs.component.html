@@ -1,0 +1,431 @@
+<div class="admin-faqs-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-titles">
+        <div class="title-row">
+          <span class="header-icon material-symbols-outlined">quiz</span>
+          <h1 class="page-title">FAQ &amp; Knowledge Desk Management</h1>
+        </div>
+        <p class="page-subtitle">
+          Create, edit, organize, and publish verified FAQs and AI Help Desk guidance for public citizens.
+        </p>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="btn btn-primary" (click)="openCreateModal()">
+          <span class="material-symbols-outlined">add_circle</span>
+          <span>New FAQ Entry</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toasts / Alerts -->
+  @if (successMessage()) {
+    <div class="alert-banner success-banner">
+      <span class="material-symbols-outlined">check_circle</span>
+      <span class="alert-text">{{ successMessage() }}</span>
+      <button type="button" class="btn-close-alert" (click)="successMessage.set(null)">✕</button>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert-banner error-banner">
+      <span class="material-symbols-outlined">error</span>
+      <span class="alert-text">{{ errorMessage() }}</span>
+      <button type="button" class="btn-close-alert" (click)="errorMessage.set(null)">✕</button>
+    </div>
+  }
+
+  <!-- Metrics Grid -->
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-icon primary">
+        <span class="material-symbols-outlined">live_help</span>
+      </div>
+      <div class="metric-info">
+        <span class="metric-label">Total Knowledge Items</span>
+        <span class="metric-value">{{ totalCount() }}</span>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon success">
+        <span class="material-symbols-outlined">visibility</span>
+      </div>
+      <div class="metric-info">
+        <span class="metric-label">Published to Citizens</span>
+        <span class="metric-value">{{ activeCount() }}</span>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon info">
+        <span class="material-symbols-outlined">category</span>
+      </div>
+      <div class="metric-info">
+        <span class="metric-label">Distinct Categories</span>
+        <span class="metric-value">{{ categoryCount() }}</span>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon warning">
+        <span class="material-symbols-outlined">smart_toy</span>
+      </div>
+      <div class="metric-info">
+        <span class="metric-label">AI Grounding Status</span>
+        <span class="metric-value">Active &amp; Synced</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters & Search Toolbar -->
+  <div class="filters-panel">
+    <div class="filters-grid">
+      <!-- Search Input -->
+      <div class="filter-group search-group">
+        <label for="faqSearch">Search Queries</label>
+        <div class="search-input-wrap">
+          <span class="material-symbols-outlined search-icon">search</span>
+          <input 
+            type="text" 
+            id="faqSearch"
+            class="form-control" 
+            placeholder="Search by question, answer, or category..."
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+          />
+          @if (searchQuery()) {
+            <button type="button" class="btn-clear" (click)="searchQuery.set('')">✕</button>
+          }
+        </div>
+      </div>
+
+      <!-- Category Filter -->
+      <div class="filter-group">
+        <label for="categoryFilter">Category</label>
+        <select 
+          id="categoryFilter" 
+          class="form-select"
+          [ngModel]="selectedCategory()"
+          (ngModelChange)="selectedCategory.set($event)"
+        >
+          @for (cat of availableCategories(); track cat) {
+            <option [value]="cat">{{ cat }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Status Filter -->
+      <div class="filter-group">
+        <label for="statusFilter">Status</label>
+        <select 
+          id="statusFilter" 
+          class="form-select"
+          [ngModel]="selectedStatus()"
+          (ngModelChange)="selectedStatus.set($event)"
+        >
+          <option value="ALL">All Statuses</option>
+          <option value="ACTIVE">Published (Active)</option>
+          <option value="INACTIVE">Hidden (Draft / Inactive)</option>
+        </select>
+      </div>
+
+      <!-- Reset Action -->
+      <div class="filter-group filter-actions">
+        <label class="invisible-label">&nbsp;</label>
+        <button type="button" class="btn btn-secondary" (click)="resetFilters()">
+          <span class="material-symbols-outlined">restart_alt</span>
+          <span>Reset</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQs Data Table Container -->
+  <div class="table-container-card">
+    <div class="table-header-row">
+      <div class="table-title-area">
+        <h2 class="table-title">Knowledge Base Items</h2>
+        <span class="badge-count">{{ filteredFaqs().length }} items found</span>
+      </div>
+      <button type="button" class="btn-refresh" (click)="loadFaqs()" [disabled]="isLoading()">
+        <span class="material-symbols-outlined" [class.spinning]="isLoading()">refresh</span>
+        <span>Refresh</span>
+      </button>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading FAQ database...</p>
+      </div>
+    } @else if (filteredFaqs().length === 0) {
+      <div class="empty-state">
+        <span class="material-symbols-outlined empty-icon">quiz</span>
+        <h3 class="empty-title">No FAQ Entries Found</h3>
+        <p class="empty-desc">
+          @if (searchQuery() || selectedCategory() !== 'All' || selectedStatus() !== 'ALL') {
+            No questions match your active filters. Try clearing or adjusting search parameters.
+          } @else {
+            No FAQs have been created yet. Click "New FAQ Entry" above to add your first question!
+          }
+        </p>
+        @if (searchQuery() || selectedCategory() !== 'All' || selectedStatus() !== 'ALL') {
+          <button type="button" class="btn btn-secondary" (click)="resetFilters()">Clear Filters</button>
+        } @else {
+          <button type="button" class="btn btn-primary" (click)="openCreateModal()">Create First FAQ</button>
+        }
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="th-id">#ID</th>
+              <th class="th-question">Question &amp; Category</th>
+              <th class="th-answer">Answer Content</th>
+              <th class="th-order">Order</th>
+              <th class="th-status">Visibility</th>
+              <th class="th-updated">Last Updated</th>
+              <th class="th-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (faq of filteredFaqs(); track faq.id) {
+              <tr class="table-row">
+                <td class="td-id">
+                  <span class="id-tag">#{{ faq.id }}</span>
+                </td>
+                <td class="td-question">
+                  <div class="question-cell">
+                    <span class="category-pill">{{ faq.category || 'General' }}</span>
+                    <span class="question-text">{{ faq.question }}</span>
+                  </div>
+                </td>
+                <td class="td-answer">
+                  <p class="answer-cell-text" [title]="faq.answer">
+                    {{ faq.answer }}
+                  </p>
+                </td>
+                <td class="td-order">
+                  <span class="order-badge">{{ faq.display_order ?? 0 }}</span>
+                </td>
+                <td class="td-status">
+                  <button 
+                    type="button" 
+                    class="status-toggle-btn" 
+                    [class.active]="faq.is_active !== false"
+                    (click)="toggleActiveStatus(faq, $event)"
+                    [title]="faq.is_active !== false ? 'Click to hide from citizens' : 'Click to publish to citizens'"
+                  >
+                    <span class="status-indicator"></span>
+                    <span>{{ faq.is_active !== false ? 'Published' : 'Hidden' }}</span>
+                  </button>
+                </td>
+                <td class="td-updated">
+                  <span class="date-text">{{ faq.updated_at ? (faq.updated_at | date:'mediumDate') : '—' }}</span>
+                </td>
+                <td class="td-actions">
+                  <div class="action-buttons-group">
+                    <button 
+                      type="button" 
+                      class="btn-icon-action edit" 
+                      (click)="openEditModal(faq)"
+                      title="Edit FAQ"
+                    >
+                      <span class="material-symbols-outlined">edit</span>
+                    </button>
+                    <button 
+                      type="button" 
+                      class="btn-icon-action delete" 
+                      (click)="openDeleteModal(faq, $event)"
+                      title="Delete FAQ"
+                    >
+                      <span class="material-symbols-outlined">delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+  <!-- Create / Edit Modal -->
+  @if (isCreateEditModalOpen()) {
+    <div class="modal-backdrop" (click)="closeCreateEditModal()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <span class="material-symbols-outlined modal-icon">
+              {{ modalMode() === 'create' ? 'add_circle' : 'edit_note' }}
+            </span>
+            <h2 class="modal-title">
+              {{ modalMode() === 'create' ? 'Create New FAQ Entry' : 'Edit FAQ #' + editingFaqId() }}
+            </h2>
+          </div>
+          <button type="button" class="btn-close-modal" (click)="closeCreateEditModal()">✕</button>
+        </div>
+
+        <form (submit)="$event.preventDefault(); saveFaq()" class="modal-body">
+          @if (formError) {
+            <div class="form-error-alert">
+              <span class="material-symbols-outlined">error</span>
+              <span>{{ formError }}</span>
+            </div>
+          }
+
+          <!-- Question Input -->
+          <div class="form-group">
+            <label for="formQuestion" class="form-label required">
+              Question Text
+            </label>
+            <input 
+              type="text" 
+              id="formQuestion"
+              name="formQuestion"
+              class="form-control" 
+              placeholder="e.g. How do I apply for PM-KISAN scheme online?"
+              [(ngModel)]="formQuestion"
+              maxlength="500"
+              required
+            />
+            <span class="field-hint">{{ formQuestion.length }} / 500 characters</span>
+          </div>
+
+          <!-- Category Selection / Custom Input -->
+          <div class="form-group">
+            <label for="formCategory" class="form-label required">Category</label>
+            <div class="category-input-group">
+              <input 
+                type="text" 
+                id="formCategory"
+                name="formCategory"
+                class="form-control" 
+                placeholder="Category (e.g. Schemes & Applications, Eligibility...)"
+                [(ngModel)]="formCategory"
+                list="presetCategoryList"
+                required
+              />
+              <datalist id="presetCategoryList">
+                @for (cat of presetCategories; track cat) {
+                  <option [value]="cat"></option>
+                }
+              </datalist>
+            </div>
+          </div>
+
+          <!-- Answer Textarea -->
+          <div class="form-group">
+            <label for="formAnswer" class="form-label required">
+              Detailed Answer / Policy Guidance
+            </label>
+            <textarea 
+              id="formAnswer" 
+              name="formAnswer"
+              rows="6" 
+              class="form-control textarea" 
+              placeholder="Provide clear, step-by-step guidance, required documents, official portal links, or eligibility criteria..."
+              [(ngModel)]="formAnswer"
+              required
+            ></textarea>
+            <span class="field-hint">Answers are directly indexed by PolicyGPT AI Assistant to resolve citizen inquiries.</span>
+          </div>
+
+          <!-- Display Order & Active Row -->
+          <div class="form-row-2col">
+            <div class="form-group">
+              <label for="formDisplayOrder" class="form-label">Display Order Index</label>
+              <input 
+                type="number" 
+                id="formDisplayOrder"
+                name="formDisplayOrder"
+                class="form-control" 
+                [(ngModel)]="formDisplayOrder"
+                min="0"
+              />
+              <span class="field-hint">Lower numbers appear first</span>
+            </div>
+
+            <div class="form-group toggle-group">
+              <label class="form-label">Visibility Status</label>
+              <label class="switch-container">
+                <input 
+                  type="checkbox" 
+                  name="formIsActive"
+                  [(ngModel)]="formIsActive"
+                />
+                <span class="switch-slider"></span>
+                <span class="switch-label">
+                  {{ formIsActive ? 'Published (Live)' : 'Draft (Hidden)' }}
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeCreateEditModal()" [disabled]="isSubmitting()">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="isSubmitting()">
+              @if (isSubmitting()) {
+                <span class="spinner-small"></span>
+                <span>Saving...</span>
+              } @else {
+                <span>{{ modalMode() === 'create' ? 'Create FAQ' : 'Save Changes' }}</span>
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Delete Confirmation Modal -->
+  @if (isDeleteModalOpen()) {
+    <div class="modal-backdrop" (click)="closeDeleteModal()">
+      <div class="modal-dialog modal-sm" (click)="$event.stopPropagation()">
+        <div class="modal-header danger-header">
+          <div class="modal-title-wrap">
+            <span class="material-symbols-outlined modal-icon text-danger">warning</span>
+            <h2 class="modal-title">Delete FAQ Entry</h2>
+          </div>
+          <button type="button" class="btn-close-modal" (click)="closeDeleteModal()">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <p class="delete-msg">
+            Are you sure you want to permanently delete this FAQ from the knowledge base?
+          </p>
+          @if (deletingFaq()) {
+            <div class="delete-preview-box">
+              <span class="delete-cat">{{ deletingFaq()?.category }}</span>
+              <p class="delete-q">"{{ deletingFaq()?.question }}"</p>
+            </div>
+          }
+          <p class="delete-warning-text">
+            ⚠️ This will also remove the question from the PolicyGPT AI groundings index.
+          </p>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()" [disabled]="isSubmitting()">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="isSubmitting()">
+            @if (isSubmitting()) {
+              <span class="spinner-small"></span>
+              <span>Deleting...</span>
+            } @else {
+              <span>Confirm Delete</span>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

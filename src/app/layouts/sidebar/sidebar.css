@@ -269,6 +269,6 @@
   .sidebar-nav {
     top: 62px;
     height: calc(100vh - 62px);
-    width: 280px !important;
+    width: min(280px, 85vw) !important;
   }
 }

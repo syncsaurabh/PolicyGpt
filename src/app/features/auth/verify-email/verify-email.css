@@ -1,0 +1,439 @@
+/* =========================
+   VERIFY EMAIL STYLES
+========================= */
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.verify-container {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.login-heading {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.verify-icon-wrap {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  border-radius: 14px;
+  background: rgba(37, 99, 235, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-blue, #2563eb);
+}
+
+.verify-header-svg {
+  width: 28px;
+  height: 28px;
+}
+
+.login-heading h2 {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.7px;
+  margin: 0 0 8px;
+  color: #14213d;
+  transition: color 0.3s ease;
+}
+
+.verify-desc-lead {
+  margin: 0 0 10px;
+  color: #6b7f9f;
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.masked-email-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.email-icon {
+  font-size: 14px;
+  color: var(--brand-blue, #2563eb);
+}
+
+/* =========================
+   ALERTS
+========================= */
+
+.form-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  margin-bottom: 18px;
+  line-height: 1.4;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.alert-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.alert-error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.alert-success {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+/* =========================
+   OTP DIGIT BOXES
+========================= */
+
+.otp-input-section {
+  margin-bottom: 20px;
+}
+
+.otp-label {
+  display: block;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #506687;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.otp-boxes-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.otp-digit-box {
+  width: 100%;
+  height: 56px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 800;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: #1e293b;
+  background: #ffffff;
+  border: 2px solid #d5dfec;
+  border-radius: 10px;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.otp-digit-box:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+  transform: translateY(-2px);
+}
+
+.otp-digit-box:hover:not(:focus) {
+  border-color: #94a3b8;
+}
+
+/* =========================
+   EXPIRY TIMER
+========================= */
+
+.timer-countdown-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 22px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.timer-icon {
+  width: 16px;
+  height: 16px;
+  color: #64748b;
+}
+
+.timer-urgent {
+  color: #dc2626 !important;
+  font-weight: 600;
+}
+
+.text-danger {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+
+.login-button {
+  width: 100%;
+  height: 52px;
+  border: none;
+  border-radius: 10px;
+  background: #1768e8;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  transition: background-color 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 7px 18px rgba(23, 104, 232, 0.22);
+}
+
+.login-button:hover:not(:disabled) {
+  background: #0e59cf;
+  transform: translateY(-1px);
+  box-shadow: 0 9px 22px rgba(23, 104, 232, 0.28);
+}
+
+.login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-arrow {
+  width: 18px;
+  height: 18px;
+}
+
+.btn-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.btn-spinner-tiny {
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(37, 99, 235, 0.3);
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* =========================
+   RESEND SECTION
+========================= */
+
+.resend-action-area {
+  margin-top: 22px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #f8faff;
+  border: 1px solid #e1e8f2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.resend-prompt {
+  font-size: 13px;
+  color: #506687;
+}
+
+.btn-resend-link {
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1768e8;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-resend-link:hover:not(:disabled) {
+  color: #0c4fb8;
+  background: rgba(23, 104, 232, 0.08);
+}
+
+.btn-resend-link:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+  background: transparent;
+}
+
+/* =========================
+   FOOTER LINKS
+========================= */
+
+.form-footer-prompt {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: #6b7f9f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.back-link {
+  color: #1768e8;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: #0c4fb8;
+  text-decoration: underline;
+}
+
+.footer-divider {
+  color: #cbd5e1;
+}
+
+/* =========================
+   DARK THEME OVERRIDES
+========================= */
+
+[data-theme="dark"] .login-heading h2,
+body.dark-theme .login-heading h2 {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .verify-desc-lead,
+body.dark-theme .verify-desc-lead {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .masked-email-pill,
+body.dark-theme .masked-email-pill {
+  background: #172033;
+  border-color: #1e293b;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .verify-icon-wrap,
+body.dark-theme .verify-icon-wrap {
+  background: rgba(96, 165, 250, 0.15);
+  color: #60a5fa;
+}
+
+[data-theme="dark"] .otp-label,
+body.dark-theme .otp-label {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .otp-digit-box,
+body.dark-theme .otp-digit-box {
+  background: #111827;
+  border-color: #1e293b;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .otp-digit-box:focus,
+body.dark-theme .otp-digit-box:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15);
+}
+
+[data-theme="dark"] .timer-countdown-row,
+body.dark-theme .timer-countdown-row {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .resend-action-area,
+body.dark-theme .resend-action-area {
+  background: #111827;
+  border-color: #1e293b;
+}
+
+[data-theme="dark"] .resend-prompt,
+body.dark-theme .resend-prompt {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .btn-resend-link,
+body.dark-theme .btn-resend-link {
+  color: #60a5fa;
+}
+
+[data-theme="dark"] .btn-resend-link:hover:not(:disabled),
+body.dark-theme .btn-resend-link:hover:not(:disabled) {
+  color: #93c5fd;
+  background: rgba(96, 165, 250, 0.12);
+}
+
+[data-theme="dark"] .btn-resend-link:disabled,
+body.dark-theme .btn-resend-link:disabled {
+  color: #64748b;
+}
+
+[data-theme="dark"] .back-link,
+body.dark-theme .back-link {
+  color: #60a5fa;
+}
+
+[data-theme="dark"] .back-link:hover,
+body.dark-theme .back-link:hover {
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .footer-divider,
+body.dark-theme .footer-divider {
+  color: #475569;
+}
+
+@media (max-width: 480px) {
+  .otp-boxes-grid {
+    gap: 6px;
+  }
+
+  .otp-digit-box {
+    height: 48px;
+    font-size: 20px;
+  }
+}

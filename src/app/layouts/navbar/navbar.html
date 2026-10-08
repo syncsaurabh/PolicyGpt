@@ -126,13 +126,59 @@
     </button>
 
     @if (auth.currentUser(); as user) {
-    <div class="profile-chip">
-      <div class="avatar">{{ user.username.substring(0, 1).toUpperCase() }}</div>
-      <div class="user-meta">
-        <span class="username">{{ user.username }}</span>
-        <span class="role-badge">{{ user.role }}</span>
+    <div class="profile-wrapper">
+      <button class="profile-chip-btn" type="button" (click)="toggleProfileDropdown($event)"
+        [class.active]="isProfileDropdownOpen()" title="Account & Profile menu" aria-label="Account menu">
+        <div class="avatar">{{ ((user.name || user.username || 'U')[0]).toUpperCase() }}</div>
+        <div class="user-meta">
+          <span class="username">{{ user.name || user.username }}</span>
+          <span class="role-badge">{{ user.role }}</span>
+        </div>
+        <svg class="dropdown-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+
+      <!-- Profile Dropdown Menu -->
+      @if (isProfileDropdownOpen()) {
+      <div class="profile-dropdown-menu" (click)="$event.stopPropagation()">
+        <div class="profile-dropdown-header">
+          <div class="avatar avatar-lg">{{ ((user.name || user.username || 'U')[0]).toUpperCase() }}</div>
+          <div class="header-user-info">
+            <span class="header-user-name">{{ user.name || user.username }}</span>
+            <span class="header-user-email">{{ user.email }}</span>
+            <span class="role-tag">{{ user.role }}</span>
+          </div>
+        </div>
+
+        <div class="dropdown-divider"></div>
+
+        <div class="dropdown-menu-list">
+          <button type="button" class="dropdown-menu-item" (click)="openProfileModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>Update Profile</span>
+          </button>
+        </div>
+
+        <div class="dropdown-divider"></div>
+
+        <div class="dropdown-menu-footer">
+          <button type="button" class="dropdown-menu-item text-danger" (click)="logout()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Logout</span>
+          </button>
+        </div>
       </div>
+      }
     </div>
+
     <button class="logout-btn" (click)="logout()" title="Log out">
       <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor">
         <path
@@ -142,4 +188,162 @@
     </button>
     }
   </div>
+
+  <!-- Update Profile Modal Dialog -->
+  @if (isProfileModalOpen()) {
+  <div class="modal-backdrop" (click)="closeProfileModal()">
+    <div class="modal-dialog profile-modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-icon-badge">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <div>
+            <h2 class="modal-title">Update Profile</h2>
+            <p class="modal-subtitle">Update your personal and demographic information</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close" (click)="closeProfileModal()" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <form (ngSubmit)="saveProfile()" class="modal-form">
+        <div class="modal-body">
+          <!-- Feedback Alert -->
+          @if (profileFeedback(); as fb) {
+            <div class="alert" [ngClass]="fb.type === 'success' ? 'alert-success' : 'alert-danger'">
+              @if (fb.type === 'success') {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              } @else {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+              }
+              <span>{{ fb.message }}</span>
+            </div>
+          }
+
+          @if (isLoadingProfile()) {
+            <div class="profile-modal-loading">
+              <div class="btn-spinner dark"></div>
+              <span>Loading profile details...</span>
+            </div>
+          } @else {
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="profile-name">Full Name</label>
+                <input
+                  id="profile-name"
+                  name="name"
+                  type="text"
+                  class="form-input"
+                  [(ngModel)]="profileForm.name"
+                  placeholder="e.g. Jane Doe"
+                  maxlength="100"
+                  [disabled]="isSavingProfile()"
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="profile-phone">Phone Number</label>
+                <input
+                  id="profile-phone"
+                  name="phone_number"
+                  type="tel"
+                  class="form-input"
+                  [(ngModel)]="profileForm.phone_number"
+                  placeholder="e.g. +919876543210"
+                  maxlength="50"
+                  [disabled]="isSavingProfile()"
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="profile-age">Age</label>
+                <input
+                  id="profile-age"
+                  name="age"
+                  type="number"
+                  class="form-input"
+                  [(ngModel)]="profileForm.age"
+                  placeholder="e.g. 28"
+                  min="1"
+                  max="120"
+                  [disabled]="isSavingProfile()"
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="profile-state">State</label>
+                <input
+                  id="profile-state"
+                  name="state"
+                  type="text"
+                  class="form-input"
+                  [(ngModel)]="profileForm.state"
+                  placeholder="e.g. Maharashtra"
+                  maxlength="100"
+                  [disabled]="isSavingProfile()"
+                />
+              </div>
+
+              <div class="form-group full-width">
+                <label class="form-label" for="profile-address">Address</label>
+                <textarea
+                  id="profile-address"
+                  name="address"
+                  rows="2"
+                  class="form-textarea"
+                  [(ngModel)]="profileForm.address"
+                  placeholder="e.g. 123 MG Road, Shivajinagar"
+                  maxlength="500"
+                  [disabled]="isSavingProfile()"
+                ></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="profile-pincode">Pincode</label>
+                <input
+                  id="profile-pincode"
+                  name="pincode"
+                  type="text"
+                  class="form-input"
+                  [(ngModel)]="profileForm.pincode"
+                  placeholder="e.g. 411005"
+                  maxlength="20"
+                  [disabled]="isSavingProfile()"
+                />
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeProfileModal()" [disabled]="isSavingProfile()">
+            Cancel
+          </button>
+          <button type="submit" class="btn-primary" [disabled]="isSavingProfile() || isLoadingProfile()">
+            @if (isSavingProfile()) {
+              <span class="btn-spinner"></span>
+              <span>Updating...</span>
+            } @else {
+              <span>Update Profile</span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
 </header>

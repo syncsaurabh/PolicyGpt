@@ -325,15 +325,25 @@
 
       <!-- Action Buttons Footer -->
       <div class="form-actions-footer">
-        <button type="button" class="btn-form-cancel" (click)="cancel()">
+        <button type="button" class="btn-form-cancel" (click)="cancel()" [disabled]="isSubmitting()">
           Cancel
         </button>
         <div class="submit-actions-group">
-          <button type="button" class="btn-form-draft" (click)="saveAsDraft()">
-            Save as Draft
+          <button type="button" class="btn-form-draft" (click)="saveAsDraft()" [disabled]="isSubmitting()">
+            @if (isSubmitting()) {
+              <span class="btn-spinner"></span>
+              <span>Saving Draft...</span>
+            } @else {
+              <span>Save as Draft</span>
+            }
           </button>
           <button type="submit" class="btn-form-save-changes" [disabled]="isSubmitting()">
-            Create Scheme
+            @if (isSubmitting()) {
+              <span class="btn-spinner"></span>
+              <span>Creating Scheme...</span>
+            } @else {
+              <span>Create Scheme</span>
+            }
           </button>
         </div>
       </div>

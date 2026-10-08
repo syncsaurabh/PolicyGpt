@@ -1,47 +1,125 @@
 .schemes-section {
-  padding: 48px 24px 56px;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 48px 0 56px;
+  width: min(100% - 48px, 1200px);
+  margin-inline: auto;
   box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .schemes-section {
+    width: calc(100% - 40px);
+  }
 }
 
 @media (max-width: 640px) {
   .schemes-section {
-    padding: 32px 16px 40px;
+    padding: 32px 0 40px;
+    width: calc(100% - 32px);
   }
 }
 
-.schemes-section .section-header {
-  margin-bottom: 32px;
+.schemes-section .section-header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .schemes-section .section-header-row {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+  }
+}
+
+.schemes-section .section-header-content {
+  flex: 1;
   text-align: center;
 }
 
-.schemes-section .section-header .section-heading {
+.schemes-section .section-heading {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: 1.5rem;
-  line-height: 1.3;
+  font-size: 1.75rem;
+  line-height: 1.25;
   font-weight: 800;
   color: var(--text-main, #0f172a);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
+  margin: 0 0 6px;
+}
+
+.schemes-section .section-subheading {
+  font-size: 0.9375rem;
+  color: var(--text-muted, #64748b);
   margin: 0;
 }
 
-.schemes-section .section-header .filter-indicator {
+.schemes-section .view-all-link {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #2563eb;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: gap 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.schemes-section .view-all-link:hover {
+  color: #1d4ed8;
+  gap: 6px;
+}
+
+.schemes-section .view-all-link .arrow {
+  font-size: 1rem;
+}
+
+.schemes-section .filter-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-size: 0.8125rem;
   color: var(--text-muted, #64748b);
   margin-top: 8px;
+  padding: 4px 12px;
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  border-radius: 9999px;
 }
 
-.schemes-section .section-header .filter-indicator .reset-filter-btn {
+:host-context([data-theme='dark']) .schemes-section .filter-indicator,
+:host-context(.dark) .schemes-section .filter-indicator {
+  background: rgba(37, 99, 235, 0.15);
+  border-color: rgba(96, 165, 250, 0.3);
+  color: #94a3b8;
+}
+
+.schemes-section .filter-indicator strong {
+  color: var(--brand-blue, #2563eb);
+  font-weight: 600;
+}
+
+:host-context([data-theme='dark']) .schemes-section .filter-indicator strong,
+:host-context(.dark) .schemes-section .filter-indicator strong {
+  color: #60a5fa;
+}
+
+.schemes-section .filter-indicator .reset-filter-btn {
   background: none;
   border: none;
   color: var(--brand-blue, #2563eb);
   cursor: pointer;
+  font-size: 0.8125rem;
   font-weight: 600;
-  margin-left: 6px;
+  padding: 0 4px;
+  transition: all 0.2s ease;
 }
 
-.schemes-section .section-header .filter-indicator .reset-filter-btn:hover {
+.schemes-section .filter-indicator .reset-filter-btn:hover {
+  color: #dc2626;
   text-decoration: underline;
 }
 
@@ -49,17 +127,17 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
-  max-width: 1080px;
-  margin: 0 auto;
+  width: 100%;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .schemes-section .schemes-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
   }
 }
 
-@media (max-width: 580px) {
+@media (max-width: 640px) {
   .schemes-section .schemes-grid {
     grid-template-columns: 1fr;
   }
@@ -68,7 +146,7 @@
 .schemes-section .scheme-card {
   background-color: var(--bg-card, #ffffff);
   border-radius: 12px;
-  padding: 24px;
+  padding: 22px 24px;
   border: 1px solid var(--border-color, #e2e8f0);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
   display: flex;
@@ -80,102 +158,142 @@
 
 .schemes-section .scheme-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-  border-color: var(--brand-blue, #cbd5e1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  border-color: #cbd5e1;
 }
 
-.schemes-section .scheme-card .scheme-card-header {
+.schemes-section .scheme-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 14px;
 }
 
-.schemes-section .scheme-card .scheme-badge {
-  font-size: 0.8125rem;
+.schemes-section .scheme-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
   font-weight: 600;
-  color: var(--brand-blue, #2563eb);
+  padding: 4px 10px;
+  border-radius: 6px;
+  background-color: #f1f5f9;
+  color: #475569;
 }
 
-.schemes-section .scheme-card .bookmark-btn {
+.schemes-section .badge-agriculture {
+  background-color: #f0fdf4;
+  color: #166534;
+}
+
+.schemes-section .badge-healthcare {
+  background-color: #fff1f2;
+  color: #9f1239;
+}
+
+.schemes-section .badge-education {
+  background-color: #fefce8;
+  color: #854d0e;
+}
+
+.schemes-section .badge-employment {
+  background-color: #fff7ed;
+  color: #9a3412;
+}
+
+.schemes-section .badge-housing {
+  background-color: #faf5ff;
+  color: #6b21a8;
+}
+
+.schemes-section .bookmark-btn {
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--text-disabled, #94a3b8);
+  color: #94a3b8;
   display: flex;
   padding: 2px;
   transition: all 0.2s;
 }
 
-.schemes-section .scheme-card .bookmark-btn:hover,
-.schemes-section .scheme-card .bookmark-btn.bookmarked {
-  color: var(--brand-blue, #1e3a8a);
+.schemes-section .bookmark-btn:hover,
+.schemes-section .bookmark-btn.bookmarked {
+  color: #2563eb;
   transform: scale(1.1);
 }
 
-.schemes-section .scheme-card .bookmark-btn .material-symbols-outlined {
-  font-size: 18px;
+.schemes-section .bookmark-btn .material-symbols-outlined {
+  font-size: 20px;
 }
 
-.schemes-section .scheme-card .scheme-title {
+.schemes-section .scheme-title {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-main, #0f172a);
   margin: 0 0 8px;
-  letter-spacing: -0.02em;
+  line-height: 1.35;
 }
 
-.schemes-section .scheme-card .scheme-tagline {
-  font-size: 0.8125rem;
-  color: var(--text-muted, #475569);
-  font-weight: 500;
-  margin: 0 0 10px;
-}
-
-.schemes-section .scheme-card .scheme-description {
-  font-size: 0.8125rem;
+.schemes-section .scheme-description {
+  font-size: 0.875rem;
   line-height: 1.5;
   color: var(--text-muted, #64748b);
-  margin: 0 0 20px;
-  flex-grow: 1;
+  margin: 0 0 10px;
+  flex: 1;
 }
 
-.schemes-section .scheme-card .scheme-card-footer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: auto;
-}
-
-.schemes-section .scheme-card .btn-view-details {
-  padding: 8px 18px;
-  border: 1px solid var(--border-color, #cbd5e1);
-  color: var(--text-main, #1e293b);
-  background: var(--bg-card, #ffffff);
-  border-radius: 8px;
+.schemes-section .learn-more-link {
   font-size: 0.8125rem;
-  font-weight: 600;
+  color: #2563eb;
+  text-decoration: underline;
+  margin-bottom: 18px;
+  font-weight: 500;
+  display: inline-block;
+  transition: color 0.2s;
+}
+
+.schemes-section .learn-more-link:hover {
+  color: #1d4ed8;
+}
+
+.schemes-section .scheme-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 14px;
+}
+
+.schemes-section .btn-view-details {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #0f172a;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 6px 14px;
+  border-radius: 8px;
   text-decoration: none;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
-.schemes-section .scheme-card .btn-view-details:hover {
-  background: var(--bg-page, #f8fafc);
-  border-color: var(--brand-blue, #94a3b8);
-  color: var(--brand-blue, #1e3a8a);
+.schemes-section .btn-view-details:hover {
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
+  color: #2563eb;
 }
 
-.schemes-section .scheme-card .btn-view-details .arrow-icon {
-  font-size: 14px;
+.schemes-section .btn-view-details .arrow-icon {
+  font-size: 0.9375rem;
   transition: transform 0.2s;
 }
 
-.schemes-section .scheme-card .btn-view-details:hover .arrow-icon {
-  transform: translateX(3px);
+.schemes-section .btn-view-details:hover .arrow-icon {
+  transform: translateX(2px);
 }
 
 .schemes-section .no-schemes-message {
@@ -329,4 +447,24 @@
 
 .modal-card .modal-footer .btn-close-modal:hover {
   background: var(--table-hover-bg, #e2e8f0);
+}
+
+@media (max-width: 480px) {
+  .schemes-section .section-heading {
+    font-size: 1.45rem;
+  }
+  .schemes-section .scheme-card {
+    padding: 16px;
+  }
+  .modal-card {
+    padding: 16px;
+  }
+  .modal-card .modal-footer {
+    flex-direction: column-reverse;
+  }
+  .modal-card .modal-footer .btn-apply-modal,
+  .modal-card .modal-footer .btn-close-modal {
+    width: 100%;
+    text-align: center;
+  }
 }

@@ -1,0 +1,245 @@
+<div class="modal-backdrop" *ngIf="isOpen && application" (click)="onClose()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div class="modal-title-wrap">
+        <div class="modal-icon-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+          </svg>
+        </div>
+        <div>
+          <div class="app-num-row">
+            <h2 class="modal-title">{{ application.application_number }}</h2>
+            <span class="status-chip" [ngClass]="getStatusClass(application.status)">
+              {{ application.status }}
+            </span>
+          </div>
+          <p class="modal-subtitle">Registered on {{ formatDate(application.created_at) }}</p>
+        </div>
+      </div>
+      <button type="button" class="btn-close" (click)="onClose()" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body-content">
+      <!-- Success Toast inside modal -->
+      <div *ngIf="successMessage" class="alert alert-success">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>{{ successMessage }}</span>
+      </div>
+
+      <!-- Error Alert inside modal -->
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <!-- Application Lifecycle Progress Bar -->
+      <div class="lifecycle-track">
+        <div class="lc-step" [class.done]="true">
+          <span class="lc-dot">✓</span>
+          <span class="lc-label">Submitted</span>
+        </div>
+        <div class="lc-line" [class.done]="application.status !== 'SUBMITTED' && application.status !== 'WITHDRAWN'"></div>
+        
+        <div class="lc-step" [class.done]="application.status === 'UNDER_REVIEW' || application.status === 'APPROVED' || application.status === 'DISBURSED'" [class.rejected]="application.status === 'REJECTED'">
+          <span class="lc-dot">
+            {{ application.status === 'REJECTED' ? '✕' : (application.status === 'SUBMITTED' ? '2' : '✓') }}
+          </span>
+          <span class="lc-label">Under Review</span>
+        </div>
+        <div class="lc-line" [class.done]="application.status === 'APPROVED' || application.status === 'DISBURSED'"></div>
+
+        <div class="lc-step" [class.done]="application.status === 'APPROVED' || application.status === 'DISBURSED'" [class.withdrawn]="application.status === 'WITHDRAWN'">
+          <span class="lc-dot">
+            {{ application.status === 'WITHDRAWN' ? '⊘' : (application.status === 'APPROVED' || application.status === 'DISBURSED' ? '✓' : '3') }}
+          </span>
+          <span class="lc-label">
+            {{ application.status === 'WITHDRAWN' ? 'Withdrawn' : (application.status === 'REJECTED' ? 'Rejected' : (application.status === 'DISBURSED' ? 'Disbursed' : 'Approved')) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Scheme Information Card -->
+      <div class="info-card">
+        <div class="info-card-head">
+          <span class="ic-badge">Welfare Scheme</span>
+          <h3 class="ic-title">{{ application.scheme_name }}</h3>
+        </div>
+        <div class="info-grid">
+          <div class="info-item" *ngIf="application.scheme?.department">
+            <span class="ii-label">Department:</span>
+            <span class="ii-val">{{ application.scheme?.department }}</span>
+          </div>
+          <div class="info-item" *ngIf="application.scheme?.ministry">
+            <span class="ii-label">Ministry:</span>
+            <span class="ii-val">{{ application.scheme?.ministry }}</span>
+          </div>
+          <div class="info-item" *ngIf="application.scheme?.category">
+            <span class="ii-label">Category:</span>
+            <span class="ii-val">{{ application.scheme?.category }}</span>
+          </div>
+          <div class="info-item" *ngIf="application.scheme?.state">
+            <span class="ii-label">Jurisdiction:</span>
+            <span class="ii-val">{{ application.scheme?.state }}</span>
+          </div>
+          <div class="info-item full" *ngIf="application.scheme?.benefits">
+            <span class="ii-label">Benefits:</span>
+            <span class="ii-val">{{ application.scheme?.benefits }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Applicant Information Card (Shown to Official/Admin and Citizen) -->
+      <div class="info-card" *ngIf="application.applicant || parsedDetails['applicant_name']">
+        <div class="info-card-head">
+          <span class="ic-badge">Applicant Information</span>
+          <h3 class="ic-title">{{ application.applicant?.name || parsedDetails['applicant_name'] || 'Citizen Applicant' }}</h3>
+        </div>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="ii-label">Email:</span>
+            <span class="ii-val">{{ application.applicant?.email || parsedDetails['applicant_email'] || 'N/A' }}</span>
+          </div>
+          <div class="info-item" *ngIf="application.applicant?.phone_number || parsedDetails['applicant_phone']">
+            <span class="ii-label">Mobile:</span>
+            <span class="ii-val">{{ application.applicant?.phone_number || parsedDetails['applicant_phone'] }}</span>
+          </div>
+          <div class="info-item" *ngIf="application.applicant?.state || parsedDetails['applicant_state']">
+            <span class="ii-label">Domicile / State:</span>
+            <span class="ii-val">{{ application.applicant?.state || parsedDetails['applicant_state'] }}</span>
+          </div>
+          <div class="info-item" *ngIf="parsedDetails['category']">
+            <span class="ii-label">Social Category:</span>
+            <span class="ii-val">{{ parsedDetails['category'] }}</span>
+          </div>
+          <div class="info-item" *ngIf="parsedDetails['annual_income']">
+            <span class="ii-label">Annual Income:</span>
+            <span class="ii-val">{{ parsedDetails['annual_income'] }}</span>
+          </div>
+          <div class="info-item full" *ngIf="application.remarks">
+            <span class="ii-label">Application Remarks:</span>
+            <span class="ii-val">"{{ application.remarks }}"</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Review History & Official Decision Banner -->
+      <div class="review-status-card" *ngIf="application.reviewed_by_name || application.reviewed_at">
+        <div class="rsc-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 11 12 14 22 4"></polyline>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+          <span class="rsc-title">Official Verification &amp; Decision</span>
+        </div>
+        <div class="rsc-body">
+          <p class="rsc-reviewer" *ngIf="application.reviewed_by_name">
+            <strong>Reviewed By:</strong> {{ application.reviewed_by_name }} (Government Official / Admin)
+          </p>
+          <p class="rsc-time" *ngIf="application.reviewed_at">
+            <strong>Decision Date:</strong> {{ formatDate(application.reviewed_at) }}
+          </p>
+          <p class="rsc-remarks" *ngIf="application.remarks">
+            <strong>Official Remarks:</strong> {{ application.remarks }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Official / Admin Action Panel -->
+      <div class="official-action-panel" *ngIf="isOfficialOrAdmin">
+        <div class="oap-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <h4>Update Status &amp; Take Governance Decision</h4>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="status-decision-select">Decision Status <span class="required">*</span></label>
+            <select id="status-decision-select" class="form-select" [(ngModel)]="selectedStatus" name="selectedStatus">
+              <option value="UNDER_REVIEW">UNDER_REVIEW (In Progress)</option>
+              <option value="APPROVED">APPROVED (Grant Welfare Benefit)</option>
+              <option value="REJECTED">REJECTED (Decline Application)</option>
+              <option value="DISBURSED">DISBURSED (Benefit Transferred)</option>
+            </select>
+          </div>
+
+          <div class="form-group" *ngIf="selectedStatus === 'REJECTED'">
+            <label class="form-label" for="rejection-reason">Rejection Reason <span class="required">*</span></label>
+            <input
+              id="rejection-reason"
+              type="text"
+              class="form-input"
+              [(ngModel)]="rejectionReasonInput"
+              name="rejectionReasonInput"
+              placeholder="e.g. Ineligible income criteria / Missing document"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="decision-remarks">Decision Remarks / Dispatch Notes</label>
+          <textarea
+            id="decision-remarks"
+            class="form-textarea"
+            [(ngModel)]="remarksInput"
+            name="remarksInput"
+            rows="2"
+            placeholder="Add comments that will be sent via notification to the applicant..."
+          ></textarea>
+        </div>
+
+        <button type="button" class="btn-update-decision" (click)="updateStatus()" [disabled]="isUpdating">
+          <span *ngIf="isUpdating" class="spinner-small"></span>
+          <span>{{ isUpdating ? 'Updating & Notifying...' : 'Commit Decision & Notify Citizen' }}</span>
+        </button>
+      </div>
+
+      <!-- Citizen Withdraw Confirmation View -->
+      <div class="withdraw-panel" *ngIf="canWithdraw">
+        <div *ngIf="!showWithdrawConfirm">
+          <button type="button" class="btn-open-withdraw" (click)="showWithdrawConfirm = true">
+            Withdraw Application
+          </button>
+        </div>
+        <div *ngIf="showWithdrawConfirm" class="withdraw-confirm-box">
+          <p>Are you sure you want to withdraw this application? This action cannot be undone.</p>
+          <input
+            type="text"
+            class="form-input"
+            [(ngModel)]="withdrawReason"
+            placeholder="Optional withdrawal reason..."
+          />
+          <div class="withdraw-actions">
+            <button type="button" class="btn-cancel-withdraw" (click)="showWithdrawConfirm = false">Cancel</button>
+            <button type="button" class="btn-confirm-withdraw" (click)="confirmWithdraw()" [disabled]="isWithdrawing">
+              {{ isWithdrawing ? 'Withdrawing...' : 'Confirm Withdrawal' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button type="button" class="btn-close-modal" (click)="onClose()">Close</button>
+    </div>
+  </div>
+</div>

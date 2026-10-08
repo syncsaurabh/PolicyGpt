@@ -1,0 +1,127 @@
+<div class="login-container verify-container">
+  <!-- Verification Header -->
+  <div class="login-heading">
+    <div class="verify-icon-wrap" aria-hidden="true">
+      <svg class="verify-header-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h9"></path>
+        <polyline points="22,6 12,13 2,6"></polyline>
+        <path d="M16 19l2 2 4-4"></path>
+      </svg>
+    </div>
+    <h2>Verify Your Email</h2>
+    <p class="verify-desc-lead">
+      We've sent a 6-digit verification code to
+    </p>
+    <div class="masked-email-pill">
+      <span class="email-icon">✉</span>
+      <span class="masked-email-text">{{ maskedEmail }}</span>
+    </div>
+  </div>
+
+  <!-- ALERTS -->
+  @if (errorMessage) {
+    <div class="form-alert alert-error" role="alert">
+      <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+      </svg>
+      <span>{{ errorMessage }}</span>
+    </div>
+  }
+
+  @if (successMessage) {
+    <div class="form-alert alert-success" role="status">
+      <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+      </svg>
+      <span>{{ successMessage }}</span>
+    </div>
+  }
+
+  <!-- FORM -->
+  <form (submit)="onSubmit(); $event.preventDefault()">
+    <!-- 6-digit OTP Inputs -->
+    <div class="otp-input-section">
+      <label class="otp-label" for="otp-digit-0">Enter 6-Digit Code</label>
+      <div class="otp-boxes-grid" (paste)="onPaste($event)">
+        @for (digit of otpDigits; track $index) {
+          <input
+            type="text"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            maxlength="1"
+            class="otp-digit-box"
+            [id]="'otp-digit-' + $index"
+            [value]="digit"
+            (input)="onDigitInput($event, $index)"
+            (keydown)="onKeyDown($event, $index)"
+            autocomplete="one-time-code"
+            aria-label="OTP digit {{ $index + 1 }}"
+          />
+        }
+      </div>
+    </div>
+
+    <!-- Expiry Timer Countdown -->
+    <div class="timer-countdown-row">
+      <svg class="timer-icon" [class.timer-urgent]="expirySeconds <= 60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+      <span class="timer-text" [class.timer-urgent]="expirySeconds <= 60">
+        @if (expirySeconds > 0) {
+          Code expires in <strong>{{ expiryDisplay }}</strong>
+        } @else {
+          <span class="text-danger">Code has expired</span>
+        }
+      </span>
+    </div>
+
+    <!-- Verify Email Button -->
+    <button
+      type="submit"
+      class="login-button btn-verify-submit"
+      [disabled]="isSubmitting || !isOtpComplete() || expirySeconds <= 0"
+    >
+      @if (isSubmitting) {
+        <span class="btn-spinner"></span>
+        <span>Verifying Email...</span>
+      } @else {
+        <span>Verify Email</span>
+        <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      }
+    </button>
+  </form>
+
+  <!-- Resend Actions -->
+  <div class="resend-action-area">
+    <span class="resend-prompt">Didn't receive the code?</span>
+    <button
+      type="button"
+      class="btn-resend-link"
+      [disabled]="!canResend || isResending"
+      (click)="onResendOtp()"
+    >
+      @if (isResending) {
+        <span class="btn-spinner-tiny"></span>
+        <span>Sending...</span>
+      } @else if (!canResend) {
+        <span>Resend Code in {{ resendCooldown }}s</span>
+      } @else {
+        <span>Resend Code</span>
+      }
+    </button>
+  </div>
+
+  <!-- Back to Registration / Sign in -->
+  <div class="form-footer-prompt">
+    <a routerLink="/register" class="back-link">
+      &larr; Back to Registration
+    </a>
+    <span class="footer-divider">•</span>
+    <a routerLink="/login" class="back-link">
+      Sign In
+    </a>
+  </div>
+</div>

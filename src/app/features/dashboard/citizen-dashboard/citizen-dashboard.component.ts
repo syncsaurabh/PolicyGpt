@@ -1,7 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DashboardService } from '../../../core/services/dashboard.service';
+import { ApplicationService } from '../../../core/services/application.service';
 import {
   ApplicationStatusItem,
   CitizenDashboardResponse,
@@ -10,23 +12,29 @@ import {
   SavedPolicyItem,
   SchemeEligibilityResult
 } from '../../../models/dashboard.model';
+import { ApplicationReadDto } from '../../../models/application.model';
 import { KpiCardComponent } from '../components/kpi-card/kpi-card.component';
 import { ApplicationModalComponent } from '../components/application-modal/application-modal.component';
+import { ApplicationDetailsModalComponent } from '../components/application-details-modal/application-details-modal.component';
 
 @Component({
   selector: 'app-citizen-dashboard-feature',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     RouterLink,
     KpiCardComponent,
-    ApplicationModalComponent
+    ApplicationModalComponent,
+    ApplicationDetailsModalComponent
   ],
   templateUrl: './citizen-dashboard.component.html',
   styleUrl: './citizen-dashboard.component.css'
 })
 export class CitizenDashboardComponent implements OnInit {
   private readonly dashboardService = inject(DashboardService);
+  private readonly applicationService = inject(ApplicationService);
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
   // Reactive state
@@ -39,14 +47,29 @@ export class CitizenDashboardComponent implements OnInit {
   // Active section tab
   protected activeTab = signal<'eligible' | 'saved' | 'applications' | 'notifications' | 'history'>('eligible');
 
-  // Application Modal state
+  // Application Modal state (New Application)
   protected isAppModalOpen = signal<boolean>(false);
   protected selectedSchemeForApp = signal<SchemeEligibilityResult | null>(null);
+
+  // Application Details Modal state (Viewing existing application)
+  protected isDetailsModalOpen = signal<boolean>(false);
+  protected selectedAppDetails = signal<ApplicationReadDto | ApplicationStatusItem | any>(null);
 
   // Deleting bookmark state
   protected deletingPolicyId = signal<number | null>(null);
 
+  // Applications search/filter
+  protected appSearchQuery = signal<string>('');
+  protected appStatusFilter = signal<string>('All');
+
   ngOnInit(): void {
+    // Check query params for tab selection
+    this.route.queryParams.subscribe((params) => {
+      if (params['tab'] && ['eligible', 'saved', 'applications', 'notifications', 'history'].includes(params['tab'])) {
+        this.activeTab.set(params['tab'] as any);
+      }
+    });
+
     this.loadData();
   }
 
@@ -86,9 +109,58 @@ export class CitizenDashboardComponent implements OnInit {
     this.selectedSchemeForApp.set(null);
   }
 
-  onApplicationSubmitted(): void {
-    this.showToast('Scheme application submitted successfully!');
+  openApplicationDetails(app: ApplicationStatusItem | any): void {
+    // If it has an ID, fetch full application details from backend
+    if (app.id) {
+      this.applicationService.getApplication(app.id).subscribe({
+        next: (fullApp) => {
+          this.selectedAppDetails.set(fullApp);
+          this.isDetailsModalOpen.set(true);
+        },
+        error: () => {
+          // Fallback to locally present item
+          this.selectedAppDetails.set(app);
+          this.isDetailsModalOpen.set(true);
+        }
+      });
+    } else {
+      this.selectedAppDetails.set(app);
+      this.isDetailsModalOpen.set(true);
+    }
+  }
+
+  closeApplicationDetails(): void {
+    this.isDetailsModalOpen.set(false);
+    this.selectedAppDetails.set(null);
+  }
+
+  onApplicationSubmitted(res?: ApplicationReadDto): void {
+    this.showToast(`Scheme application ${res?.application_number || ''} submitted successfully!`);
     this.loadData(true);
+  }
+
+  onApplicationWithdrawn(res?: ApplicationReadDto): void {
+    this.showToast(`Application ${res?.application_number || ''} has been withdrawn.`);
+    this.closeApplicationDetails();
+    this.loadData(true);
+  }
+
+  get filteredApplications(): ApplicationStatusItem[] {
+    const apps = this.data()?.application_status || [];
+    const query = this.appSearchQuery().toLowerCase().trim();
+    const statusFilter = this.appStatusFilter();
+
+    return apps.filter((a) => {
+      const matchQuery = !query ||
+        a.application_number.toLowerCase().includes(query) ||
+        a.scheme_name.toLowerCase().includes(query) ||
+        (a.remarks && a.remarks.toLowerCase().includes(query));
+
+      const matchStatus = statusFilter === 'All' ||
+        a.status.toUpperCase() === statusFilter.toUpperCase();
+
+      return matchQuery && matchStatus;
+    });
   }
 
   isSchemeBookmarked(schemeId: number): boolean {
@@ -107,7 +179,6 @@ export class CitizenDashboardComponent implements OnInit {
 
     const isBookmarked = this.isSchemeBookmarked(scheme.scheme_id);
     if (isBookmarked) {
-      // Find matching item
       const saved = this.data()?.saved_policies;
       const match = saved?.find(
         (s: SavedPolicyItem) =>
@@ -118,7 +189,6 @@ export class CitizenDashboardComponent implements OnInit {
       const targetId = match?.scheme_id || match?.policy_id || scheme.scheme_id;
       this.removeBookmark(targetId);
     } else {
-      // Add bookmark
       this.dashboardService.savePolicy({ scheme_id: scheme.scheme_id }).subscribe({
         next: (savedItem: SavedPolicyItem) => {
           this.showToast(`"${scheme.scheme_name}" added to saved bookmarks!`);
@@ -158,7 +228,6 @@ export class CitizenDashboardComponent implements OnInit {
       next: () => {
         this.deletingPolicyId.set(null);
         this.showToast('Bookmark removed successfully.');
-        // Optimistically update local data
         const current = this.data();
         if (current && current.saved_policies) {
           const updated = current.saved_policies.filter(

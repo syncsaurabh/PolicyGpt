@@ -187,7 +187,12 @@
           class="btn-archive" 
           [disabled]="!confirmed() || isArchiving()"
           (click)="archivePolicy()">
-          Archive Policy
+          @if (isArchiving()) {
+            <span class="btn-spinner"></span>
+            <span>Archiving...</span>
+          } @else {
+            <span>Archive Policy</span>
+          }
         </button>
       </div>
     </div>

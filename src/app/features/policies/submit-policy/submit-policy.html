@@ -178,7 +178,12 @@
           class="btn-submit-review"
           [disabled]="isSubmitting()"
           (click)="submitForReview()">
-          Submit for Review
+          @if (isSubmitting()) {
+            <span class="btn-spinner"></span>
+            <span>Submitting for Review...</span>
+          } @else {
+            <span>Submit for Review</span>
+          }
         </button>
       </div>
     </div>

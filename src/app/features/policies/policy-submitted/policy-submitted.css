@@ -252,3 +252,39 @@
   border-radius: 8px;
   cursor: pointer;
 }
+
+@media (max-width: 640px) {
+  .submitted-card {
+    padding: 20px 16px;
+  }
+  .card-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .doc-box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .btn-view-doc {
+    width: 100%;
+    text-align: center;
+  }
+  .actions-footer-row {
+    flex-direction: column-reverse;
+    gap: 12px;
+  }
+  .btn-back-policies,
+  .btn-view-history {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.5rem;
+  }
+}

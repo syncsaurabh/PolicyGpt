@@ -68,6 +68,7 @@
   bottom: 88px;
   right: 24px;
   width: 420px;
+  max-width: calc(100vw - 32px);
   height: 600px;
   max-height: calc(100vh - 110px);
   background: var(--bg-card, #FFFFFF);
@@ -779,7 +780,7 @@
 }
 
 /* Responsive Styles for Mobile */
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .assistant-floating-launcher {
     bottom: 16px;
     right: 16px;
@@ -790,8 +791,9 @@
     right: 12px;
     left: 12px;
     width: auto;
-    height: calc(100vh - 100px);
-    max-height: calc(100vh - 100px);
+    max-width: none;
+    height: calc(100vh - 96px);
+    max-height: calc(100vh - 96px);
     border-radius: 12px;
   }
 }

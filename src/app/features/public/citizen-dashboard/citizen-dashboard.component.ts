@@ -6,6 +6,7 @@ import { CitizenCategoriesComponent } from './components/citizen-categories/citi
 import { CitizenSchemesComponent } from './components/citizen-schemes/citizen-schemes.component';
 import { CitizenHowItWorksComponent } from './components/citizen-how-it-works/citizen-how-it-works.component';
 import { CitizenAssistantComponent } from './components/citizen-assistant/citizen-assistant.component';
+import { CitizenFaqComponent } from './components/citizen-faq/citizen-faq.component';
 import { CitizenBannerComponent } from './components/citizen-banner/citizen-banner.component';
 
 @Component({
@@ -19,6 +20,7 @@ import { CitizenBannerComponent } from './components/citizen-banner/citizen-bann
     CitizenSchemesComponent,
     CitizenHowItWorksComponent,
     CitizenAssistantComponent,
+    CitizenFaqComponent,
     CitizenBannerComponent
   ],
   templateUrl: './citizen-dashboard.component.html',
@@ -49,6 +51,17 @@ export class CitizenDashboardComponent {
     const el = document.getElementById('popular-schemes');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  scrollToAssistant(): void {
+    const el = document.getElementById('ai-assistant');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+      const input = el.querySelector('input');
+      if (input) {
+        input.focus();
+      }
     }
   }
 }

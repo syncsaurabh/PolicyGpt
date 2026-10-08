@@ -1,20 +1,33 @@
 <section class="schemes-section" id="popular-schemes">
   <div class="schemes-container">
-    <div class="section-header text-center">
-      <h2 class="section-heading">Popular Government Schemes</h2>
-      @if (selectedCategory()) {
-        <p class="filter-indicator">
-          Filtering by: <strong>{{ selectedCategory() }}</strong>
-          <button type="button" class="reset-filter-btn" (click)="onReset()">(Show All)</button>
-        </p>
-      }
+    <div class="section-header-row">
+      <div class="section-header-content">
+        <h2 class="section-heading">Popular Government Schemes</h2>
+        <p class="section-subheading">Explore the most accessed and beneficial government schemes</p>
+        @if (selectedCategory()) {
+          <p class="filter-indicator">
+            Filtering by: <strong>{{ selectedCategory() }}</strong>
+            <button type="button" class="reset-filter-btn" (click)="onReset()">(Show All)</button>
+          </p>
+        }
+      </div>
+      <a routerLink="/public/schemes" class="view-all-link">
+        View All Schemes <span class="arrow">→</span>
+      </a>
     </div>
 
     <div class="schemes-grid">
       @for (scheme of filteredSchemes(); track scheme.id) {
         <div class="scheme-card">
           <div class="scheme-card-header">
-            <span class="scheme-badge">{{ scheme.category }}</span>
+            <span class="scheme-badge" [class]="'badge-' + (scheme.category?.toLowerCase() || 'default')">
+              @if (scheme.category === 'Agriculture') { <span>🍃</span> }
+              @else if (scheme.category === 'Healthcare') { <span>🏥</span> }
+              @else if (scheme.category === 'Education') { <span>🎓</span> }
+              @else if (scheme.category === 'Employment') { <span>💼</span> }
+              @else if (scheme.category === 'Housing') { <span>🏠</span> }
+              {{ scheme.category }}
+            </span>
             <button 
               type="button" 
               class="bookmark-btn" 
@@ -23,19 +36,20 @@
               [title]="scheme.bookmarked ? 'Remove bookmark' : 'Bookmark scheme'"
             >
               <span class="material-symbols-outlined">
-                {{ scheme.bookmarked ? 'bookmark' : 'bookmark_add' }}
+                {{ scheme.bookmarked ? 'bookmark' : 'bookmark_border' }}
               </span>
             </button>
           </div>
 
           <h3 class="scheme-title">{{ scheme.title }}</h3>
-          <p class="scheme-tagline">{{ scheme.tagline }}</p>
           <p class="scheme-description">{{ scheme.description }}</p>
+          <a [routerLink]="['/public/schemes', scheme.id]" class="learn-more-link">
+            Learn more about this scheme.
+          </a>
 
           <div class="scheme-card-footer">
             <a [routerLink]="['/public/schemes', scheme.id]" class="btn-view-details">
-              View Details
-              <span class="material-symbols-outlined arrow-icon">arrow_forward</span>
+              View Details <span class="arrow-icon">→</span>
             </a>
           </div>
         </div>

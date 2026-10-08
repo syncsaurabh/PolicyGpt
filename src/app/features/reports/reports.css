@@ -620,5 +620,52 @@
   .filter-btn-group .btn,
   .export-btn-group .btn {
     flex: 1;
+    min-width: 120px;
   }
 }
+
+@media (max-width: 480px) {
+  .page-header {
+    padding: 16px;
+    border-radius: 8px;
+  }
+
+  .filters-panel {
+    padding: 14px;
+    border-radius: 8px;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .report-meta-card {
+    padding: 10px 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .filter-btn-group,
+  .export-btn-group {
+    flex-direction: column;
+  }
+
+  .filter-btn-group .btn,
+  .export-btn-group .btn {
+    width: 100%;
+  }
+
+  .pagination-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px 14px;
+  }
+
+  .pagination-controls {
+    justify-content: space-between;
+    width: 100%;
+  }
+}
+

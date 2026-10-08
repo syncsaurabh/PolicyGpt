@@ -67,7 +67,12 @@
                 (click)="saveProfileName()" 
                 [disabled]="isUpdating || !editName.trim()"
               >
-                @if (isUpdating) { Saving... } @else { Save Name }
+                @if (isUpdating) {
+                  <span class="btn-spinner"></span>
+                  <span>Saving...</span>
+                } @else {
+                  <span>Save Name</span>
+                }
               </button>
             </div>
           </div>
@@ -97,8 +102,13 @@
               <div class="endpoint-tag">GET /api/v1/users/admin/test</div>
               <p class="endpoint-desc">Requires <strong>ADMINISTRATOR</strong> authority.</p>
             </div>
-            <button class="btn-secondary" (click)="runAdminRbacTest()">
-              Test Admin Access
+            <button class="btn-secondary" (click)="runAdminRbacTest()" [disabled]="isTestingAdmin">
+              @if (isTestingAdmin) {
+                <span class="btn-spinner dark"></span>
+                <span>Testing...</span>
+              } @else {
+                <span>Test Admin Access</span>
+              }
             </button>
             @if (adminTestResult) {
               <div class="result-badge" [class.result-success]="adminTestResult.includes('200')" [class.result-error]="adminTestResult.includes('denied')">
@@ -112,8 +122,13 @@
               <div class="endpoint-tag">GET /api/v1/users/government/test</div>
               <p class="endpoint-desc">Requires <strong>GOVERNMENT_OFFICIAL</strong> authority.</p>
             </div>
-            <button class="btn-secondary" (click)="runGovtRbacTest()">
-              Test Gov Access
+            <button class="btn-secondary" (click)="runGovtRbacTest()" [disabled]="isTestingGovt">
+              @if (isTestingGovt) {
+                <span class="btn-spinner dark"></span>
+                <span>Testing...</span>
+              } @else {
+                <span>Test Gov Access</span>
+              }
             </button>
             @if (govtTestResult) {
               <div class="result-badge" [class.result-success]="govtTestResult.includes('200')" [class.result-error]="govtTestResult.includes('denied')">

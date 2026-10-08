@@ -330,3 +330,41 @@
   border-radius: 8px;
   cursor: pointer;
 }
+
+@media (max-width: 640px) {
+  .status-card {
+    padding: 20px 16px;
+  }
+  .card-top-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .status-summary-block {
+    align-items: flex-start;
+  }
+  .doc-attachment-box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .btn-doc-view {
+    width: 100%;
+    text-align: center;
+  }
+  .footer-actions {
+    flex-direction: column-reverse;
+    gap: 12px;
+  }
+  .btn-back-policies,
+  .btn-view-policy {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.5rem;
+  }
+}

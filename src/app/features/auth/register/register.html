@@ -185,7 +185,6 @@
       </div>
     </div>
 
-    <!-- Submit Button -->
     <button
       type="submit"
       class="login-button"
@@ -193,6 +192,7 @@
       style="margin-top: 12px;"
     >
       @if (isSubmitting) {
+        <span class="btn-spinner"></span>
         <span>Creating Account...</span>
       } @else {
         <span>Create Account</span>

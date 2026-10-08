@@ -1,0 +1,88 @@
+<section class="citizen-faq-section" id="faqs">
+  <div class="faq-container">
+    <div class="section-header text-center">
+      <div class="section-badge">
+        <span class="sparkle">✨</span>
+        <span>Citizen Knowledge Hub</span>
+      </div>
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      <p class="section-subtitle">
+        Find quick answers to common questions about eligibility, applying for schemes, and using PolicyGPT AI.
+      </p>
+    </div>
+
+    <!-- Category Filter Tabs -->
+    <div class="category-tabs-wrapper">
+      @for (cat of categories(); track cat) {
+        <button 
+          type="button" 
+          class="cat-tab" 
+          [class.active]="selectedCategory() === cat"
+          (click)="setCategory(cat)"
+        >
+          {{ cat }}
+        </button>
+      }
+    </div>
+
+    <!-- FAQ Accordion Preview -->
+    @if (isLoading()) {
+      <div class="loading-box">
+        <div class="spinner"></div>
+        <p>Loading FAQs...</p>
+      </div>
+    } @else {
+      <div class="faq-accordion-wrapper">
+        @for (faq of filteredFaqs; track faq.id) {
+          <div class="faq-item" [class.open]="expandedId() === faq.id">
+            <button 
+              type="button" 
+              class="faq-trigger" 
+              (click)="toggleFaq(faq.id)"
+              [attr.aria-expanded]="expandedId() === faq.id"
+            >
+              <div class="faq-title-area">
+                <span class="faq-cat-tag">{{ faq.category }}</span>
+                <span class="faq-question">{{ faq.question }}</span>
+              </div>
+              <span class="material-symbols-outlined chevron-icon">
+                {{ expandedId() === faq.id ? 'remove_circle_outline' : 'add_circle_outline' }}
+              </span>
+            </button>
+
+            @if (expandedId() === faq.id) {
+              <div class="faq-content-pane">
+                <p class="faq-answer-text">{{ faq.answer }}</p>
+                <div class="faq-item-actions">
+                  <button 
+                    type="button" 
+                    class="btn-ask-bot" 
+                    (click)="askAssistant(faq.question, $event)"
+                  >
+                    <span class="material-symbols-outlined">smart_toy</span>
+                    <span>Ask AI About This</span>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Bottom CTA Bar -->
+    <div class="faq-footer-cta">
+      <p class="cta-text">Have a specific question not covered here?</p>
+      <div class="cta-buttons">
+        <a routerLink="/public/faqs" class="btn-all-faqs">
+          <span>View All Help Desk FAQs</span>
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </a>
+        <button type="button" class="btn-direct-ai" (click)="assistantService.openPopup()">
+          <span class="material-symbols-outlined">chat</span>
+          <span>Ask PolicyGPT Assistant</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

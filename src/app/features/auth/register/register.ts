@@ -81,13 +81,13 @@ export class Register {
       role: toBackendRole(this.selectedRole)
     }).subscribe({
       next: (createdUser) => {
-        this.successMessage = 'Registration successful! Redirecting to login page...';
+        this.successMessage = 'Registration successful! Redirecting to email verification...';
         this.cdr.detectChanges();
         setTimeout(() => {
-          this.router.navigate(['/login'], {
-            queryParams: { registered: 'true', email: email }
+          this.router.navigate(['/verify-email'], {
+            queryParams: { email: email }
           });
-        }, 1200);
+        }, 900);
       },
       error: (err) => {
         this.isSubmitting = false;
