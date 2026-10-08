@@ -7,15 +7,21 @@
 }
 
 .public-footer .footer-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
+  width: min(100% - 48px, 1200px);
+  margin-inline: auto;
+  padding: 0;
   box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .public-footer .footer-container {
+    width: calc(100% - 40px);
+  }
 }
 
 @media (max-width: 640px) {
   .public-footer .footer-container {
-    padding: 0 16px;
+    width: calc(100% - 32px);
   }
 }
 
@@ -60,6 +66,7 @@
 
 .public-footer .footer-links-group {
   display: flex;
+  flex-wrap: wrap;
   gap: 64px;
 }
 

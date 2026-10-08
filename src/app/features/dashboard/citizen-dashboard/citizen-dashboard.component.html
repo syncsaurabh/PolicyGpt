@@ -343,31 +343,106 @@
       </button>
     </div>
 
-    <div *ngIf="!loading() && data()?.application_status && data()?.application_status!.length > 0" class="table-card-container">
-      <table class="dash-table">
-        <thead>
-          <tr>
-            <th>Application #</th>
-            <th>Scheme Name</th>
-            <th>Status</th>
-            <th>Submitted On</th>
-            <th>Remarks / Details</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let app of data()?.application_status">
-            <td class="font-mono font-bold text-main">{{ app.application_number }}</td>
-            <td class="font-medium text-main">{{ app.scheme_name }}</td>
-            <td>
-              <span class="status-chip" [ngClass]="'status-' + (app.status || 'pending').toLowerCase()">
-                {{ app.status }}
-              </span>
-            </td>
-            <td class="font-mono text-muted">{{ formatDate(app.created_at) }}</td>
-            <td class="text-sm text-secondary">{{ app.remarks || 'Under routine verification' }}</td>
-          </tr>
-        </tbody>
-      </table>
+    <div *ngIf="!loading() && data()?.application_status && data()?.application_status!.length > 0" class="applications-container">
+      <!-- Search & Status Filter Strip -->
+      <div class="filter-strip">
+        <div class="search-input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="text"
+            class="search-app-input"
+            [(ngModel)]="appSearchQuery"
+            placeholder="Search by application #, scheme name..."
+          />
+        </div>
+
+        <div class="status-filters-group">
+          <button
+            type="button"
+            class="status-filter-btn"
+            [class.active]="appStatusFilter() === 'All'"
+            (click)="appStatusFilter.set('All')"
+          >
+            All ({{ data()?.application_status?.length || 0 }})
+          </button>
+          <button
+            type="button"
+            class="status-filter-btn"
+            [class.active]="appStatusFilter() === 'SUBMITTED'"
+            (click)="appStatusFilter.set('SUBMITTED')"
+          >
+            Submitted
+          </button>
+          <button
+            type="button"
+            class="status-filter-btn"
+            [class.active]="appStatusFilter() === 'UNDER_REVIEW'"
+            (click)="appStatusFilter.set('UNDER_REVIEW')"
+          >
+            Under Review
+          </button>
+          <button
+            type="button"
+            class="status-filter-btn"
+            [class.active]="appStatusFilter() === 'APPROVED'"
+            (click)="appStatusFilter.set('APPROVED')"
+          >
+            Approved
+          </button>
+          <button
+            type="button"
+            class="status-filter-btn"
+            [class.active]="appStatusFilter() === 'REJECTED'"
+            (click)="appStatusFilter.set('REJECTED')"
+          >
+            Rejected
+          </button>
+        </div>
+      </div>
+
+      <!-- Applications Table -->
+      <div class="table-card-container">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>Application #</th>
+              <th>Scheme Name</th>
+              <th>Status</th>
+              <th>Submitted On</th>
+              <th>Remarks / Details</th>
+              <th class="text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let app of filteredApplications" class="clickable-row" (click)="openApplicationDetails(app)">
+              <td class="font-mono font-bold text-main">
+                <span class="app-ref-link">{{ app.application_number }}</span>
+              </td>
+              <td class="font-medium text-main">{{ app.scheme_name }}</td>
+              <td>
+                <span class="status-chip" [ngClass]="'status-' + (app.status || 'pending').toLowerCase()">
+                  {{ app.status }}
+                </span>
+              </td>
+              <td class="font-mono text-muted">{{ formatDate(app.created_at) }}</td>
+              <td class="text-sm text-secondary">{{ app.remarks || 'Under routine verification' }}</td>
+              <td class="text-right">
+                <button type="button" class="btn-track-details" (click)="openApplicationDetails(app); $event.stopPropagation()">
+                  View Details &rarr;
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredApplications.length === 0">
+              <td colspan="6" class="text-center text-muted py-6">
+                No scheme applications match the selected search/status filter.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </section>
 
@@ -415,6 +490,10 @@
 
   <!-- 5. Search History Tab -->
   <section *ngIf="activeTab() === 'history'" class="tab-section">
+    <div *ngIf="loading()" class="cards-loading-grid">
+      <div class="skeleton-card" *ngFor="let i of [1, 2, 3]"></div>
+    </div>
+
     <div *ngIf="!loading() && (!data()?.search_history || data()?.search_history?.length === 0)" class="empty-panel">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="11" cy="11" r="8"></circle>
@@ -447,6 +526,14 @@
     [selectedScheme]="selectedSchemeForApp()"
     [availableSchemes]="data()?.eligible_schemes || []"
     (close)="closeApplicationModal()"
-    (applicationSubmitted)="onApplicationSubmitted()"
+    (applicationSubmitted)="onApplicationSubmitted($event)"
   ></app-application-modal>
+
+  <!-- Application Details & Status Tracking Modal -->
+  <app-application-details-modal
+    [isOpen]="isDetailsModalOpen()"
+    [application]="selectedAppDetails()"
+    (close)="closeApplicationDetails()"
+    (applicationWithdrawn)="onApplicationWithdrawn($event)"
+  ></app-application-details-modal>
 </div>

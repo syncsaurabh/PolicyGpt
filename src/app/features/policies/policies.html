@@ -72,7 +72,26 @@
 
     <!-- Table Container -->
     <div class="table-card">
-      @if (filteredPolicies().length === 0) {
+      @if (policyService.isLoading()) {
+        <div class="empty-state" style="padding: 48px 24px;">
+          <div class="btn-spinner dark" style="width: 36px; height: 36px; margin: 0 auto 12px; border-width: 3px;"></div>
+          <h3 class="empty-title">Loading Policies...</h3>
+          <p class="empty-desc">Fetching policy repository from backend database.</p>
+        </div>
+      } @else if (policyService.error()) {
+        <div class="empty-state" style="padding: 48px 24px;">
+          <div class="empty-icon-circle" style="color: var(--danger, #DC2626); background: rgba(220, 38, 38, 0.1);">
+            <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+          </div>
+          <h3 class="empty-title">Unable to Load Policies</h3>
+          <p class="empty-desc">{{ policyService.error() }}</p>
+          <button type="button" class="btn-reset-filters" (click)="policyService.refreshPolicies().subscribe()">
+            Retry Loading
+          </button>
+        </div>
+      } @else if (filteredPolicies().length === 0) {
         <div class="empty-state">
           <div class="empty-icon-circle">
             <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">

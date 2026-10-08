@@ -19,13 +19,25 @@ export interface UserRead {
   email: string;
   role: UserRole;
   is_active: boolean;
+  is_verified?: boolean;
   created_at: string;
   updated_at: string;
+  phone_number?: string | null;
+  age?: number | null;
+  state?: string | null;
+  address?: string | null;
+  pincode?: string | null;
 }
 
 /**
- * UserUpdate schema for updating user profile.
+ * UserUpdate schema for updating user profile via PUT /api/v1/users/me.
  */
 export interface UserUpdate {
   name?: string | null;
+  phone_number?: string | null;
+  age?: number | null;
+  state?: string | null;
+  address?: string | null;
+  pincode?: string | null;
 }
+

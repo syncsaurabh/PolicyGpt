@@ -1,6 +1,21 @@
 <div class="modal-backdrop" *ngIf="isOpen" (click)="onClose()">
-  <div class="modal-dialog" (click)="$event.stopPropagation()">
-    <div class="modal-header">
+  <div class="modal-dialog" [class.modal-dialog-success]="currentStep === 'success'" (click)="$event.stopPropagation()">
+    
+    <!-- STEP PROGRESS INDICATOR (for form and review steps) -->
+    <div class="stepper-header" *ngIf="currentStep !== 'success'">
+      <div class="step-item" [class.active]="currentStep === 'form'" [class.completed]="currentStep === 'review'">
+        <span class="step-bubble">1</span>
+        <span class="step-label">Application Form</span>
+      </div>
+      <div class="step-connector" [class.active]="currentStep === 'review'"></div>
+      <div class="step-item" [class.active]="currentStep === 'review'">
+        <span class="step-bubble">2</span>
+        <span class="step-label">Review &amp; Confirm</span>
+      </div>
+    </div>
+
+    <!-- MODAL HEADER -->
+    <div class="modal-header" *ngIf="currentStep !== 'success'">
       <div class="modal-title-wrap">
         <div class="modal-icon-badge">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -11,8 +26,12 @@
           </svg>
         </div>
         <div>
-          <h2 class="modal-title">Apply for Government Scheme</h2>
-          <p class="modal-subtitle">Submit your formal application for citizen welfare benefits</p>
+          <h2 class="modal-title">
+            {{ currentStep === 'form' ? 'Scheme Application Form' : 'Review Your Application' }}
+          </h2>
+          <p class="modal-subtitle">
+            {{ currentStep === 'form' ? 'Complete required household declarations and applicant details' : 'Verify information before official registry submission' }}
+          </p>
         </div>
       </div>
       <button type="button" class="btn-close" (click)="onClose()" aria-label="Close">
@@ -23,87 +42,316 @@
       </button>
     </div>
 
-    <form (ngSubmit)="onSubmit()" class="modal-form">
-      <div class="modal-body">
-        <!-- Success Alert -->
-        <div *ngIf="successMessage" class="alert alert-success">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-          <span>{{ successMessage }}</span>
-        </div>
+    <!-- ========================================================================= -->
+    <!-- STEP 1: APPLICATION FORM                                                  -->
+    <!-- ========================================================================= -->
+    <div class="modal-body-content" *ngIf="currentStep === 'form'">
+      <!-- Error Alert -->
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span>{{ errorMessage }}</span>
+      </div>
 
-        <!-- Error Alert -->
-        <div *ngIf="errorMessage" class="alert alert-danger">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="8" x2="12" y2="12"></line>
-            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-          </svg>
-          <span>{{ errorMessage }}</span>
+      <!-- Selected Scheme Banner -->
+      <div class="scheme-banner-box">
+        <div class="scheme-banner-icon">🏛️</div>
+        <div class="scheme-banner-details">
+          <span class="scheme-banner-badge">{{ selectedSchemeObject?.category || 'Welfare Scheme' }}</span>
+          <h3 class="scheme-banner-title">{{ selectedSchemeDisplayName }}</h3>
+          <p class="scheme-banner-dept">{{ selectedSchemeDepartment }}</p>
+          <p class="scheme-banner-benefit" *ngIf="selectedSchemeBenefits">
+            <strong>Key Benefit:</strong> {{ selectedSchemeBenefits }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Scheme Selector (if not preselected) -->
+      <div class="form-group" *ngIf="!selectedScheme && availableSchemes.length > 0">
+        <label class="form-label" for="scheme-select">Target Scheme <span class="required">*</span></label>
+        <select
+          id="scheme-select"
+          class="form-select"
+          [(ngModel)]="schemeId"
+          name="schemeId"
+          required
+        >
+          <option [ngValue]="null" disabled>Choose a government welfare program...</option>
+          <option *ngFor="let s of availableSchemes" [ngValue]="s.scheme_id || s.id">
+            {{ s.scheme_name || s.name }} ({{ s.category || 'Welfare' }})
+          </option>
+        </select>
+      </div>
+
+      <!-- Applicant Information Section -->
+      <div class="form-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span>Applicant Identification</span>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label" for="applicant-name">Full Name <span class="required">*</span></label>
+          <input
+            id="applicant-name"
+            type="text"
+            class="form-input"
+            [(ngModel)]="applicantName"
+            name="applicantName"
+            placeholder="Official name on Aadhaar/Govt ID"
+            required
+          />
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="scheme-select">Select Welfare Scheme <span class="required">*</span></label>
-          <select
-            id="scheme-select"
-            class="form-select"
-            [(ngModel)]="schemeId"
-            name="schemeId"
-            [disabled]="submitting || !!selectedScheme"
+          <label class="form-label" for="applicant-email">Email Address <span class="required">*</span></label>
+          <input
+            id="applicant-email"
+            type="email"
+            class="form-input"
+            [(ngModel)]="applicantEmail"
+            name="applicantEmail"
+            placeholder="citizen@example.com"
             required
-          >
-            <option [ngValue]="null" disabled>Choose an eligible scheme...</option>
-            <option *ngFor="let s of availableSchemes" [ngValue]="s.scheme_id">
-              {{ s.scheme_name }} ({{ s.category || 'General' }})
-            </option>
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="applicant-phone">Mobile / Contact Number</label>
+          <input
+            id="applicant-phone"
+            type="tel"
+            class="form-input"
+            [(ngModel)]="applicantPhone"
+            name="applicantPhone"
+            placeholder="+91 98765 43210"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="applicant-state">State / Domicile Jurisdiction</label>
+          <input
+            id="applicant-state"
+            type="text"
+            class="form-input"
+            [(ngModel)]="applicantState"
+            name="applicantState"
+            placeholder="e.g. Maharashtra, Uttar Pradesh"
+          />
+        </div>
+      </div>
+
+      <!-- Socio-Economic & Eligibility Parameters -->
+      <div class="form-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+        </svg>
+        <span>Socio-Economic Declarations</span>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label" for="applicant-category">Social Category</label>
+          <select id="applicant-category" class="form-select" [(ngModel)]="category" name="category">
+            <option value="General">General / Unreserved</option>
+            <option value="OBC">Other Backward Class (OBC)</option>
+            <option value="SC">Scheduled Caste (SC)</option>
+            <option value="ST">Scheduled Tribe (ST)</option>
+            <option value="EWS">Economically Weaker Section (EWS)</option>
           </select>
         </div>
 
-        <!-- Scheme Info Preview if selected -->
-        <div *ngIf="selectedScheme" class="scheme-preview-box">
-          <div class="preview-row">
-            <span class="preview-label">Department:</span>
-            <span class="preview-val">{{ selectedScheme.department || 'N/A' }}</span>
-          </div>
-          <div class="preview-row" *ngIf="selectedScheme.benefits">
-            <span class="preview-label">Benefits:</span>
-            <span class="preview-val">{{ selectedScheme.benefits }}</span>
-          </div>
-        </div>
-
         <div class="form-group">
-          <label class="form-label" for="remarks-input">Applicant Remarks / Additional Details</label>
-          <textarea
-            id="remarks-input"
-            class="form-textarea"
-            [(ngModel)]="remarks"
-            name="remarks"
-            rows="3"
-            placeholder="Provide any application references, household parameters or notes..."
-            [disabled]="submitting"
-          ></textarea>
-        </div>
-
-        <div class="verification-notice">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="16" x2="12" y2="12"></line>
-            <line x1="12" y1="8" x2="12.01" y2="8"></line>
-          </svg>
-          <p>By submitting, you authorize automated verification against your citizen profile and scheme eligibility rules.</p>
+          <label class="form-label" for="annual-income">Annual Household Income</label>
+          <input
+            id="annual-income"
+            type="text"
+            class="form-input"
+            [(ngModel)]="annualIncome"
+            name="annualIncome"
+            placeholder="e.g. ₹2,50,000"
+          />
         </div>
       </div>
 
+      <!-- Remarks / Application Notes -->
+      <div class="form-group">
+        <label class="form-label" for="remarks-input">Additional Notes &amp; References</label>
+        <textarea
+          id="remarks-input"
+          class="form-textarea"
+          [(ngModel)]="remarks"
+          name="remarks"
+          rows="2"
+          placeholder="Enter any reference numbers, local authority details, or specific remarks..."
+        ></textarea>
+      </div>
+
+      <!-- Declaration Checkbox -->
+      <div class="declaration-checkbox-row">
+        <label class="checkbox-container">
+          <input type="checkbox" [(ngModel)]="agreeDeclaration" name="agreeDeclaration" />
+          <span class="checkmark"></span>
+          <span class="declaration-text">
+            I hereby declare that all information provided above is true and correct to the best of my knowledge and authorized for official verification.
+          </span>
+        </label>
+      </div>
+
+      <!-- Footer Buttons for Step 1 -->
       <div class="modal-footer">
-        <button type="button" class="btn-cancel" (click)="onClose()" [disabled]="submitting">
-          Cancel
-        </button>
-        <button type="submit" class="btn-submit" [disabled]="submitting || !schemeId">
-          <span *ngIf="submitting" class="spinner-small"></span>
-          <span>{{ submitting ? 'Submitting Application...' : 'Confirm & Submit Application' }}</span>
+        <button type="button" class="btn-cancel" (click)="onClose()">Cancel</button>
+        <button type="button" class="btn-primary-step" (click)="goToReview()" [disabled]="!schemeId || !applicantName">
+          <span>Review Application</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
         </button>
       </div>
-    </form>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- STEP 2: REVIEW & CONFIRMATION                                             -->
+    <!-- ========================================================================= -->
+    <div class="modal-body-content" *ngIf="currentStep === 'review'">
+      <!-- Error Alert -->
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <div class="review-card">
+        <div class="review-header">
+          <span class="review-badge">Application Summary</span>
+          <h4>{{ selectedSchemeDisplayName }}</h4>
+          <p class="review-sub">{{ selectedSchemeDepartment }}</p>
+        </div>
+
+        <div class="review-grid">
+          <div class="review-field">
+            <span class="rf-label">Applicant Name:</span>
+            <span class="rf-val font-bold">{{ applicantName }}</span>
+          </div>
+          <div class="review-field">
+            <span class="rf-label">Email:</span>
+            <span class="rf-val">{{ applicantEmail }}</span>
+          </div>
+          <div class="review-field">
+            <span class="rf-label">Mobile:</span>
+            <span class="rf-val">{{ applicantPhone || 'Not provided' }}</span>
+          </div>
+          <div class="review-field">
+            <span class="rf-label">State / Domicile:</span>
+            <span class="rf-val">{{ applicantState || 'All India' }}</span>
+          </div>
+          <div class="review-field">
+            <span class="rf-label">Category:</span>
+            <span class="rf-val">{{ category }}</span>
+          </div>
+          <div class="review-field">
+            <span class="rf-label">Annual Income:</span>
+            <span class="rf-val">{{ annualIncome || 'Not specified' }}</span>
+          </div>
+          <div class="review-field full" *ngIf="remarks">
+            <span class="rf-label">Applicant Remarks:</span>
+            <span class="rf-val">"{{ remarks }}"</span>
+          </div>
+        </div>
+
+        <div class="security-lock-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span>Upon submission, a tamper-evident application ID will be generated and routed to the administering department for verification.</span>
+        </div>
+      </div>
+
+      <!-- Footer Buttons for Step 2 -->
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="backToForm()" [disabled]="submitting">
+          &larr; Back to Edit
+        </button>
+        <button type="button" class="btn-submit" (click)="onSubmit()" [disabled]="submitting">
+          <span *ngIf="submitting" class="spinner-small"></span>
+          <span>{{ submitting ? 'Submitting to Registry...' : 'Confirm & Submit Application' }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- STEP 3: SUCCESS & REFERENCE ID SCREEN                                     -->
+    <!-- ========================================================================= -->
+    <div class="modal-body-content success-screen" *ngIf="currentStep === 'success'">
+      <div class="success-icon-wrap">
+        <div class="success-icon-ring">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+      </div>
+
+      <h2 class="success-title">Application Submitted Successfully!</h2>
+      <p class="success-subtitle">
+        Your welfare scheme application has been registered in PolicyGPT and dispatched to department officials.
+      </p>
+
+      <!-- Reference ID Highlight Box -->
+      <div class="app-ref-box">
+        <span class="ref-label">Official Application Reference Number</span>
+        <div class="ref-number-row">
+          <span class="ref-number">{{ createdApplication?.application_number }}</span>
+          <button type="button" class="btn-copy-ref" (click)="copyAppId()" [title]="copiedId ? 'Copied!' : 'Copy Reference ID'">
+            <svg *ngIf="!copiedId" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span *ngIf="copiedId" class="copied-badge">Copied ✓</span>
+            <span *ngIf="!copiedId">Copy</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Summary Card -->
+      <div class="success-meta-card">
+        <div class="meta-item">
+          <span class="m-label">Scheme Name:</span>
+          <span class="m-val">{{ createdApplication?.scheme_name }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="m-label">Submitted On:</span>
+          <span class="m-val">{{ formatDate(createdApplication?.created_at) }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="m-label">Initial Status:</span>
+          <span class="status-chip status-submitted">{{ createdApplication?.status || 'SUBMITTED' }}</span>
+        </div>
+      </div>
+
+      <p class="tracking-info-text">
+        🔔 You will receive notifications when department officials review or update the status of your application. You can track progress anytime from your Citizen Dashboard.
+      </p>
+
+      <div class="success-actions">
+        <button type="button" class="btn-primary-view" (click)="viewInDashboard()">
+          View in My Applications
+        </button>
+        <button type="button" class="btn-secondary-close" (click)="onClose()">
+          Done
+        </button>
+      </div>
+    </div>
+
   </div>
 </div>

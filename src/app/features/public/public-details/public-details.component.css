@@ -534,3 +534,17 @@ body.dark-theme .public-details-root .banner-desc {
     justify-content: center;
   }
 }
+
+@media (max-width: 480px) {
+  .public-details-root .content-container {
+    padding: 0 16px;
+  }
+  .public-details-root .top-hero-card,
+  .public-details-root .info-card,
+  .public-details-root .ready-to-apply-banner {
+    padding: 20px 16px;
+  }
+  .public-details-root .scheme-title {
+    font-size: 1.35rem;
+  }
+}

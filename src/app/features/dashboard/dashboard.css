@@ -132,7 +132,7 @@
 
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
   gap: 18px;
 }
 
@@ -170,3 +170,21 @@
     justify-content: space-between;
   }
 }
+
+@media (max-width: 480px) {
+  .title-row h1 {
+    font-size: 1.4rem;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-refresh,
+  .btn-primary-action {
+    width: 100%;
+    justify-content: center;
+  }
+}
+

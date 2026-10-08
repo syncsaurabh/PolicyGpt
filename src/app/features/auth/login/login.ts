@@ -20,6 +20,8 @@ export class Login implements OnInit {
   protected showPassword = false;
   protected isSubmitting = false;
   protected errorMessage = '';
+  protected isUnverifiedEmail = false;
+  protected unverifiedEmail = '';
   protected infoMessage = '';
   protected successMessage = '';
 
@@ -56,6 +58,8 @@ export class Login implements OnInit {
    */
   onSubmit(): void {
     this.errorMessage = '';
+    this.isUnverifiedEmail = false;
+    this.unverifiedEmail = '';
     this.infoMessage = '';
     this.successMessage = '';
 
@@ -81,10 +85,14 @@ export class Login implements OnInit {
       error: (err) => {
         this.isSubmitting = false;
 
-        if (err.status === 401) {
-          this.errorMessage = typeof err.error?.detail === 'string' 
-            ? err.error.detail 
-            : 'Incorrect email or password.';
+        const detail = typeof err.error?.detail === 'string' ? err.error.detail : '';
+
+        if (err.status === 403 || detail.toLowerCase().includes('verify your email')) {
+          this.isUnverifiedEmail = true;
+          this.unverifiedEmail = email;
+          this.errorMessage = detail || 'Please verify your email before signing in.';
+        } else if (err.status === 401) {
+          this.errorMessage = detail || 'Incorrect email or password.';
         } else if (err.status === 422) {
           if (Array.isArray(err.error?.detail)) {
             this.errorMessage = err.error.detail.map((d: any) => d.msg).join(', ');
@@ -94,9 +102,7 @@ export class Login implements OnInit {
         } else if (err.status === 0) {
           this.errorMessage = 'Unable to connect to the backend server. Please check your network or ensure the backend is running.';
         } else {
-          this.errorMessage = typeof err.error?.detail === 'string'
-            ? err.error.detail
-            : (err.message || 'Login failed. Please try again.');
+          this.errorMessage = detail || (err.message || 'Login failed. Please try again.');
         }
 
         this.cdr.detectChanges();

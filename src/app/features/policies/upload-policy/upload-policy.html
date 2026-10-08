@@ -309,7 +309,7 @@
 
       <!-- Action Buttons Footer -->
       <div class="form-actions-footer">
-        <button type="button" class="btn-form-cancel" (click)="cancel()">
+        <button type="button" class="btn-form-cancel" (click)="cancel()" [disabled]="isSubmitting()">
           Cancel
         </button>
 
@@ -318,7 +318,12 @@
           class="btn-form-save-draft" 
           [disabled]="isSubmitting()"
           (click)="saveAsDraft()">
-          Save Draft
+          @if (isSubmitting()) {
+            <span class="btn-spinner"></span>
+            <span>Saving Draft...</span>
+          } @else {
+            <span>Save Draft</span>
+          }
         </button>
 
         <button 
@@ -326,7 +331,12 @@
           class="btn-form-submit" 
           [disabled]="isSubmitting()"
           (click)="submitForReview()">
-          Submit for Review
+          @if (isSubmitting()) {
+            <span class="btn-spinner"></span>
+            <span>Submitting for Review...</span>
+          } @else {
+            <span>Submit for Review</span>
+          }
         </button>
       </div>
     </form>

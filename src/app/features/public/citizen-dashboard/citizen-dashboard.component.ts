@@ -53,4 +53,15 @@ export class CitizenDashboardComponent {
       el.scrollIntoView({ behavior: 'smooth' });
     }
   }
+
+  scrollToAssistant(): void {
+    const el = document.getElementById('ai-assistant');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+      const input = el.querySelector('input');
+      if (input) {
+        input.focus();
+      }
+    }
+  }
 }

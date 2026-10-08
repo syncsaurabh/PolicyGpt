@@ -19,9 +19,16 @@
 }
 
 .content-container {
-  max-width: 1280px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .content-container {
+    padding: 0 16px;
+  }
 }
 
 /* Breadcrumbs */
@@ -1126,5 +1133,20 @@
   .faq-card-footer {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-title {
+    font-size: 1.5rem;
+  }
+  .faq-header-btn {
+    padding: 1rem;
+  }
+  .faq-question-text {
+    font-size: 0.95rem;
+  }
+  .faq-body {
+    padding: 0 1rem 1rem;
   }
 }

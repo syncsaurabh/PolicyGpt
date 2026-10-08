@@ -1,93 +1,152 @@
 <section class="hero-section">
-  <div class="hero-container">
-    <h1 class="hero-title">
-      Understand Government Policies Easily
-    </h1>
-    <p class="hero-subtitle">
-      Find, compare and understand government policies and schemes easily
-    </p>
+  <div class="hero-canvas">
+    <div class="hero-overlay"></div>
+    <div class="hero-container">
+    <div class="hero-content">
+      <!-- Main Title -->
+      <h1 class="hero-title">
+        Understand Government<br>
+        Policies <span class="highlight-teal">Easily</span>
+      </h1>
+      <p class="hero-subtitle">
+        Find, compare and understand government policies and schemes easily.
+      </p>
 
-    <!-- Main Search Bar -->
-    <div class="search-bar-wrapper">
-      <div class="search-icon-wrapper">
-        <span class="material-symbols-outlined search-icon">search</span>
-      </div>
-      <input 
-        type="text" 
-        class="search-input" 
-        placeholder="Search for policies, schemes or benefits..."
-        [ngModel]="searchQuery()" 
-        (ngModelChange)="onSearchInput($event)"
-        aria-label="Search for policies, schemes or benefits"
-      >
-      @if (searchQuery()) {
+      <!-- Main Search Bar -->
+      <div class="search-bar-wrapper">
+        <div class="search-icon-wrapper">
+          <span class="material-symbols-outlined search-icon">search</span>
+        </div>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Search for policies, schemes or benefits..."
+          [ngModel]="searchQuery()" 
+          (ngModelChange)="onSearchInput($event)"
+          (keyup.enter)="onSearchSubmit()"
+          aria-label="Search for policies, schemes or benefits"
+        >
+        @if (searchQuery()) {
+          <button 
+            type="button" 
+            class="clear-search-btn" 
+            (click)="onSearchInput('')" 
+            aria-label="Clear search"
+          >
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        }
         <button 
           type="button" 
-          class="clear-search-btn" 
-          (click)="onSearchInput('')"
-          aria-label="Clear search"
+          class="search-submit-btn" 
+          (click)="onSearchSubmit()" 
+          aria-label="Search"
         >
-          <span class="material-symbols-outlined">close</span>
+          <span class="material-symbols-outlined">search</span>
         </button>
-      }
-    </div>
+      </div>
 
-    <!-- Quick Filter Chips -->
-    <div class="quick-filters-row">
-      <button 
-        type="button"
-        class="filter-chip" 
-        [class.active]="selectedCategory() === 'Education'"
-        (click)="onFilterClick('Education')"
-      >
-        <span class="chip-emoji">🎓</span>
-        <span class="chip-label">Education</span>
-      </button>
-      <button 
-        type="button"
-        class="filter-chip" 
-        [class.active]="selectedCategory() === 'Employment'"
-        (click)="onFilterClick('Employment')"
-      >
-        <span class="chip-emoji">💼</span>
-        <span class="chip-label">Employment</span>
-      </button>
-      <button 
-        type="button"
-        class="filter-chip" 
-        [class.active]="selectedCategory() === 'Agriculture'"
-        (click)="onFilterClick('Agriculture')"
-      >
-        <span class="chip-emoji">🌾</span>
-        <span class="chip-label">Agriculture</span>
-      </button>
-      <button 
-        type="button"
-        class="filter-chip" 
-        [class.active]="selectedCategory() === 'Healthcare'"
-        (click)="onFilterClick('Healthcare')"
-      >
-        <span class="chip-emoji">🏥</span>
-        <span class="chip-label">Healthcare</span>
-      </button>
-      <button 
-        type="button"
-        class="filter-chip" 
-        [class.active]="selectedCategory() === 'Women'"
-        (click)="onFilterClick('Women')"
-      >
-        <span class="chip-emoji">👩</span>
-        <span class="chip-label">Women...</span>
-      </button>
-      <button 
-        type="button"
-        class="filter-chip" 
-        [class.active]="selectedCategory() === 'Housing'"
-        (click)="onFilterClick('Housing')"
-      >
-        <span class="chip-emoji">🏠</span>
-        <span class="chip-label">Housing</span>
-      </button>
+      <!-- Quick Filter Chips -->
+      <div class="quick-filters-row">
+        <button 
+          type="button" 
+          class="filter-chip" 
+          [class.active]="selectedCategory() === 'Education'"
+          (click)="onFilterClick('Education')"
+        >
+          <span class="chip-emoji">🎓</span>
+          <span class="chip-label">Education</span>
+        </button>
+        <button 
+          type="button" 
+          class="filter-chip" 
+          [class.active]="selectedCategory() === 'Employment'"
+          (click)="onFilterClick('Employment')"
+        >
+          <span class="chip-emoji">💼</span>
+          <span class="chip-label">Employment</span>
+        </button>
+        <button 
+          type="button" 
+          class="filter-chip" 
+          [class.active]="selectedCategory() === 'Agriculture'"
+          (click)="onFilterClick('Agriculture')"
+        >
+          <span class="chip-emoji">🍃</span>
+          <span class="chip-label">Agriculture</span>
+        </button>
+        <button 
+          type="button" 
+          class="filter-chip" 
+          [class.active]="selectedCategory() === 'Healthcare'"
+          (click)="onFilterClick('Healthcare')"
+        >
+          <span class="chip-emoji">🏥</span>
+          <span class="chip-label">Healthcare</span>
+        </button>
+        <button 
+          type="button" 
+          class="filter-chip" 
+          [class.active]="selectedCategory() === 'Women'"
+          (click)="onFilterClick('Women')"
+        >
+          <span class="chip-emoji">👩‍👧</span>
+          <span class="chip-label">Women &amp; Child</span>
+        </button>
+        <button 
+          type="button" 
+          class="filter-chip" 
+          [class.active]="selectedCategory() === 'Housing'"
+          (click)="onFilterClick('Housing')"
+        >
+          <span class="chip-emoji">🏠</span>
+          <span class="chip-label">Housing</span>
+        </button>
+      </div>
+
+      <!-- Key Metrics / Stats Card -->
+      <div class="hero-stats-card">
+        <div class="stat-item">
+          <div class="stat-icon-wrap stat-blue">
+            <span class="material-symbols-outlined">description</span>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">1,000+</div>
+            <div class="stat-label">Schemes &amp; Policies</div>
+          </div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-icon-wrap stat-cyan">
+            <span class="material-symbols-outlined">group</span>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">10M+</div>
+            <div class="stat-label">Citizens Benefited</div>
+          </div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-icon-wrap stat-indigo">
+            <span class="material-symbols-outlined">account_balance</span>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">50+</div>
+            <div class="stat-label">Government Departments</div>
+          </div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-icon-wrap stat-teal">
+            <span class="material-symbols-outlined">verified_user</span>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">24/7</div>
+            <div class="stat-label">AI-Powered Assistance</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+</div>
 </section>

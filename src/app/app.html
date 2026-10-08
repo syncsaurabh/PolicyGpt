@@ -1,2 +1,7 @@
+@if (loadingService.isGlobalLoading()) {
+  <div class="global-progress-bar" role="progressbar" aria-label="Loading content" aria-busy="true">
+    <div class="progress-bar-indicator"></div>
+  </div>
+}
 <router-outlet></router-outlet>
 <app-assistant-popup></app-assistant-popup>

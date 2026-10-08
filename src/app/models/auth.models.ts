@@ -28,6 +28,21 @@ export interface UserCreate {
 }
 
 /**
+ * Payload for verifying email OTP via POST /api/v1/auth/verify-otp.
+ */
+export interface VerifyOTPRequest {
+  email: string;
+  otp: string;
+}
+
+/**
+ * Payload for resending email OTP via POST /api/v1/auth/resend-otp.
+ */
+export interface ResendOTPRequest {
+  email: string;
+}
+
+/**
  * Request payload for initiating password recovery via POST /api/v1/auth/forgot-password.
  */
 export interface ForgotPasswordRequest {

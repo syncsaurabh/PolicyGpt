@@ -324,11 +324,16 @@
 
         <!-- Action Buttons Footer -->
         <div class="form-actions-footer">
-          <button type="button" class="btn-form-cancel" (click)="cancel()">
+          <button type="button" class="btn-form-cancel" (click)="cancel()" [disabled]="isSaving()">
             Cancel
           </button>
           <button type="submit" class="btn-form-save-changes" [disabled]="isSaving()">
-            Save Changes
+            @if (isSaving()) {
+              <span class="btn-spinner"></span>
+              <span>Saving Changes...</span>
+            } @else {
+              <span>Save Changes</span>
+            }
           </button>
         </div>
       </form>

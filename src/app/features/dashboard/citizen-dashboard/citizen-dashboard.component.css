@@ -316,7 +316,7 @@ body.dark-theme .empty-panel {
 /* Schemes Grid */
 .schemes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: 20px;
 }
 
@@ -579,7 +579,7 @@ body.dark-theme .scheme-benefit-box {
 /* Saved Policies Grid */
 .saved-policies-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: 20px;
 }
 
@@ -971,7 +971,7 @@ body.dark-theme .search-history-item {
 /* Skeletons */
 .cards-loading-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: 20px;
 }
 
@@ -1003,7 +1003,8 @@ body.dark-theme .search-history-item {
     align-items: stretch;
   }
   .header-actions {
-    justify-content: space-between;
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
   .search-history-item {
     flex-direction: column;
@@ -1014,4 +1015,160 @@ body.dark-theme .search-history-item {
     width: 100%;
     justify-content: space-between;
   }
+  .filter-strip {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .search-input-wrap {
+    min-width: 100%;
+  }
 }
+
+@media (max-width: 480px) {
+  .title-row h1 {
+    font-size: 1.45rem;
+  }
+  .header-actions {
+    flex-direction: column;
+  }
+  .btn-refresh,
+  .btn-primary-action {
+    width: 100%;
+    justify-content: center;
+  }
+  .scheme-card-footer {
+    flex-direction: column-reverse;
+  }
+  .btn-view-scheme,
+  .btn-apply-scheme {
+    width: 100%;
+  }
+  .dash-table th,
+  .dash-table td {
+    padding: 10px 12px;
+  }
+}
+
+/* Applications Container & Filter Strip */
+.applications-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.filter-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 12px 16px;
+  border-radius: 10px;
+}
+
+[data-theme="dark"] .filter-strip,
+body.dark-theme .filter-strip {
+  background: #111827;
+  border-color: rgba(148, 163, 184, 0.14);
+}
+
+.search-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-page);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 6px 12px;
+  min-width: 260px;
+}
+
+[data-theme="dark"] .search-input-wrap,
+body.dark-theme .search-input-wrap {
+  background: #1e293b;
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+.search-input-wrap svg {
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+}
+
+.search-app-input {
+  border: none;
+  background: transparent;
+  color: var(--text-main);
+  font-size: 0.84rem;
+  outline: none;
+  width: 100%;
+}
+
+.status-filters-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.status-filter-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card-subtle);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.status-filter-btn:hover {
+  border-color: var(--brand-blue);
+  color: var(--brand-blue);
+}
+
+.status-filter-btn.active {
+  background: var(--brand-blue);
+  border-color: var(--brand-blue);
+  color: #ffffff;
+}
+
+.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.clickable-row:hover {
+  background-color: rgba(37, 99, 235, 0.04);
+}
+
+[data-theme="dark"] .clickable-row:hover,
+body.dark-theme .clickable-row:hover {
+  background-color: rgba(59, 130, 246, 0.08);
+}
+
+.app-ref-link {
+  color: var(--brand-blue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.btn-track-details {
+  padding: 5px 12px;
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  border-radius: 6px;
+  color: var(--brand-blue);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-track-details:hover {
+  background: var(--brand-blue);
+  color: #fff;
+}
+

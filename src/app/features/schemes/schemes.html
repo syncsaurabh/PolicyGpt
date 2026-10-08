@@ -149,8 +149,16 @@
       <!-- Reset Filters Button -->
       @if (hasActiveFilters()) {
         <div class="filter-reset-wrapper">
-          <button type="button" class="btn-clear-filters" (click)="resetFilters()">
-            Clear Filters
+          <button 
+            type="button" 
+            class="btn-clear-filters" 
+            (click)="resetFilters()"
+            title="Clear all active filters"
+            aria-label="Clear all active filters">
+            <svg class="clear-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            <span>Clear Filters</span>
           </button>
         </div>
       }
@@ -170,7 +178,26 @@
 
     <!-- Table Container -->
     <div class="table-card">
-      @if (filteredSchemes().length === 0) {
+      @if (schemeService.isLoading()) {
+        <div class="empty-state" style="padding: 48px 24px;">
+          <div class="btn-spinner dark" style="width: 36px; height: 36px; margin: 0 auto 12px; border-width: 3px;"></div>
+          <h3 class="empty-title">Loading Schemes...</h3>
+          <p class="empty-desc">Fetching welfare schemes repository from backend database.</p>
+        </div>
+      } @else if (schemeService.error()) {
+        <div class="empty-state" style="padding: 48px 24px;">
+          <div class="empty-icon-circle" style="color: var(--danger, #DC2626); background: rgba(220, 38, 38, 0.1);">
+            <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+          </div>
+          <h3 class="empty-title">Unable to Load Schemes</h3>
+          <p class="empty-desc">{{ schemeService.error() }}</p>
+          <button type="button" class="btn-reset-filters" (click)="schemeService.refreshSchemes().subscribe()">
+            Retry Loading
+          </button>
+        </div>
+      } @else if (filteredSchemes().length === 0) {
         <div class="empty-state">
           <div class="empty-icon-circle">
             <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -546,3 +546,72 @@
   color: #ffffff;
   font-weight: 600;
 }
+
+/* Responsive Media Queries */
+@media (max-width: 768px) {
+  .policy-management-container {
+    gap: 20px;
+  }
+
+  .page-header-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .toggle-archive-btn,
+  .btn-upload-policy {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .pagination-footer {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .pagination-summary {
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .header-actions {
+    flex-direction: column;
+  }
+
+  .toggle-archive-btn,
+  .btn-upload-policy {
+    width: 100%;
+  }
+
+  .filter-pills-row {
+    gap: 6px;
+  }
+
+  .pill-btn {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+  }
+
+  .policy-table th,
+  .policy-table td {
+    padding: 12px 10px;
+  }
+
+  .pagination-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

@@ -19,6 +19,14 @@ export class CitizenHeroComponent {
     this.searchChange.emit(value);
   }
 
+  onSearchSubmit(): void {
+    this.searchChange.emit(this.searchQuery());
+    const el = document.getElementById('popular-schemes');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
   onFilterClick(category: string): void {
     this.categorySelect.emit(category);
   }

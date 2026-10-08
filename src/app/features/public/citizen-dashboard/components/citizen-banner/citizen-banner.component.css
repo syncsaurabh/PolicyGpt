@@ -1,13 +1,20 @@
 .bottom-banner-section {
-  padding: 48px 24px 64px;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 48px 0 64px;
+  width: min(100% - 48px, 1200px);
+  margin-inline: auto;
   box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .bottom-banner-section {
+    width: calc(100% - 40px);
+  }
 }
 
 @media (max-width: 640px) {
   .bottom-banner-section {
-    padding: 32px 16px 48px;
+    padding: 32px 0 48px;
+    width: calc(100% - 32px);
   }
 }
 
@@ -21,8 +28,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  max-width: 1080px;
-  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 @media (min-width: 768px) {
@@ -57,6 +64,13 @@
   line-height: 1.5;
 }
 
+.bottom-banner-section .banner-box .banner-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .bottom-banner-section .banner-box .btn-explore-policies {
   background-color: var(--brand-blue, #1e3a8a);
   color: #ffffff;
@@ -83,6 +97,29 @@
   font-size: 18px;
 }
 
+.bottom-banner-section .banner-box .btn-register-benefits {
+  background-color: #ffffff;
+  color: var(--brand-blue, #1e3a8a);
+  border: 1px solid var(--banner-border, #bfdbfe);
+  border-radius: 8px;
+  padding: 11px 22px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.bottom-banner-section .banner-box .btn-register-benefits:hover {
+  background-color: #f8fafc;
+  border-color: var(--brand-blue, #1e3a8a);
+  transform: translateY(-1px);
+}
+
 :host-context([data-theme="dark"]) .bottom-banner-section .banner-box,
 :host-context(body.dark-theme) .bottom-banner-section .banner-box,
 [data-theme="dark"] .bottom-banner-section .banner-box,
@@ -103,4 +140,20 @@ body.dark-theme .bottom-banner-section .banner-box .banner-title {
 [data-theme="dark"] .bottom-banner-section .banner-box .banner-subtitle,
 body.dark-theme .bottom-banner-section .banner-box .banner-subtitle {
   color: #93c5fd;
+}
+
+@media (max-width: 480px) {
+  .bottom-banner-section .banner-box {
+    padding: 20px 16px;
+  }
+  .bottom-banner-section .banner-box .banner-buttons {
+    width: 100%;
+    flex-direction: column;
+  }
+  .bottom-banner-section .banner-box .btn-explore-policies,
+  .bottom-banner-section .banner-box .btn-register-benefits {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
 }

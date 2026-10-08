@@ -20,6 +20,8 @@ export class Users implements OnInit {
   protected govtTestResult: string | null = null;
   protected editName = '';
   protected isUpdating = false;
+  protected isTestingAdmin = false;
+  protected isTestingGovt = false;
   protected updateSuccess = false;
   protected errorMessage = '';
   protected loading = false;
@@ -44,24 +46,30 @@ export class Users implements OnInit {
   }
 
   runAdminRbacTest(): void {
+    this.isTestingAdmin = true;
     this.adminTestResult = 'Verifying Administrator RBAC...';
     this.userService.testAdminRbac().subscribe({
       next: (res) => {
+        this.isTestingAdmin = false;
         this.adminTestResult = res?.message || 'Access granted: 200 OK (ADMINISTRATOR role verified)';
       },
       error: (err) => {
+        this.isTestingAdmin = false;
         this.adminTestResult = `Access denied (${err.status}): ${err.error?.detail || 'Forbidden'}`;
       }
     });
   }
 
   runGovtRbacTest(): void {
+    this.isTestingGovt = true;
     this.govtTestResult = 'Verifying Government RBAC...';
     this.userService.testGovernmentRbac().subscribe({
       next: (res) => {
+        this.isTestingGovt = false;
         this.govtTestResult = res?.message || 'Access granted: 200 OK (GOVERNMENT_OFFICIAL role verified)';
       },
       error: (err) => {
+        this.isTestingGovt = false;
         this.govtTestResult = `Access denied (${err.status}): ${err.error?.detail || 'Forbidden'}`;
       }
     });

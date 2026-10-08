@@ -359,3 +359,34 @@
   margin: 0;
   white-space: pre-line;
 }
+
+@media (max-width: 640px) {
+  .details-card,
+  .detail-section-card {
+    padding: 20px 16px;
+  }
+  .card-actions-row {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .action-buttons-group {
+    width: 100%;
+    flex-direction: column;
+  }
+  .btn-back,
+  .btn-secondary-action,
+  .btn-edit-primary {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+  .section-card-header {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.5rem;
+  }
+}

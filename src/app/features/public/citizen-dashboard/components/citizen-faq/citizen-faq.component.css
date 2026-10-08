@@ -1,22 +1,32 @@
 /* Citizen FAQ Section Stylesheet */
 
 .citizen-faq-section {
-  padding: 4.5rem 0;
+  padding: 48px 0 56px;
   background-color: var(--bg-card, #FFFFFF);
   border-top: 1px solid var(--border-color, #E2E8F0);
   border-bottom: 1px solid var(--border-color, #E2E8F0);
 }
 
-:host-context([data-theme="dark"]) .citizen-faq-section,
-:host-context(body.dark-theme) .citizen-faq-section {
-  background-color: var(--dark-surface, #111827);
-  border-color: var(--dark-border-subtle, rgba(148, 163, 184, 0.10));
+.faq-container {
+  width: min(100% - 48px, 1200px);
+  margin-inline: auto;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.faq-container {
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
+@media (max-width: 1024px) {
+  .faq-container {
+    width: calc(100% - 40px);
+  }
+}
+
+@media (max-width: 640px) {
+  .citizen-faq-section {
+    padding: 32px 0 40px;
+  }
+  .faq-container {
+    width: calc(100% - 32px);
+  }
 }
 
 .text-center {
@@ -312,5 +322,17 @@
   .btn-all-faqs, .btn-direct-ai {
     width: 100%;
     justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    font-size: 1.6rem;
+  }
+  .faq-trigger {
+    padding: 1rem;
+  }
+  .faq-question {
+    font-size: 0.95rem;
   }
 }

@@ -1,4 +1,437 @@
-<app-coming-soon 
-  featureTitle="System Audit Trails" 
-  description="Security action tracking, configuration audits, and admin activity logs are currently under development.">
-</app-coming-soon>
+<div class="audit-logs-page">
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="header-content">
+      <div class="header-titles">
+        <div class="title-row">
+          <span class="header-icon material-symbols-outlined">security</span>
+          <h1 class="page-title">Security &amp; Governance Audit Trail</h1>
+        </div>
+        <p class="page-subtitle">
+          Immutable access and system activity logs recorded across the platform for administrative oversight.
+        </p>
+      </div>
+
+      <div class="header-actions">
+        <button 
+          type="button" 
+          class="btn-action-refresh" 
+          (click)="fetchAuditLogs(true)" 
+          [disabled]="loading() || refreshing()"
+          title="Refresh Audit Logs">
+          <svg class="refresh-icon" [class.spinning]="refreshing()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          <span>{{ refreshing() ? 'Refreshing...' : 'Refresh Logs' }}</span>
+        </button>
+
+        <button 
+          type="button" 
+          class="btn-action-export" 
+          (click)="exportToCsv()"
+          [disabled]="loading() || filteredLogs().length === 0"
+          title="Export filtered logs as CSV">
+          <svg class="export-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+          </svg>
+          <span>Export CSV</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Error Alert Banner -->
+  @if (errorMessage()) {
+    <div class="alert-banner error-banner">
+      <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
+        <line x1="12" y1="8" x2="12" y2="12" stroke-width="2"></line>
+        <circle cx="12" cy="16" r="1" fill="currentColor"></circle>
+      </svg>
+      <span class="alert-text">{{ errorMessage() }}</span>
+      <button type="button" class="btn-retry" (click)="fetchAuditLogs()">Retry</button>
+    </div>
+  }
+
+  <!-- KPI Summary Cards -->
+  <section class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon-wrap primary">
+        <span class="material-symbols-outlined">history_toggle_off</span>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">Total System Events</span>
+        <span class="kpi-value">{{ totalCount() }}</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-wrap info">
+        <span class="material-symbols-outlined">group</span>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">Unique Actors / Users</span>
+        <span class="kpi-value">{{ uniqueActorsCount() }}</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-wrap success">
+        <span class="material-symbols-outlined">tune</span>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">Action Categories</span>
+        <span class="kpi-value">{{ actionTypesCount() }}</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-wrap purple">
+        <span class="material-symbols-outlined">dataset</span>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">Entities Monitored</span>
+        <span class="kpi-value">{{ uniqueEntitiesCount() }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter Controls Section -->
+  <section class="filters-panel">
+    <!-- Search Bar -->
+    <div class="search-input-wrapper">
+      <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+      </svg>
+      <input 
+        type="text" 
+        class="search-input"
+        placeholder="Search audit trail by actor, action, entity, IP address or details..." 
+        [ngModel]="searchQuery()" 
+        (ngModelChange)="searchQuery.set($event); onFilterChange()"
+      />
+      @if (searchQuery()) {
+        <button type="button" class="search-clear-btn" (click)="searchQuery.set(''); onFilterChange()" title="Clear search">✕</button>
+      }
+    </div>
+
+    <!-- Dropdown Filters Bar -->
+    <div class="filter-dropdowns-bar">
+      <!-- Action Filter -->
+      <div class="filter-select-group">
+        <label for="actionFilter" class="filter-label">Action Type:</label>
+        <div class="select-wrapper">
+          <select 
+            id="actionFilter" 
+            class="filter-select"
+            [ngModel]="selectedAction()" 
+            (ngModelChange)="selectedAction.set($event); onFilterChange()">
+            @for (act of distinctActions(); track act) {
+              <option [value]="act">{{ act === 'All' ? 'All Actions' : act }}</option>
+            }
+          </select>
+          <div class="select-arrow">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entity Type Filter -->
+      <div class="filter-select-group">
+        <label for="entityFilter" class="filter-label">Entity Type:</label>
+        <div class="select-wrapper">
+          <select 
+            id="entityFilter" 
+            class="filter-select"
+            [ngModel]="selectedEntityType()" 
+            (ngModelChange)="selectedEntityType.set($event); onFilterChange()">
+            @for (ent of distinctEntityTypes(); track ent) {
+              <option [value]="ent">{{ ent === 'All' ? 'All Entities' : ent }}</option>
+            }
+          </select>
+          <div class="select-arrow">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actor Filter -->
+      <div class="filter-select-group">
+        <label for="actorFilter" class="filter-label">User / Actor:</label>
+        <div class="select-wrapper">
+          <select 
+            id="actorFilter" 
+            class="filter-select"
+            [ngModel]="selectedActor()" 
+            (ngModelChange)="selectedActor.set($event); onFilterChange()">
+            @for (usr of distinctActors(); track usr) {
+              <option [value]="usr">{{ usr === 'All' ? 'All Users' : usr }}</option>
+            }
+          </select>
+          <div class="select-arrow">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reset Filters Button -->
+      @if (hasActiveFilters()) {
+        <div class="filter-reset-wrapper">
+          <button 
+            type="button" 
+            class="btn-clear-filters" 
+            (click)="resetFilters()" 
+            title="Clear all active filters"
+            aria-label="Clear all active filters">
+            <svg class="clear-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            <span>Clear Filters</span>
+          </button>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Table Container Card -->
+  <section class="table-card">
+    <!-- Shimmer Loading -->
+    @if (loading()) {
+      <div class="table-loading-container">
+        <div class="spinner-shimmer"></div>
+        <p class="loading-label">Loading audit logs...</p>
+      </div>
+    } @else if (filteredLogs().length === 0) {
+      <!-- Empty State -->
+      <div class="empty-state">
+        <div class="empty-icon-circle">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="28" height="28">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <h3 class="empty-title">No audit logs found</h3>
+        <p class="empty-desc">
+          @if (hasActiveFilters()) {
+            No logs matched your active search and filter criteria.
+          } @else {
+            No audit records are currently registered in the platform database.
+          }
+        </p>
+        @if (hasActiveFilters()) {
+          <button type="button" class="btn-empty-reset" (click)="resetFilters()">
+            Clear Filters
+          </button>
+        }
+      </div>
+    } @else {
+      <!-- Audit Logs Table -->
+      <div class="table-responsive">
+        <table class="audit-table" aria-label="Audit Trail Table">
+          <thead>
+            <tr>
+              <th scope="col">User / Actor</th>
+              <th scope="col">Action Performed</th>
+              <th scope="col">Entity Type</th>
+              <th scope="col">IP Address</th>
+              <th scope="col">Timestamp</th>
+              <th scope="col" class="text-right">Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (log of paginatedLogs(); track log.id) {
+              <tr class="table-row" (click)="openLogModal(log)">
+                <td class="cell-actor">
+                  <div class="user-cell">
+                    <span class="avatar-tiny">
+                      {{ (log.user_email || 'S')[0].toUpperCase() }}
+                    </span>
+                    <div class="actor-info">
+                      <span class="user-email-text" [title]="log.user_email || 'System / Automated'">
+                        {{ log.user_email || 'System / Automated' }}
+                      </span>
+                      @if (log.user_id) {
+                        <span class="user-id-sub">UID: #{{ log.user_id }}</span>
+                      }
+                    </div>
+                  </div>
+                </td>
+
+                <td class="cell-action">
+                  <span [class]="getActionBadgeClass(log.action)">
+                    {{ log.action }}
+                  </span>
+                </td>
+
+                <td class="cell-entity">
+                  <div class="entity-cell-group">
+                    <span class="entity-type-badge">{{ log.entity_type || 'Platform' }}</span>
+                    @if (log.entity_id) {
+                      <span class="entity-id-tag">#{{ log.entity_id }}</span>
+                    }
+                  </div>
+                </td>
+
+                <td class="cell-ip">
+                  <span class="ip-chip">{{ log.ip_address || 'Internal' }}</span>
+                </td>
+
+                <td class="cell-timestamp">
+                  <div class="time-group">
+                    <span class="time-main">{{ formatDate(log.created_at) }}</span>
+                    @if (formatRelativeDate(log.created_at)) {
+                      <span class="time-relative">{{ formatRelativeDate(log.created_at) }}</span>
+                    }
+                  </div>
+                </td>
+
+                <td class="cell-action-btn text-right" (click)="$event.stopPropagation()">
+                  <button 
+                    type="button" 
+                    class="btn-view-log" 
+                    (click)="openLogModal(log)"
+                    title="View full audit log details">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                    <span>View</span>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Footer -->
+      <footer class="pagination-footer">
+        <div class="pagination-summary">
+          {{ paginationSummary() }}
+        </div>
+
+        <div class="pagination-controls">
+          <!-- Page size selector -->
+          <div class="page-size-picker">
+            <span class="picker-label">Rows per page:</span>
+            <select 
+              class="page-size-select" 
+              [ngModel]="pageSize()" 
+              (ngModelChange)="onPageSizeChange($event)">
+              @for (opt of pageSizeOptions; track opt) {
+                <option [value]="opt">{{ opt }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Page buttons -->
+          <div class="page-nav-buttons">
+            <button 
+              type="button" 
+              class="btn-nav" 
+              [disabled]="currentPage() === 1" 
+              (click)="prevPage()"
+              title="Previous Page">
+              &larr; Prev
+            </button>
+
+            <span class="page-indicator">
+              Page <strong>{{ currentPage() }}</strong> of <strong>{{ totalPages() }}</strong>
+            </span>
+
+            <button 
+              type="button" 
+              class="btn-nav" 
+              [disabled]="currentPage() === totalPages()" 
+              (click)="nextPage()"
+              title="Next Page">
+              Next &rarr;
+            </button>
+          </div>
+        </div>
+      </footer>
+    }
+  </section>
+</div>
+
+<!-- Modal / Drawer: Audit Log Details -->
+@if (activeLogModal(); as activeLog) {
+  <div class="modal-backdrop" (click)="closeLogModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-header-info">
+          <div class="modal-title-row">
+            <span class="material-symbols-outlined modal-icon">receipt_long</span>
+            <h3 class="modal-title">Audit Record Details</h3>
+          </div>
+          <span class="modal-id-badge">Log ID: #{{ activeLog.id }}</span>
+        </div>
+        <button type="button" class="modal-close-btn" (click)="closeLogModal()" aria-label="Close modal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Overview Grid -->
+        <div class="log-meta-grid">
+          <div class="meta-item">
+            <span class="meta-label">Action Executed</span>
+            <span [class]="getActionBadgeClass(activeLog.action)">{{ activeLog.action }}</span>
+          </div>
+
+          <div class="meta-item">
+            <span class="meta-label">Actor / User</span>
+            <span class="meta-val font-semibold">{{ activeLog.user_email || 'System / Automated' }}</span>
+            @if (activeLog.user_id) {
+              <small class="meta-sub">User ID: {{ activeLog.user_id }}</small>
+            }
+          </div>
+
+          <div class="meta-item">
+            <span class="meta-label">Target Entity</span>
+            <span class="meta-val font-semibold">
+              {{ activeLog.entity_type || 'Platform' }}
+              @if (activeLog.entity_id) {
+                <span class="entity-id-tag">#{{ activeLog.entity_id }}</span>
+              }
+            </span>
+          </div>
+
+          <div class="meta-item">
+            <span class="meta-label">IP Address</span>
+            <span class="meta-val font-mono">{{ activeLog.ip_address || 'Internal' }}</span>
+          </div>
+
+          <div class="meta-item full-width">
+            <span class="meta-label">Timestamp</span>
+            <span class="meta-val font-mono">{{ formatDate(activeLog.created_at) }}</span>
+          </div>
+        </div>
+
+        <!-- Raw Details / JSON Payload -->
+        <div class="payload-section">
+          <div class="payload-header">
+            <span class="payload-title">Recorded Payload &amp; Event Details</span>
+            <button type="button" class="btn-copy-json" (click)="copyLogJson(activeLog)">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+              </svg>
+              <span>{{ copiedToast() ? 'Copied!' : 'Copy JSON' }}</span>
+            </button>
+          </div>
+
+          <pre class="json-viewer">{{ activeLog.details || (activeLog | json) }}</pre>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-modal-close" (click)="closeLogModal()">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -620,7 +620,7 @@
 
 .toggles-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: 14px;
 }
 
@@ -1260,3 +1260,65 @@ input:checked + .slider:before {
     padding-bottom: 4px;
   }
 }
+
+@media (max-width: 480px) {
+  .toast-notification {
+    top: 12px;
+    right: 12px;
+    left: 12px;
+    max-width: calc(100vw - 24px);
+  }
+
+  .page-title {
+    font-size: 1.4rem;
+  }
+
+  .preferences-card {
+    padding: 16px;
+  }
+
+  .notification-row {
+    padding: 14px 12px;
+  }
+
+  .modal-backdrop {
+    padding: 10px;
+  }
+
+  .modal-header,
+  .modal-body {
+    padding: 16px;
+  }
+
+  .modal-footer {
+    padding: 14px 16px;
+    flex-direction: column;
+  }
+
+  .modal-footer button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .pagination-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+
+  .pagination-actions {
+    justify-content: space-between;
+  }
+
+  .admin-buttons-row {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .admin-buttons-row button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+

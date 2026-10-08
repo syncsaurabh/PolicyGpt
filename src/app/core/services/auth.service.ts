@@ -7,6 +7,8 @@ import {
   LoginRequest, 
   Token, 
   UserCreate, 
+  VerifyOTPRequest,
+  ResendOTPRequest,
   ForgotPasswordRequest, 
   ForgotPasswordResponse, 
   ResetPasswordRequest, 
@@ -57,7 +59,8 @@ export class AuthService {
               email: credentials.email,
               role: Role.CITIZEN,
               token: response.access_token,
-              is_active: true
+              is_active: true,
+              is_verified: true
             };
             this.setCurrentUser(fallbackUser);
             this.fetchProfile().subscribe();
@@ -79,6 +82,44 @@ export class AuthService {
     };
 
     return this.http.post<UserRead>(`${this.API_URL}/auth/register`, payload);
+  }
+
+  /**
+   * Verify email OTP via POST /auth/verify-otp.
+   */
+  verifyOtp(payload: VerifyOTPRequest): Observable<Token> {
+    return this.http.post<Token>(`${this.API_URL}/auth/verify-otp`, payload).pipe(
+      tap((response) => {
+        if (response.access_token) {
+          this.setToken(response.access_token);
+
+          if (response.user) {
+            const user = this.mapUserReadToUser(response.user, response.access_token);
+            this.setCurrentUser(user);
+          } else {
+            const fallbackUser: User = {
+              id: 0,
+              name: payload.email.split('@')[0],
+              username: payload.email.split('@')[0],
+              email: payload.email,
+              role: Role.CITIZEN,
+              token: response.access_token,
+              is_active: true,
+              is_verified: true
+            };
+            this.setCurrentUser(fallbackUser);
+            this.fetchProfile().subscribe();
+          }
+        }
+      })
+    );
+  }
+
+  /**
+   * Resend email OTP via POST /auth/resend-otp.
+   */
+  resendOtp(payload: ResendOTPRequest): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.API_URL}/auth/resend-otp`, payload);
   }
 
   /**
@@ -242,8 +283,14 @@ export class AuthService {
       role: toDisplayRole(userRead.role),
       token: token,
       is_active: userRead.is_active,
+      is_verified: userRead.is_verified,
       created_at: userRead.created_at,
-      updated_at: userRead.updated_at
+      updated_at: userRead.updated_at,
+      phone_number: userRead.phone_number,
+      age: userRead.age,
+      state: userRead.state,
+      address: userRead.address,
+      pincode: userRead.pincode
     };
   }
 

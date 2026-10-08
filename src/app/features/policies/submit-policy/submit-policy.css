@@ -247,3 +247,38 @@
 .btn-submit-review:hover:not(:disabled) {
   background-color: var(--brand-blue-dark, #1d4ed8);
 }
+
+@media (max-width: 640px) {
+  .review-card {
+    padding: 20px 16px;
+  }
+  .card-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .doc-box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .btn-view-doc {
+    width: 100%;
+    text-align: center;
+  }
+  .actions-footer {
+    flex-direction: column-reverse;
+  }
+  .btn-cancel,
+  .btn-submit-review {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.5rem;
+  }
+}

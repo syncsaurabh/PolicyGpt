@@ -473,3 +473,49 @@
   border-radius: 6px;
   cursor: pointer;
 }
+
+@media (max-width: 640px) {
+  .details-card {
+    padding: 20px 16px;
+  }
+  .card-actions-row {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .action-buttons-group {
+    width: 100%;
+    flex-direction: column;
+  }
+  .btn-back,
+  .btn-secondary-action,
+  .btn-reject-danger,
+  .btn-approve-success,
+  .btn-edit-primary {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+  .doc-preview-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .btn-view-doc {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.5rem;
+  }
+  .modal-backdrop {
+    padding: 10px;
+  }
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding: 14px 16px;
+  }
+}

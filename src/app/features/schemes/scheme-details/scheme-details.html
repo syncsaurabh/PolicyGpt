@@ -186,6 +186,24 @@
         </button>
 
         <div class="action-buttons-group">
+          @if (isCitizenOrPublic && s.status === 'Active') {
+            @if (s.applicationUrl) {
+              <a [href]="s.applicationUrl" target="_blank" rel="noopener noreferrer" class="btn-secondary-action">
+                <span>Official Portal</span>
+                <svg style="width: 14px; height: 14px; margin-left: 4px; display: inline;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+              </a>
+            }
+            <button type="button" class="btn-edit-primary" (click)="openApplyModal()">
+              <svg style="width: 16px; height: 16px; margin-right: 6px; display: inline;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 11 12 14 22 4"></polyline>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+              </svg>
+              <span>Apply for Scheme</span>
+            </button>
+          }
+
           @if (canArchiveScheme()) {
             @if (s.status === 'Archived') {
               <button type="button" class="btn-secondary-action" (click)="restoreScheme()">
@@ -210,6 +228,22 @@
       </div>
     </div>
   }
+
+  <!-- Toast Alert -->
+  @if (successToast()) {
+    <div style="position: fixed; bottom: 24px; right: 24px; z-index: 9999; background: #10b981; color: #fff; padding: 12px 20px; border-radius: 10px; font-weight: 600; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.25); display: flex; align-items: center; gap: 8px;">
+      <span>✓</span>
+      <span>{{ successToast() }}</span>
+    </div>
+  }
+
+  <!-- Scheme Application Modal -->
+  <app-application-modal
+    [isOpen]="showApplyModal()"
+    [selectedScheme]="scheme()"
+    (close)="closeApplyModal()"
+    (applicationSubmitted)="onApplicationSubmitted($event)"
+  ></app-application-modal>
 
   <!-- Confirmation Modal Dialog -->
   @if (showConfirmModal() && scheme()) {
@@ -237,10 +271,16 @@
             class="btn-modal-confirm-danger" 
             [disabled]="isDeleting()"
             (click)="confirmArchiveOrDelete()">
-            {{ scheme()!.status === 'Archived' ? 'Delete Permanently' : 'Archive Scheme' }}
+            @if (isDeleting()) {
+              <span class="btn-spinner"></span>
+              <span>{{ scheme()!.status === 'Archived' ? 'Deleting...' : 'Archiving...' }}</span>
+            } @else {
+              <span>{{ scheme()!.status === 'Archived' ? 'Delete Permanently' : 'Archive Scheme' }}</span>
+            }
           </button>
         </div>
       </div>
     </div>
   }
 </div>
+

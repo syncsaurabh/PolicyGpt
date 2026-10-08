@@ -4,11 +4,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Scheme } from '../services/scheme';
 import { SchemeItem, SchemeStatus } from '../../../models/scheme.model';
 import { Auth } from '../../../core/services/auth';
+import { ApplicationModalComponent } from '../../dashboard/components/application-modal/application-modal.component';
 
 @Component({
   selector: 'app-scheme-details',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ApplicationModalComponent],
   templateUrl: './scheme-details.html',
   styleUrl: './scheme-details.css',
 })
@@ -21,6 +22,10 @@ export class SchemeDetails implements OnInit {
   scheme = signal<SchemeItem | null>(null);
   notFound = signal<boolean>(false);
 
+  // Application Modal state
+  showApplyModal = signal<boolean>(false);
+  successToast = signal<string | null>(null);
+
   // Modal State for Archive/Delete confirmation
   showConfirmModal = signal<boolean>(false);
   isDeleting = signal<boolean>(false);
@@ -31,6 +36,13 @@ export class SchemeDetails implements OnInit {
 
   canArchiveScheme(): boolean {
     return this.auth.canArchiveScheme();
+  }
+
+  get isCitizenOrPublic(): boolean {
+    const user = this.auth.getCurrentUser();
+    if (!user) return true;
+    const r = user.role;
+    return r === 'CITIZEN' || r === 'Citizen' || r === 'RESEARCHER' || r === 'ORGANIZATION' || r === 'GUEST_USER';
   }
 
   ngOnInit(): void {
@@ -70,6 +82,27 @@ export class SchemeDetails implements OnInit {
     if (s) {
       this.router.navigate(['/schemes', s.id, 'edit']);
     }
+  }
+
+  openApplyModal(): void {
+    if (!this.auth.isAuthenticated()) {
+      this.router.navigate(['/login'], { queryParams: { redirectUrl: this.router.url } });
+      return;
+    }
+    this.showApplyModal.set(true);
+  }
+
+  closeApplyModal(): void {
+    this.showApplyModal.set(false);
+  }
+
+  onApplicationSubmitted(res: any): void {
+    this.showToast(`Application ${res?.application_number || ''} submitted successfully!`);
+  }
+
+  showToast(msg: string): void {
+    this.successToast.set(msg);
+    setTimeout(() => this.successToast.set(null), 4000);
   }
 
   openConfirmModal(): void {

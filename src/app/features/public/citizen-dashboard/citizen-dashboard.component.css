@@ -36,3 +36,49 @@
   font-weight: 500;
   margin: 0;
 }
+
+/* Floating AI Assistant Button (matching bottom-right mockup) */
+.floating-ai-assistant-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 9999px;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 24px -2px rgba(37, 99, 235, 0.4), 0 2px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.floating-ai-assistant-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -2px rgba(37, 99, 235, 0.5), 0 4px 8px -1px rgba(0, 0, 0, 0.15);
+}
+
+.floating-ai-assistant-btn:active {
+  transform: scale(0.96);
+}
+
+.floating-ai-assistant-btn .bot-icon {
+  font-size: 1.1rem;
+}
+
+@media (max-width: 640px) {
+  .floating-ai-assistant-btn {
+    bottom: 18px;
+    right: 18px;
+    padding: 8px 14px;
+    font-size: 0.8125rem;
+  }
+}
+

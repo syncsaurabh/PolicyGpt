@@ -180,10 +180,18 @@
 
           @if (canApproveRejectPolicy() && p.status === 'Under Review') {
             <button type="button" class="btn-reject-danger" [disabled]="isProcessing()" (click)="rejectPolicy()">
-              Reject
+              @if (isProcessing()) {
+                <span class="btn-spinner"></span>
+              }
+              <span>Reject</span>
             </button>
             <button type="button" class="btn-approve-success" [disabled]="isProcessing()" (click)="approvePolicy()">
-              Approve Policy
+              @if (isProcessing()) {
+                <span class="btn-spinner"></span>
+                <span>Approving...</span>
+              } @else {
+                <span>Approve Policy</span>
+              }
             </button>
           }
 

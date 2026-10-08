@@ -354,3 +354,30 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+@media (max-width: 640px) {
+  .form-card {
+    padding: 20px 16px;
+  }
+  .form-actions-footer {
+    flex-direction: column-reverse;
+  }
+  .btn-form-cancel,
+  .btn-form-save-changes,
+  .btn-form-submit {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.5rem;
+  }
+  .card-heading {
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+  }
+}

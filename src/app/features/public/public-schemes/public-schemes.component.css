@@ -564,3 +564,19 @@
     padding: 18px;
   }
 }
+
+@media (max-width: 480px) {
+  .public-schemes-root .main-title {
+    font-size: 1.45rem;
+  }
+  .public-schemes-root .content-container {
+    padding: 0 16px;
+  }
+  .public-schemes-root .scheme-card-title {
+    font-size: 1.1rem;
+  }
+  .public-schemes-root .btn-view-details {
+    width: 100%;
+    justify-content: center;
+  }
+}

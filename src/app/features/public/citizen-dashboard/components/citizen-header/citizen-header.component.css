@@ -13,33 +13,42 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
+/* Centered modern SaaS max-width container */
 .public-header .header-container {
-  height: 64px;
-  max-width: 1200px;
+  height: 68px;
+  max-width: 1280px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   box-sizing: border-box;
+  gap: 16px;
 }
 
-@media (max-width: 640px) {
+/* Desktop Grid Alignment: Left (Logo) - Center (Nav Links) - Right (Actions) */
+@media (min-width: 992px) {
   .public-header .header-container {
-    padding: 0 16px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 32px;
   }
 }
 
+/* Left: PolicyGPT Logo */
 .public-header .header-left {
   display: flex;
   align-items: center;
-  gap: 32px;
+  flex-shrink: 0;
 }
 
 .public-header .logo-link {
   text-decoration: none;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  outline: none;
 }
 
 .public-header .logo-text {
@@ -48,12 +57,19 @@
   font-weight: 800;
   color: var(--brand-blue, #1e3a8a);
   letter-spacing: -0.025em;
+  line-height: 1;
+  white-space: nowrap;
 }
 
+/* Center: Navigation Links */
 .public-header .nav-links {
   display: flex;
   align-items: center;
-  gap: 24px;
+  justify-content: center;
+  gap: 28px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .public-header .nav-link {
@@ -62,7 +78,13 @@
   font-weight: 500;
   color: var(--text-muted, #334155);
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.25;
+  padding: 6px 2px;
   transition: color 0.2s ease;
+  white-space: nowrap;
+  position: relative;
 }
 
 .public-header .nav-link:hover {
@@ -77,26 +99,58 @@
 .public-header .nav-link.auth-dashboard-link {
   color: var(--brand-blue, #1e3a8a);
   font-weight: 600;
-  padding: 4px 12px;
+  padding: 6px 14px;
   background-color: rgba(37, 99, 235, 0.1);
   border: 1px solid rgba(37, 99, 235, 0.25);
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 .public-header .nav-link.auth-dashboard-link:hover {
   background-color: rgba(37, 99, 235, 0.18);
 }
 
+/* Right: Theme toggle, Login, Register, Mobile menu */
 .public-header .header-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 12px;
+  flex-shrink: 0;
+}
+
+.public-header .theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  background-color: var(--bg-card-subtle, #f8fafc);
+  color: var(--text-main, #0f172a);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.public-header .theme-toggle-btn:hover {
+  border-color: var(--brand-blue, #2563eb);
+  color: var(--brand-blue, #2563eb);
+  background-color: var(--bg-surface-hover, #f1f5f9);
+}
+
+.public-header .theme-toggle-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
 .public-header .auth-buttons {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .public-header .btn-login {
@@ -104,12 +158,18 @@
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--brand-blue, #1e3a8a);
-  padding: 7px 18px;
+  padding: 8px 18px;
   border: 1px solid var(--border-color, #cbd5e1);
   background-color: var(--bg-card, #ffffff);
   border-radius: 8px;
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
   transition: all 0.2s ease;
+  white-space: nowrap;
+  box-sizing: border-box;
 }
 
 .public-header .btn-login:hover {
@@ -123,11 +183,18 @@
   font-weight: 600;
   background-color: var(--brand-blue, #1e3a8a);
   color: #ffffff;
-  padding: 7px 18px;
+  padding: 8px 18px;
+  border: 1px solid transparent;
   border-radius: 8px;
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
   transition: all 0.2s ease;
   box-shadow: 0 1px 2px rgba(30, 58, 138, 0.2);
+  white-space: nowrap;
+  box-sizing: border-box;
 }
 
 .public-header .btn-register:hover {
@@ -142,41 +209,48 @@
   cursor: pointer;
   color: var(--text-main, #0f172a);
   padding: 6px;
-  border-radius: 6px;
-}
-
-@media (max-width: 768px) {
-  .public-header .mobile-menu-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+  border-radius: 8px;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 .public-header .mobile-menu-btn:hover {
   background-color: var(--bg-page, #f8fafc);
+  border-color: var(--brand-blue, #1e3a8a);
 }
 
 .public-header .desktop-only {
   display: flex;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 991px) {
   .public-header .desktop-only {
     display: none !important;
   }
+
+  .public-header .mobile-menu-btn {
+    display: flex;
+  }
 }
 
+/* Mobile Nav Drawer */
 .public-header .mobile-nav {
   display: flex;
   flex-direction: column;
   background-color: var(--bg-card, #ffffff);
   border-top: 1px solid var(--border-color, #e2e8f0);
-  padding: 16px 20px;
+  padding: 16px 24px;
   gap: 8px;
+  max-width: 1280px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
-@media (min-width: 769px) {
+@media (min-width: 992px) {
   .public-header .mobile-nav {
     display: none;
   }
@@ -190,6 +264,7 @@
   text-decoration: none;
   padding: 10px 0;
   border-bottom: 1px solid var(--border-color, #f1f5f9);
+  transition: color 0.15s ease;
 }
 
 .public-header .mobile-nav-link:hover {
@@ -208,7 +283,7 @@
   text-align: center;
   font-size: 0.875rem;
   font-weight: 600;
-  padding: 9px 16px;
+  padding: 10px 16px;
   border-radius: 8px;
   text-decoration: none;
 }
@@ -222,4 +297,29 @@
 .public-header .mobile-auth-actions .btn-register {
   background-color: var(--brand-blue, #1e3a8a);
   color: #ffffff;
+}
+
+/* Tablet & Mobile Breakpoints */
+@media (max-width: 768px) {
+  .public-header .header-container {
+    padding: 0 16px;
+    height: 64px;
+  }
+  .public-header .mobile-nav {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 375px) {
+  .public-header .header-container {
+    padding: 0 12px;
+    height: 60px;
+    gap: 8px;
+  }
+  .public-header .logo-text {
+    font-size: 1.2rem;
+  }
+  .public-header .mobile-auth-actions {
+    flex-direction: column;
+  }
 }
