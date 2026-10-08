@@ -37,3 +37,9 @@ htmlcov/
 *.swp
 *.swo
 
+# Project Reports & Generated Documentation
+docs/project-report/
+*.pdf
+*.docx
+
+
