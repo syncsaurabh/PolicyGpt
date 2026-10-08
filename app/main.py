@@ -25,10 +25,11 @@ app = FastAPI(
     openapi_url="/openapi.json",
 )
 
-# CORS middleware for Angular development frontend integration
+# CORS middleware for Frontend integration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.BACKEND_CORS_ORIGINS,
+    allow_origin_regex=r"https://.*\.netlify\.app|https://.*\.onrender\.com|http://localhost:\d+|http://127\.0\.0\.1:\d+",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
