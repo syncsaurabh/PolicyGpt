@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: List[str] = [
         "http://localhost:4200",
         "http://127.0.0.1:4200",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://resplendent-basbousa-1ba0a3.netlify.app",
     ]
 
     # Gmail SMTP Configuration
