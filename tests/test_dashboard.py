@@ -367,3 +367,70 @@ def test_citizen_submit_application_endpoint(
     dash_resp = client.get("/api/v1/dashboard/citizen", headers=headers)
     assert dash_resp.status_code == 200
     assert any(a["id"] == app_data["id"] for a in dash_resp.json()["application_status"])
+
+
+def test_citizen_save_and_retrieve_scheme_bookmark(
+    client: TestClient,
+    db_session: Session,
+    citizen_user: User,
+    auth_headers,
+):
+    """Verify citizen scheme bookmarking, retrieving in dashboard, and removal."""
+    scheme = Scheme(
+        name="PM Awas Yojana Gramin",
+        category="Housing",
+        department="Ministry of Rural Development",
+        status=SchemeStatus.ACTIVE.value,
+        is_active=True,
+    )
+    db_session.add(scheme)
+    db_session.commit()
+    db_session.refresh(scheme)
+
+    headers = auth_headers(citizen_user)
+
+    # 1. Bookmark the scheme
+    save_resp = client.post(
+        "/api/v1/dashboard/citizen/saved-policies",
+        json={"scheme_id": scheme.id, "notes": "Housing scheme bookmark"},
+        headers=headers,
+    )
+    assert save_resp.status_code == 201
+    data = save_resp.json()
+    assert data["scheme_id"] == scheme.id
+    assert data["policy_id"] is None
+    assert data["item_type"] == "scheme"
+    assert data["title"] == "PM Awas Yojana Gramin"
+
+    # 2. Verify it appears in citizen dashboard
+    dash_resp = client.get("/api/v1/dashboard/citizen", headers=headers)
+    assert dash_resp.status_code == 200
+    saved_items = dash_resp.json()["saved_policies"]
+    assert any(item["scheme_id"] == scheme.id and item["item_type"] == "scheme" for item in saved_items)
+
+    # 3. Delete bookmark by scheme_id
+    del_resp = client.delete(f"/api/v1/dashboard/citizen/saved-policies/{scheme.id}", headers=headers)
+    assert del_resp.status_code == 200
+
+    # 4. Verify removal
+    dash_resp2 = client.get("/api/v1/dashboard/citizen", headers=headers)
+    assert not any(item["scheme_id"] == scheme.id for item in dash_resp2.json()["saved_policies"])
+
+
+def test_citizen_dashboard_empty_state_and_missing_optional_relationships(
+    client: TestClient,
+    db_session: Session,
+    citizen_user: User,
+    auth_headers,
+):
+    """Verify dashboard functions cleanly with zero saved items and with null optional relationships."""
+    headers = auth_headers(citizen_user)
+    resp = client.get("/api/v1/dashboard/citizen", headers=headers)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert isinstance(data["saved_policies"], list)
+    assert isinstance(data["eligible_schemes"], list)
+    assert isinstance(data["recent_notifications"], list)
+    assert isinstance(data["search_history"], list)
+    assert isinstance(data["application_status"], list)
+

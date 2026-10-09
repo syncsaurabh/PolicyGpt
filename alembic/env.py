@@ -22,14 +22,16 @@ if config.config_file_name is not None:
 # target_metadata provides the metadata of all registered SQLAlchemy models
 target_metadata = Base.metadata
 
-# Override sqlalchemy.url with application settings (escaping % for configparser if needed)
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL.replace("%", "%%"))
+# Override sqlalchemy.url with application settings if not explicitly set
+if not config.get_main_option("sqlalchemy.url"):
+    config.set_main_option("sqlalchemy.url", settings.DATABASE_URL.replace("%", "%%"))
 
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
+    url = config.get_main_option("sqlalchemy.url", settings.DATABASE_URL)
     context.configure(
-        url=settings.DATABASE_URL,
+        url=url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -41,8 +43,9 @@ def run_migrations_offline() -> None:
 
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode."""
+    url = config.get_main_option("sqlalchemy.url", settings.DATABASE_URL)
     connectable = create_engine(
-        settings.DATABASE_URL,
+        url,
         poolclass=pool.NullPool,
     )
 
@@ -50,6 +53,7 @@ def run_migrations_online() -> None:
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
+            render_as_batch=True if "sqlite" in url else False,
         )
 
         with context.begin_transaction():

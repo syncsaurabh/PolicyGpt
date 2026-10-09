@@ -17,12 +17,33 @@ from app.api.routes.dashboard import router as dashboard_router
 from app.api.routes.applications import router as applications_router
 from app.api.routes.assistant import router as assistant_router
 
+from contextlib import asynccontextmanager
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Automatically verify and apply pending Alembic migrations on startup
+    try:
+        from alembic.config import Config
+        from alembic import command
+        alembic_cfg = Config("alembic.ini")
+        command.upgrade(alembic_cfg, "head")
+        logger.info("[Database] Verified/applied latest Alembic migrations to head.")
+    except Exception as e:
+        logger.warning(f"[Database] Alembic auto-migration check: {e}")
+    yield
+
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
+    lifespan=lifespan,
 )
 
 # CORS middleware for Frontend integration
