@@ -1,4 +1,4 @@
-﻿from typing import Optional
+from typing import Optional
 from pydantic import BaseModel, EmailStr, Field
 from app.schemas.user import UserRead
 
@@ -50,6 +50,7 @@ class RegisterResponse(BaseModel):
     )
     email: str = Field(..., description="Registered email address")
     requires_verification: bool = Field(default=True, description="Whether email verification is required")
+    otp: Optional[str] = Field(default=None, description="Generated 6-digit OTP verification code")
     user: Optional[UserRead] = None
 
 
@@ -63,12 +64,13 @@ class ForgotPasswordRequest(BaseModel):
 
 class MessageResponse(BaseModel):
     message: str = Field(..., description="Response status message", examples=["Operation completed successfully."])
+    otp: Optional[str] = Field(default=None, description="Generated 6-digit OTP verification code")
 
 
 class ForgotPasswordResponse(MessageResponse):
     reset_token: Optional[str] = Field(
         None,
-        description="Password reset token (available in development environment for testing convenience)",
+        description="Password reset token (available for testing and recovery convenience)",
         examples=["eyJhbGciOiJIUzI1NiIsInR5cCI6InJlc2V0IiwiZXhwIjoxNzM1NzAwMDAwLCJpYXQiOjE3MzU2OTkxMDAsInN1YiI6InVzZXJAZXhhbXBsZS5jb20ifQ..."]
     )
 

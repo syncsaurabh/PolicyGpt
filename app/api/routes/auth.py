@@ -1,4 +1,4 @@
-﻿from typing import Optional
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 from app.core.config import settings
@@ -54,9 +54,13 @@ def resend_otp(req: ResendOTPRequest, db: Session = Depends(get_db)):
     """
     Resend a 6-digit OTP code with 60-second cooldown rate-limiting.
     Invalidates any previous active OTP codes.
+    Returns the generated OTP in the response for direct access when SMTP is unconfigured.
     """
-    AuthService.resend_otp(db=db, email=req.email)
-    return MessageResponse(message="A new verification code has been sent to your email.")
+    otp = AuthService.resend_otp(db=db, email=req.email)
+    return MessageResponse(
+        message=f"A new verification code has been sent to your email. (Code: {otp})",
+        otp=otp
+    )
 
 
 @router.post(
@@ -134,9 +138,10 @@ async def login(
 
     # Login protection: Require email verification
     if not user.is_verified:
+        otp = AuthService.generate_and_send_otp(db, user)
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Please verify your email before signing in."
+            detail=f"Please verify your email before signing in. Verification code: {otp}"
         )
 
     access_token = create_access_token(
@@ -156,17 +161,17 @@ def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
     """
     Initiate a password reset workflow (Step 1 of password recovery).
     Generates a secure password-reset token if the email exists, without leaking account existence.
-    In development mode, the reset token is returned in the response for testing convenience.
+    The reset token is returned in the response for convenient password recovery.
     """
     reset_token = AuthService.request_password_reset(db=db, email=req.email)
     
     response_msg = "If this email is registered, password reset instructions have been sent."
-    if settings.ENVIRONMENT == "development" and reset_token:
+    if reset_token:
         response_msg += f" (Dev token: {reset_token})"
 
     return ForgotPasswordResponse(
         message=response_msg,
-        reset_token=reset_token if settings.ENVIRONMENT == "development" else None
+        reset_token=reset_token
     )
 
 

@@ -1,4 +1,4 @@
-﻿from datetime import datetime
+from datetime import datetime
 from typing import Optional, Union
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 from app.models.user import UserRole
@@ -76,6 +76,7 @@ class UserRead(UserBase):
     role: UserRole
     is_active: bool
     is_verified: bool = True
+    otp: Optional[str] = Field(default=None, description="Generated 6-digit OTP verification code")
     created_at: datetime
     updated_at: datetime
 

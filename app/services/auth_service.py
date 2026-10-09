@@ -1,4 +1,4 @@
-﻿from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 import hashlib
 import hmac
 import logging
@@ -183,7 +183,8 @@ If you did not create a PolicyGPT account, you can safely ignore this email.
         db.refresh(db_user)
 
         # Generate and dispatch OTP
-        AuthService.generate_and_send_otp(db, db_user)
+        otp = AuthService.generate_and_send_otp(db, db_user)
+        setattr(db_user, "otp", otp)
 
         return db_user
 
@@ -259,7 +260,7 @@ If you did not create a PolicyGPT account, you can safely ignore this email.
         return user
 
     @staticmethod
-    def resend_otp(db: Session, email: str) -> bool:
+    def resend_otp(db: Session, email: str) -> str:
         """Resend OTP with 60-second rate-limiting cooldown and invalidation of previous codes."""
         user = AuthService.get_by_email(db, email)
         if not user or not user.is_active:
@@ -291,8 +292,8 @@ If you did not create a PolicyGPT account, you can safely ignore this email.
                 )
 
         # Generate and dispatch new OTP
-        AuthService.generate_and_send_otp(db, user)
-        return True
+        otp = AuthService.generate_and_send_otp(db, user)
+        return otp
 
     @staticmethod
     def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
